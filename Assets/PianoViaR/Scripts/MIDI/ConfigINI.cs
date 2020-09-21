@@ -51,7 +51,7 @@ public class SectionINI {
             }
             return Color.White;
         }
-        catch (Exception e) {
+        catch (Exception) {
             return Color.White;
         }
     }
@@ -71,7 +71,7 @@ public class SectionINI {
             bool boolvalue = Boolean.Parse(value);
             return boolvalue;
         }
-        catch (Exception e) {
+        catch (Exception) {
             return false;
         }
     }
@@ -82,7 +82,7 @@ public class SectionINI {
             int intvalue = Int32.Parse(value);
             return intvalue;
         }
-        catch (Exception e) {
+        catch (Exception) {
             return 0;
         }
     }
@@ -92,7 +92,7 @@ public class SectionINI {
             string value = Properties[key];
             return ParseColor(value);
         }
-        catch (Exception e) {
+        catch (Exception) {
             return Color.White;
         }
     }
@@ -102,7 +102,7 @@ public class SectionINI {
             string value = Properties[key];
             return value.Split(new Char[] {','} );
         }
-        catch (Exception e) {
+        catch (Exception) {
             return null;
         }
     }
@@ -117,7 +117,7 @@ public class SectionINI {
             try {
                 result[i] = Boolean.Parse(strarray[i]);
             }
-            catch (Exception e) {}
+            catch (Exception) {}
         }
         return result;
     }
@@ -132,7 +132,7 @@ public class SectionINI {
             try {
                 result[i] = Int32.Parse(strarray[i]);
             }
-            catch (Exception e) {}
+            catch (Exception) {}
         }
         return result;
     }
@@ -194,7 +194,7 @@ public class ConfigINI {
             }
             stream.Close();
         }
-        catch (Exception e) {
+        catch (Exception) {
         }
     }
 
@@ -217,7 +217,7 @@ public class ConfigINI {
             stream.Flush();
             stream.Close();
         }
-        catch (Exception e) {
+        catch (Exception) {
         }
     }
 

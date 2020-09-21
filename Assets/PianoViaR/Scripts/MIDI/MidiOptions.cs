@@ -206,7 +206,7 @@ public class MidiOptions {
             section.Properties["playMeasuresInLoopStart"] = playMeasuresInLoopStart.ToString();
             section.Properties["playMeasuresInLoopEnd"] = playMeasuresInLoopEnd.ToString();
         }
-        catch (Exception e) {
+        catch (Exception) {
         }
         return section;
     }
