@@ -7,12 +7,10 @@ using System.Text.RegularExpressions;
 public class PianoKeyController : MonoBehaviour
 {
     [Header("References")]
-    public MidiPlayer MidiPlayer;
+    // public MidiNotesPlayer MidiPlayer;
     public Transform PianoKeysParent;
     public Transform SustainPedal;
     public AudioClip[] Notes;
-
-    public Material changeMaterial;
 
     [Header("Properties")]
     public string StartKey = "A";           // If the first key is not "A", change it to the appropriate note.
@@ -35,16 +33,16 @@ public class PianoKeyController : MonoBehaviour
     private float _sustainPedalLerp = 1;
 
     // Should be controlled via MidiPlayer
-    public KeyMode KeyMode
-    {
-        get
-        {
-            if (MidiPlayer)
-                return MidiPlayer.KeyMode;
-            else
-                return KeyMode.Physical;
-        }
-    }
+    public KeyMode KeyMode;
+    // {
+    //     get
+    //     {
+    //         // if (MidiPlayer)
+    //         //     return MidiPlayer.KeyMode;
+    //         // else
+    //             return KeyMode.Physical;
+    //     }
+    // }
 
     [Header("Note: Leave regex blank to sort alphabetically")]
     public string Regex;
@@ -76,7 +74,6 @@ public class PianoKeyController : MonoBehaviour
                 keyAudioSource.clip = Notes[count];
                 PianoNotes.Add(KeyString(count + Array.IndexOf(_keyIndex, StartKey)), pianoKey);
                 pianoKey.PianoKeyController = this;
-                pianoKey.changeMaterial = changeMaterial;
 
                 count++;
             }

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+public enum KeyMode { Physical, ForShow }
+
 public class PianoKey : MonoBehaviour
 {
     public List<AudioSource> AudioSources { get; set; }
@@ -11,9 +13,9 @@ public class PianoKey : MonoBehaviour
     public bool Sustain { get; set; }
     public float SustainSeconds { get; set; }
 
-    public Material changeMaterial;
+    // public Material changeMaterial;
 
-    public Material currentMaterial;
+    // public Material currentMaterial;
 
     private bool _play = false;
     private bool _played = false;
@@ -53,13 +55,13 @@ public class PianoKey : MonoBehaviour
         _position = transform.position;
         _rotation = transform.eulerAngles;
 
-        currentMaterial = GetComponent<MeshRenderer>().material;
+        // currentMaterial = GetComponent<MeshRenderer>().material;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Constrain();
+        // Constrain();
 
         if (_play)
         {
@@ -107,6 +109,25 @@ public class PianoKey : MonoBehaviour
             TestPlay = false;
         }
     }
+    // public void OnCollisionEnter(Collision collision)
+    // {
+    //     if (collision.gameObject.tag == tagToIgnore)
+    //     {
+    //         Debug.Log("Two keys have collided:");
+
+    //         Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+
+    //         return;
+    //     }
+
+    //     Debug.Log($"{gameObject.name} with type {gameObject.GetType().Name} and tag {gameObject.tag} collided with {collision.gameObject.name} with type {collision.gameObject.GetType().Name} and tag {collision.gameObject.tag}");
+
+    //     // if (GetComponent<Collider>().bounds.max.x > collision.contacts[0].point.x && GetComponent<Collider>().bounds.min.x < collision.contacts[0].point.x
+    //     //     && GetComponent<Collider>().bounds.min.y < collision.contacts[0].point.y)
+    //     // {
+    //     //     Play();
+    //     // }
+    // }
 
     void Constrain()
     {
@@ -180,9 +201,9 @@ public class PianoKey : MonoBehaviour
             }
         }
 
-        MeshRenderer currentRenderer = GetComponent<MeshRenderer>();
-        currentRenderer.material = currentMaterial;
-        Debug.Log($"{this} - New Material: {changeMaterial.name}");
+        // MeshRenderer currentRenderer = GetComponent<MeshRenderer>();
+        // currentRenderer.material = currentMaterial;
+        // Debug.Log($"{this} - New Material: {changeMaterial.name}");
     }
 
     void FadeList()
@@ -191,7 +212,7 @@ public class PianoKey : MonoBehaviour
         {
             if (_toFade[i].isPlaying)
             {
-                _toFade[i].volume -= Time.deltaTime * 2;
+                _toFade[i].volume -= Time.deltaTime * 0.5f;
 
                 if (_toFade[i].volume <= 0)
                 {
@@ -216,7 +237,7 @@ public class PianoKey : MonoBehaviour
                 _rigidbody.AddTorque(Vector3.right * 127);
         }
 
-        StartCoroutine(ChangeMaterial(length * 2));
+        // StartCoroutine(ChangeMaterial(length * 2));
 
         _velocity = velocity;
         _length = length;
@@ -230,19 +251,19 @@ public class PianoKey : MonoBehaviour
             PlayVirtualAudio();
     }
 
-    IEnumerator ChangeMaterial(float noteDuration)
-    {
-        MeshRenderer currentRenderer = GetComponent<MeshRenderer>();
-        currentRenderer.material = changeMaterial;
-        Debug.Log($"{this} - New Material: {changeMaterial.name}");
+    // IEnumerator ChangeMaterial(float noteDuration)
+    // {
+    //     MeshRenderer currentRenderer = GetComponent<MeshRenderer>();
+    //     currentRenderer.material = changeMaterial;
+    //     Debug.Log($"{this} - New Material: {changeMaterial.name}");
 
-        yield return new WaitForSeconds(noteDuration);
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
+    //     yield return new WaitForSeconds(noteDuration);
+    //     yield return new WaitForFixedUpdate();
+    //     yield return new WaitForFixedUpdate();
 
-        currentRenderer.material = currentMaterial;
-        Debug.Log($"{this} - New Material: {changeMaterial.name}");
-    }
+    //     currentRenderer.material = currentMaterial;
+    //     Debug.Log($"{this} - New Material: {changeMaterial.name}");
+    // }
 
     IEnumerator PlayPressedAudio()
     {
