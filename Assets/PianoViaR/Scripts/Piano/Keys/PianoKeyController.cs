@@ -29,7 +29,8 @@ public class PianoKeyController : MonoBehaviour
     public bool KeyPressAngleDecay = true;  // When enabled, keys will slowly be released.
     public bool RepeatedKeyTeleport = true; // When enabled, during midi mode, a note played on a pressed key will force the rotation to reset.
 
-
+    public int Instrument = 0; // Instrument;
+    public MIDIPlayer MIDIPlayer;
     private float _sustainPedalLerp = 1;
 
     // Should be controlled via MidiPlayer
@@ -59,24 +60,34 @@ public class PianoKeyController : MonoBehaviour
             Notes = Notes.OrderBy(note => sortReg.Match(note.name).Value).ToArray();
         }
 
-        var count = 0;
+        // var count = 0;
 
 
         // Assign the corresponding audio clip to every PianoKey child of PianoKeysParent
-        for (int i = 0; i < PianoKeysParent.childCount; i++)
+        for (int i = 0, note = 21; i < PianoKeysParent.childCount; i++)
         {
-            AudioSource keyAudioSource = PianoKeysParent.GetChild(i).GetComponent<AudioSource>();
-
-            if (keyAudioSource)
+            PianoKey pianoKey = PianoKeysParent.GetChild(i).GetComponent<PianoKey>();
+            if (pianoKey)
             {
-                PianoKey pianoKey = PianoKeysParent.GetChild(i).GetComponent<PianoKey>();
-
-                keyAudioSource.clip = Notes[count];
-                PianoNotes.Add(KeyString(count + Array.IndexOf(_keyIndex, StartKey)), pianoKey);
+                pianoKey.Instrument = Instrument;
+                pianoKey.NoteValue = note;
+                pianoKey.midiPlayer = MIDIPlayer;
                 pianoKey.PianoKeyController = this;
-
-                count++;
+                note++;
             }
+
+            // AudioSource keyAudioSource = PianoKeysParent.GetChild(i).GetComponent<AudioSource>();
+
+            // if (keyAudioSource)
+            // {
+            //     PianoKey pianoKey = PianoKeysParent.GetChild(i).GetComponent<PianoKey>();
+
+            //     keyAudioSource.clip = Notes[count];
+            //     PianoNotes.Add(KeyString(count + Array.IndexOf(_keyIndex, StartKey)), pianoKey);
+            //     pianoKey.PianoKeyController = this;
+
+            //     count++;
+            // }
         }
     }
 
@@ -92,13 +103,13 @@ public class PianoKeyController : MonoBehaviour
     {
         //SustainPedal.localEulerAngles += Vector3.left *  (SustainPressed ? 1 : -1);
 
-        _sustainPedalLerp -= Time.deltaTime * (SustainPedalPressed ? 1 : -1) * 3.5f;
-        _sustainPedalLerp = Mathf.Clamp01(_sustainPedalLerp);
+        // _sustainPedalLerp -= Time.deltaTime * (SustainPedalPressed ? 1 : -1) * 3.5f;
+        // _sustainPedalLerp = Mathf.Clamp01(_sustainPedalLerp);
 
-        if (PedalPressedAngle > PedalReleasedAngle)
-            SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalReleasedAngle, 0, 0), Quaternion.Euler(PedalPressedAngle, 0, 0), _sustainPedalLerp);
-        else
-            SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalPressedAngle, 0, 0), Quaternion.Euler(PedalReleasedAngle, 0, 0), _sustainPedalLerp);
+        // if (PedalPressedAngle > PedalReleasedAngle)
+        //     SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalReleasedAngle, 0, 0), Quaternion.Euler(PedalPressedAngle, 0, 0), _sustainPedalLerp);
+        // else
+        //     SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalPressedAngle, 0, 0), Quaternion.Euler(PedalReleasedAngle, 0, 0), _sustainPedalLerp);
     }
 
     string KeyString(int count)

@@ -42,6 +42,8 @@ public class MIDIPlayer : MonoBehaviour
     int bufferHead;
     float[] currentBuffer;
 
+    public int NotesChannel = 2;
+
     public AudioSource AudioSource { get { return audioSource; } }
 
     public MidiFileSequencer Sequencer { get { return sequencer; } }
@@ -72,7 +74,8 @@ public class MIDIPlayer : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            synthesizer.NoteOn(midiNotes[0].channel, midiNotes[0].value, midiNoteVolume, midiNotes[0].instrument);
+            // synthesizer.NoteOn(midiNotes[0].channel, midiNotes[0].value, midiNoteVolume, midiNotes[0].instrument);
+            NoteOn(midiNotes[0].value, midiNotes[0].instrument);
         }
 
         if (Input.GetKeyDown(KeyCode.W))
@@ -156,6 +159,18 @@ public class MIDIPlayer : MonoBehaviour
             sequencer.Play();
             audioSource.Play();
         }
+    }
+
+    public void NoteOn(int note, int instrument)
+    {
+        synthesizer.NoteOn(NotesChannel, note, midiNoteVolume, midiNoteInstrument);
+        // Debug.Log($"Playing note: {note}");
+    }
+
+    public void NoteOff(int note)
+    {
+        synthesizer.NoteOff(NotesChannel, note);
+        // Debug.Log($"Stopping note: {note}");
     }
 
     void OnAudioFilterRead(float[] data, int channel)

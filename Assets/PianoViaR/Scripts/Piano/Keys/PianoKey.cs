@@ -34,13 +34,21 @@ public class PianoKey : MonoBehaviour
     private IEnumerator _playCoro;
     private IEnumerator _volumeCoro;
 
-    private List<AudioSource> _toFade = new List<AudioSource>();
+    // private List<AudioSource> _toFade = new List<AudioSource>();
+    private List<int> _toFade = new List<int>();
 
     private bool _depression;
     private float _startAngle;
 
     // Debug
     public bool TestPlay = false;
+
+    public int Instrument;
+    public int NoteValue;
+
+    public float Volume = 1f;
+
+    public MIDIPlayer midiPlayer;
 
     void Awake()
     {
@@ -72,8 +80,10 @@ public class PianoKey : MonoBehaviour
         {
             if (transform.eulerAngles.x > 350 && transform.eulerAngles.x < 359.5f && !_played)
             {
-                if (CurrentAudioSource.clip)
-                    StartCoroutine(PlayPressedAudio());
+                // if (CurrentAudioSource.clip)
+                StartCoroutine(PlayPressedAudio());
+                // PlayMIDINote();
+
 
                 _played = true;
 
@@ -187,19 +197,27 @@ public class PianoKey : MonoBehaviour
 
     void FadeAll()
     {
+        midiPlayer.NoteOff(NoteValue);
         if (_toFade.Count > 0)
             _toFade.RemoveRange(0, _toFade.Count);
+        // else
+        //     FadeList();
+        // foreach (var audioSource in AudioSources)
+        // {
+        //     if (audioSource.isPlaying)
+        //     {
+        //         audioSource.volume -= Time.deltaTime / (PianoKeyController.SustainPedalPressed ? PianoKeyController.SustainSeconds : 1f);
 
-        foreach (var audioSource in AudioSources)
-        {
-            if (audioSource.isPlaying)
-            {
-                audioSource.volume -= Time.deltaTime / (PianoKeyController.SustainPedalPressed ? PianoKeyController.SustainSeconds : 1f);
+        //         if (audioSource.volume <= 0)
+        //             audioSource.Stop();
+        //     }
+        // }
 
-                if (audioSource.volume <= 0)
-                    audioSource.Stop();
-            }
-        }
+        // Fade every MIDI note for piano
+        // for (int i = 21; i < 109; i++)
+        // {
+        //     midiPlayer.NoteOff(i);
+        // }
 
         // MeshRenderer currentRenderer = GetComponent<MeshRenderer>();
         // currentRenderer.material = currentMaterial;
@@ -210,18 +228,21 @@ public class PianoKey : MonoBehaviour
     {
         for (int i = 0; i < _toFade.Count; i++)
         {
-            if (_toFade[i].isPlaying)
-            {
-                _toFade[i].volume -= Time.deltaTime * 0.5f;
+            // if (_toFade[i].isPlaying)
+            // {
+            //     _toFade[i].volume -= Time.deltaTime * 2;
 
-                if (_toFade[i].volume <= 0)
-                {
-                    _toFade[i].volume = 0;
-                    _toFade[i].Stop();
-                    _toFade.Remove(_toFade[i]);
-                    break;
-                }
-            }
+            //     if (_toFade[i].volume <= 0)
+            //     {
+            //         _toFade[i].volume = 0;
+            //         _toFade[i].Stop();
+            //         _toFade.Remove(_toFade[i]);
+            //         break;
+            //     }
+            // }
+            midiPlayer.NoteOff(_toFade[i]);
+            _toFade.Remove(_toFade[i]);
+
         }
     }
 
@@ -267,43 +288,52 @@ public class PianoKey : MonoBehaviour
 
     IEnumerator PlayPressedAudio()
     {
-        if (!PianoKeyController.NoMultiAudioSource && CurrentAudioSource.isPlaying)
-        {
-            bool foundReplacement = false;
-            int index = AudioSources.IndexOf(CurrentAudioSource);
+        // if (!PianoKeyController.NoMultiAudioSource && CurrentAudioSource.isPlaying)
+        // {
+        //     bool foundReplacement = false;
+        //     int index = AudioSources.IndexOf(CurrentAudioSource);
 
-            for (int i = 0; i < AudioSources.Count; i++)
-            {
-                if (i != index && (!AudioSources[i].isPlaying || AudioSources[i].volume <= 0))
-                {
-                    foundReplacement = true;
-                    CurrentAudioSource = AudioSources[i];
-                    _toFade.Remove(AudioSources[i]);
-                    break;
-                }
-            }
+        //     for (int i = 0; i < AudioSources.Count; i++)
+        //     {
+        //         if (i != index && (!AudioSources[i].isPlaying || AudioSources[i].volume <= 0))
+        //         {
+        //             foundReplacement = true;
+        //             CurrentAudioSource = AudioSources[i];
+        //             // _toFade.Remove(AudioSources[i]);
+        //             break;
+        //         }
+        //     }
 
-            if (!foundReplacement)
-            {
-                AudioSource newAudioSource = CloneAudioSource();
-                AudioSources.Add(newAudioSource);
-                CurrentAudioSource = newAudioSource;
-            }
+        //     if (!foundReplacement)
+        //     {
+        //         AudioSource newAudioSource = CloneAudioSource();
+        //         AudioSources.Add(newAudioSource);
+        //         CurrentAudioSource = newAudioSource;
+        //     }
 
-            _toFade.Add(AudioSources[index]);
-        }
+        //     // _toFade.Add(AudioSources[index]);
+        // }
 
         _startAngle = transform.eulerAngles.x;
 
         yield return new WaitForFixedUpdate();
         yield return new WaitForFixedUpdate();
 
-        if (Mathf.Abs(_startAngle - transform.eulerAngles.x) > 0)
-        {
-            CurrentAudioSource.volume = Mathf.Lerp(0, 1, Mathf.Clamp((Mathf.Abs(_startAngle - transform.eulerAngles.x) / 2f), 0, 1));
-        }
+        // if (Mathf.Abs(_startAngle - transform.eulerAngles.x) > 0)
+        // {
+        //     CurrentAudioSource.volume = Mathf.Lerp(0, 1, Mathf.Clamp((Mathf.Abs(_startAngle - transform.eulerAngles.x) / 2f), 0, 1));
+        // }
 
-        CurrentAudioSource.Play();
+        Debug.Log($"Playing note: {NoteValue}");
+        midiPlayer.NoteOn(NoteValue, Instrument);
+        _toFade.Add(NoteValue);
+        // CurrentAudioSource.Play();
+    }
+
+    void PlayMIDINote()
+    {
+        midiPlayer.NoteOn(NoteValue, Instrument);
+        _toFade.Add(NoteValue);
     }
 
     void PlayVirtualAudio()
@@ -319,7 +349,7 @@ public class PianoKey : MonoBehaviour
                 {
                     foundReplacement = true;
                     CurrentAudioSource = AudioSources[i];
-                    _toFade.Remove(AudioSources[i]);
+                    // _toFade.Remove(AudioSources[i]);
                     break;
                 }
             }
@@ -331,7 +361,7 @@ public class PianoKey : MonoBehaviour
                 CurrentAudioSource = newAudioSource;
             }
 
-            _toFade.Add(AudioSources[index]);
+            // _toFade.Add(AudioSources[index]);
         }
 
         CurrentAudioSource.volume = _velocity / 127f;
