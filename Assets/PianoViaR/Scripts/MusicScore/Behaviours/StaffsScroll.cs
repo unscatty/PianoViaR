@@ -21,7 +21,7 @@ public class StaffsScroll : MonoBehaviour
 
     public void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
     {
-        Reset();
+        ResetToNormal();
 
         float scaleY = scoreBoxSize.y / staffsDimensions.y;
 
@@ -37,7 +37,7 @@ public class StaffsScroll : MonoBehaviour
         transform.position += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
     }
 
-    public void Reset()
+    public void ResetToNormal()
     {
         transform.position = Vector3.zero;
         transform.localScale = Vector3.one;

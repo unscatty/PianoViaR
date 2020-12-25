@@ -59,7 +59,7 @@ namespace MusicScore
         void Clear()
         {
             staffs.Clear();
-            staffs.Reset();
+            staffs.ResetToNormal();
         }
     }
 }
