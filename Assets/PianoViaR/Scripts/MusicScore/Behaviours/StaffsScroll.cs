@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using PianoViaR.Utils;
+using Leap.Unity.Interaction;
 
 [RequireComponent(typeof(BoxCollider))]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(InteractionBehaviour))]
 public class StaffsScroll : MonoBehaviour
 {
     private BoxCollider boxCollider;
@@ -35,11 +36,17 @@ public class StaffsScroll : MonoBehaviour
         // Adjust this object position to center left
         transform.localScale *= scaleY;
         transform.position += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
+        // transform.localPosition += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
+    }
+
+    public void CanCollide(bool canCollide)
+    {
+        boxCollider.enabled = canCollide;
     }
 
     public void ResetToNormal()
     {
-        transform.position = Vector3.zero;
+        transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
         // Re-center box collider
         boxCollider.center = Vector3.zero;

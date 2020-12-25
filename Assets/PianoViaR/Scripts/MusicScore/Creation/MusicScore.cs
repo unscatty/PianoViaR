@@ -16,6 +16,7 @@ namespace MusicScore
         private string currentMidiAssetPath;
         // The game object to hold the staffs created
         public StaffsScroll staffs;
+        public ScoreBoard scoreBoard;
 
         // Start is called before the first frame update
         void Start()
@@ -40,7 +41,7 @@ namespace MusicScore
         {
             Clear();
 
-            var boxSize = gameObject.BoxSize();
+            var boxSize = scoreBoard.BoxSize();
 
             SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (boxSize.x, boxSize.y));
             Vector3 staffsXYDims;
