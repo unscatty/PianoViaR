@@ -989,7 +989,7 @@ namespace MidiSheetMusic
                 var distanceToNote = topstaff.Dist(note.whiteNote);
                 float ynote = ytop + distanceToNote * spacing;
 
-                var noteNameGO = factory.CreateSymbol(SymbolType.TEXT);
+                var noteNameGO = factory.CreateSymbol(SymbolType.NOTE_NAME_TEXT);
                 var noteName = NoteName(note.number, note.whiteNote);
                 noteNameGO.TextSetText(noteName);
                 var widthPerChar = SheetMusic.WidthPerChar;

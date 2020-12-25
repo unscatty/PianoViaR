@@ -26,8 +26,9 @@ namespace MusicScore.Helpers
         REST_SIXTEENTH,
         REST_THIRTY_SECOND,
         STAFF_BAR,
-        TEXT,
-        SIGNATURE_TEXT
+        NOTE_NAME_TEXT,
+        SIGNATURE_TEXT,
+        MEASURES_TEXT,
     }
 
     public class MusicSymbolFactory : MonoBehaviour
@@ -45,8 +46,9 @@ namespace MusicScore.Helpers
         public GameObject noteDot;
         public GameObject noteBar;
         public GameObject staffBar;
-        public GameObject text;
+        public GameObject noteNameText;
         public GameObject signatureText;
+        public GameObject measuresText;
 
         [Header("Accidentals")]
         public GameObject accidentalFlat;
@@ -174,11 +176,14 @@ namespace MusicScore.Helpers
                 case SymbolType.STAFF_BAR:
                     return staffBar;
 
-                case SymbolType.TEXT:
-                    return text;
+                case SymbolType.NOTE_NAME_TEXT:
+                    return noteNameText;
 
                 case SymbolType.SIGNATURE_TEXT:
                     return signatureText;
+
+                case SymbolType.MEASURES_TEXT:
+                    return measuresText;
 
                 default:
                     throw new ArgumentException($"Unknown type: {symbolType}");

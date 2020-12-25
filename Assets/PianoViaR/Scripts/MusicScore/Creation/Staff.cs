@@ -345,7 +345,7 @@ namespace MidiSheetMusic
                     int measure = 1 + symbol.StartTime / measureLength;
                     var measureText = measure.ToString();
 
-                    var measureGO = factory.CreateSymbol(SymbolType.TEXT);
+                    var measureGO = factory.CreateSymbol(SymbolType.MEASURES_TEXT);
                     measureGO.name = "measure" + measure;
                     measureGO.TextSetText(measureText);
 
