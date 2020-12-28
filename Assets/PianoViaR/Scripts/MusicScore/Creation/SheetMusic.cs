@@ -11,11 +11,8 @@
  */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using System.Text;
 using MusicScore.Helpers;
 using PianoViaR.Utils;
 
@@ -96,7 +93,7 @@ namespace MidiSheetMusic
         public SheetMusic(MidiFile file, MidiOptions options, MusicSymbolFactory factory)
         {
             this.factory = factory;
-            init(file, options);
+            Initialize(file, options);
         }
 
         public SheetMusic(
@@ -108,7 +105,7 @@ namespace MidiSheetMusic
         {
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
-            init(file, options);
+            Initialize(file, options);
         }
 
         /** Create a new SheetMusic control, using the given midi filename.
@@ -118,7 +115,7 @@ namespace MidiSheetMusic
         {
             this.factory = factory;
             MidiFile file = new MidiFile(filename);
-            init(file, options);
+            Initialize(file, options);
         }
 
         public SheetMusic(
@@ -131,7 +128,7 @@ namespace MidiSheetMusic
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
             MidiFile file = new MidiFile(filename);
-            init(file, options);
+            Initialize(file, options);
         }
 
         /** Create a new SheetMusic control, using the given raw midi byte[] data.
@@ -141,7 +138,7 @@ namespace MidiSheetMusic
         {
             this.factory = factory;
             MidiFile file = new MidiFile(data, title);
-            init(file, options);
+            Initialize(file, options);
         }
 
         public SheetMusic(
@@ -155,8 +152,51 @@ namespace MidiSheetMusic
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
             MidiFile file = new MidiFile(data, title);
-            init(file, options);
+            Initialize(file, options);
         }
+
+        public SheetMusic(
+            List<MidiTrack> tracks,
+            TimeSignature time,
+            MidiOptions options,
+            MusicSymbolFactory factory,
+            (float pageWidth, float pageHeight) pageDimensions
+        )
+        {
+            (PageWidth, PageHeight) = pageDimensions;
+            this.factory = factory;
+            Initialize(tracks, options, time);
+        }
+
+        public SheetMusic(
+            MidiTrack track,
+            TimeSignature time,
+            MidiOptions options,
+            MusicSymbolFactory factory,
+            (float pageWidth, float pageHeight) pageDimensions
+        )
+        {
+            (PageWidth, PageHeight) = pageDimensions;
+            this.factory = factory;
+
+            List<MidiTrack> tracks = new List<MidiTrack> { track };
+
+            Initialize(tracks, options, time);
+        }
+
+        public SheetMusic(
+            List<MidiTrack> tracks,
+            MidiOptions options,
+            MusicSymbolFactory factory,
+            (float pageWidth, float pageHeight) pageDimensions
+        ) : this(tracks, TimeSignature.Default, options, factory, pageDimensions) { }
+
+        public SheetMusic(
+            MidiTrack track,
+            MidiOptions options,
+            MusicSymbolFactory factory,
+            (float pageWidth, float pageHeight) pageDimensions
+        ) : this(track, TimeSignature.Default, options, factory, pageDimensions) { }
 
 
         /** Create a new SheetMusic control.
@@ -169,7 +209,7 @@ namespace MidiSheetMusic
          * - Vertically align the music symbols in all the tracks
          * - Partition the music notes into horizontal staffs
          */
-        public void init(MidiFile file, MidiOptions options)
+        public void Initialize(MidiFile file, MidiOptions options)
         {
             if (options == null)
             {
@@ -179,14 +219,24 @@ namespace MidiSheetMusic
             filename = file.FileName;
 
             List<MidiTrack> tracks = file.ChangeMidiNotes(options);
+            TimeSignature time = file.Time;
+
+            Initialize(tracks, options, time, filename);
+        }
+
+        private void Initialize(List<MidiTrack> tracks, MidiOptions options, TimeSignature time, String name = "")
+        {
             SetSizes(tracks.Count);
             scrollVert = options.scrollVert;
             showNoteLetters = options.showNoteLetters;
-            TimeSignature time = file.Time;
+
+            filename = name;
+
             if (options.time != null)
             {
                 time = options.time;
             }
+
             if (options.key == -1)
             {
                 mainkey = GetKeySignature(tracks);
@@ -198,7 +248,7 @@ namespace MidiSheetMusic
 
             numtracks = tracks.Count;
 
-            int lastStart = file.EndTime() + options.shifttime;
+            int lastStart = EndTime(tracks) + options.shifttime;
 
             /* Create all the music symbols (notes, rests, vertical bars, and
              * clef changes).  The symbols variable contains a list of music 
@@ -240,6 +290,27 @@ namespace MidiSheetMusic
             {
                 staff.CalculateHeight();
             }
+        }
+
+        /** Return the last start time */
+        private int EndTime(MidiFile file)
+        {
+            return file.EndTime();
+        }
+
+        private int EndTime(List<MidiTrack> tracks)
+        {
+            int lastStart = 0;
+            foreach (MidiTrack track in tracks)
+            {
+                if (track.Notes.Count == 0)
+                {
+                    continue;
+                }
+                int last = track.Notes[track.Notes.Count - 1].StartTime;
+                lastStart = Math.Max(last, lastStart);
+            }
+            return lastStart;
         }
 
         private void SetSizes()
@@ -303,7 +374,7 @@ namespace MidiSheetMusic
             HeightMargin = NoteHeadHeight;
 
             WidthPerChar = NoteHeadWidth * 0.75f;
-            NoteNameTextHeight = NoteHeadHeight;
+            NoteNameTextHeight = NoteHeadHeight + LineWidth * 2;
             MeasureNameTextHeight = NoteNameTextHeight * 2;
 
             NoteStemWidth = LineWidth;
@@ -994,7 +1065,7 @@ namespace MidiSheetMusic
                 result[tracknum] = new List<LyricSymbol>();
                 foreach (MidiEvent ev in track.Lyrics)
                 {
-                    String text = Encoding.UTF8.GetString(ev.Value, 0, ev.Value.Length);
+                    String text = System.Text.Encoding.UTF8.GetString(ev.Value, 0, ev.Value.Length);
                     LyricSymbol sym = new LyricSymbol(ev.StartTime, text);
                     result[tracknum].Add(sym);
                 }
@@ -1097,6 +1168,8 @@ namespace MidiSheetMusic
                     var newPosition = new Vector3(0, -ypos) + topLeft;
                     var staffTrack1 = staffs[staffnum].Create(factory, newPosition);
                     staffTrack1.name = $"staffTrack{staffnum + 1}";
+                    staffTrack1.transform.position = parent.transform.position;
+                    staffTrack1.transform.rotation = parent.transform.rotation;
                     staffTrack1.transform.SetParent(parent.transform);
 
                     ypos += staffs[staffnum].Height;
@@ -1104,6 +1177,8 @@ namespace MidiSheetMusic
                     newPosition.y -= ypos;
                     var staffTrack2 = staffs[staffnum + 1].Create(factory, newPosition);
                     staffTrack2.name = $"staffTrack{staffnum + 2}";
+                    staffTrack2.transform.position = parent.transform.position;
+                    staffTrack2.transform.rotation = parent.transform.rotation;
                     staffTrack2.transform.SetParent(parent.transform);
 
                     ypos += staffs[staffnum + 1].Height;
@@ -1118,6 +1193,8 @@ namespace MidiSheetMusic
                     var newPosition = new Vector3(0, -ypos) + topLeft;
                     var staffGO = staffs[staffnum].Create(factory, newPosition);
                     staffGO.name = $"staffTrack{staffnum + 1}";
+                    staffGO.transform.position = parent.transform.position;
+                    staffGO.transform.rotation = parent.transform.rotation;
                     staffGO.transform.SetParent(parent.transform);
 
                     ypos += staffs[staffnum].Height;
@@ -1183,7 +1260,5 @@ namespace MidiSheetMusic
             result += "End SheetMusic\n";
             return result;
         }
-
     }
-
 }

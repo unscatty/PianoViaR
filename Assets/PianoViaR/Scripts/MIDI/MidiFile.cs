@@ -524,7 +524,7 @@ namespace MidiSheetMusic
              */
             if (tracks.Count == 1 && HasMultipleChannels(tracks[0]))
             {
-                tracks = SplitChannels(tracks[0], events[tracks[0].Number]);
+                tracks = SplitChannels(tracks[0], events[tracks[0].TrackNumber]);
                 trackPerChannel = true;
             }
 
@@ -597,7 +597,7 @@ namespace MidiSheetMusic
              */
             if (tracks.Count == 1 && HasMultipleChannels(tracks[0]))
             {
-                tracks = SplitChannels(tracks[0], events[tracks[0].Number]);
+                tracks = SplitChannels(tracks[0], events[tracks[0].TrackNumber]);
                 trackPerChannel = true;
             }
 
@@ -1272,7 +1272,7 @@ namespace MidiSheetMusic
             for (int tracknum = 0; tracknum < tracks.Count; tracknum++)
             {
                 MidiTrack track = tracks[tracknum];
-                int realtrack = track.Number;
+                int realtrack = track.TrackNumber;
                 instruments[realtrack] = options.instruments[tracknum];
 
                 if (options.mute[tracknum] == true)

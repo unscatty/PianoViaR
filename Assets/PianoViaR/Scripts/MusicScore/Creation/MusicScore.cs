@@ -42,20 +42,75 @@ namespace MusicScore
         {
             Clear();
 
-            var boxSize = scoreBoard.BoxSize();
+            var globalScoreBoxSize = scoreBoard.BoxSize();
 
-            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (boxSize.x, boxSize.y));
+            TimeSignature time = TimeSignature.Default;
+            var testTrack = TestTrack(time);
+            var options = new MidiOptions
+            {
+                scrollVert = false,
+                showNoteLetters = MidiOptions.NoteNameNone,
+                key = -1,
+                shifttime = 0,
+                showLyrics = false,
+                showMeasures = false,
+                time = time,
+
+                useDefaultInstruments = true,
+                largeNoteSize = false,
+                twoStaffs = false,
+                transpose = 0,
+                combineInterval = 40,
+                tempo = time.Tempo,
+                pauseTime = 0,
+                playMeasuresInLoop = false,
+                playMeasuresInLoopStart = 0,
+                playMeasuresInLoopEnd = 0,
+            };
+
+            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalBoxSize.x, globalBoxSize.y));
+
             Vector3 staffsXYDims;
 
             var staffsGO = staffs.GameObject;
             sheet.Create(ref staffsGO, out staffsXYDims);
 
-            AdaptStaffsToDimensions(boxSize, staffsXYDims);
+            AdaptStaffsToDimensions(globalScoreBoxSize, staffsXYDims);
         }
 
         void AdaptStaffsToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
             staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
+        }
+
+        private MidiTrack TestTrack(TimeSignature time)
+        {
+            NoteDuration[] durations = {
+                NoteDuration.Quarter, NoteDuration.Quarter, NoteDuration.Quarter
+            };
+
+            int[] startTimes = {
+                0, time.DurationToTime(durations[0]), time.DurationToTime(durations[1]), time.DurationToTime(durations[2])
+            };
+
+            // int quarterDuration = time.DurationToTime()
+
+            List<MidiSheetMusic.MidiNote> notes = new List<MidiSheetMusic.MidiNote> {
+                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 0, 0, 60, startTimes[1]),
+                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 1, 0, 62, startTimes[2]),
+                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 2, 0, 64, startTimes[3]),
+                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 3, 0, 66, startTimes[3]),
+            };
+
+            MidiTrack track = new MidiTrack(0)
+            {
+                Notes = notes,
+                Instrument = 0,
+                Lyrics = null
+            };
+
+            return track;
         }
 
         void Clear()

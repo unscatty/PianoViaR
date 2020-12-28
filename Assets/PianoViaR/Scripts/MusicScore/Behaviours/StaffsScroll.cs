@@ -46,7 +46,10 @@ public class StaffsScroll : MonoBehaviour
         boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z);
         // Adjust this object position to center left
         transform.localScale *= scaleY;
-        transform.position += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
+
+        // Center relative to its parent
+        transform.localPosition = Vector3.zero;
+        transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
     }
 
     public void CanCollide(bool canCollide)
@@ -56,7 +59,7 @@ public class StaffsScroll : MonoBehaviour
 
     public void ResetToNormal()
     {
-        transform.localPosition = Vector3.zero;
+        transform.position = Vector3.zero;
         transform.localScale = Vector3.one;
         // Re-center box collider
         boxCollider.center = Vector3.zero;

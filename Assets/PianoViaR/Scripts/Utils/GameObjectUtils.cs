@@ -169,9 +169,19 @@ namespace PianoViaR.Utils
             gameObject.PlaceCenter(position, offsets);
         }
 
-        public static Bounds GlobalBounds(this GameObject gameObject)
+        public static Bounds GlobalBounds(this GameObject gameObject, bool force = false)
         {
+            // Save original rotation
+            var originalRotation = gameObject.transform.rotation;
+
+            if (force)
+            {
+                // Reset object's rotation so it doesn't affect the measured bounds
+                gameObject.transform.rotation = Quaternion.identity;
+            }
+
             var renderer = gameObject.GetComponent<Renderer>();
+            Bounds globalBounds;
 
             if (renderer == null)
             {
@@ -183,62 +193,91 @@ namespace PianoViaR.Utils
                 }
                 else
                 {
-                    return collider.bounds;
+                    globalBounds = collider.bounds;
                 }
             }
             else
             {
-                return renderer.bounds;
+                globalBounds = renderer.bounds;
+            }
+
+            // Reset rotation back to normal
+            gameObject.transform.rotation = originalRotation;
+
+            return globalBounds;
+        }
+
+        public static Bounds LocalBounds(this GameObject gameObject)
+        {
+            var meshFilter = gameObject.GetComponent<MeshFilter>();
+
+            if (meshFilter == null)
+            {
+                throw new System.ArgumentException("GameObject has no MeshFilter component");
+            }
+            else
+            {
+                return meshFilter.mesh.bounds;
             }
         }
-        public static Vector3 BoxSize(this GameObject gameObject)
+
+        public static Vector3 LocalBoxSize(this GameObject gameObject)
         {
-            return gameObject.GlobalBounds().size;
+            return gameObject.LocalBounds().size;
         }
 
-        public static Vector3 BoxExtents(this GameObject gameObject)
+        public static Vector3 LocalExtents(this GameObject gameObject)
         {
-            return gameObject.GlobalBounds().extents;
+            return gameObject.LocalBounds().extents;
+        }
+        public static Vector3 BoxSize(this GameObject gameObject, bool force = false)
+        {
+            return gameObject.GlobalBounds(force).size;
         }
 
-        public static Vector3 UpperLeftOffset(this GameObject gameObject)
+        public static Vector3 BoxExtents(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            return gameObject.GlobalBounds(force).extents;
+        }
+
+        public static Vector3 UpperLeftOffset(this GameObject gameObject, bool force = false)
+        {
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(1, -1, 0));
         }
 
-        public static Vector3 UpperCenterOffset(this GameObject gameObject)
+        public static Vector3 UpperCenterOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(0, -1, 0));
         }
-        public static Vector3 CenterLeftOffset(this GameObject gameObject)
+        public static Vector3 CenterLeftOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(1, 0, 0));
         }
 
-        public static Vector3 BottomLeftOffset(this GameObject gameObject)
+        public static Vector3 BottomLeftOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(1, 1, 0));
         }
 
-        public static Vector3 BottomCenterOffset(this GameObject gameObject)
+        public static Vector3 BottomCenterOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(0, 1, 0));
         }
 
-        public static Vector3 UpperRightOffset(this GameObject gameObject)
+        public static Vector3 UpperRightOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(-1, 1, 0));
         }
 
-        public static Vector3 CenterRightOffset(this GameObject gameObject)
+        public static Vector3 CenterRightOffset(this GameObject gameObject, bool force = false)
         {
-            var extents = gameObject.BoxExtents();
+            var extents = gameObject.BoxExtents(force);
             return Vector3.Scale(extents, new Vector3(-1, 0, 0));
         }
 

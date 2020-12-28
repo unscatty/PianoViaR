@@ -19,9 +19,9 @@ public class ScoreBoard : MonoBehaviour
 
     }
 
-    public Vector3 BoxSize()
+    public Vector3 BoxSize(bool force = true)
     {
-        return this.gameObject.BoxSize();
+        return this.gameObject.BoxSize(force);
     }
 
     private void OnTriggerEnter(Collider other)
