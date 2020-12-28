@@ -2,7 +2,6 @@
 using Leap.Unity.Interaction;
 using PianoViaR.Utils;
 
-[RequireComponent(typeof(InteractionBehaviour))]
 [RequireComponent(typeof(BoxCollider))]
 public class ScoreBoard : MonoBehaviour
 {

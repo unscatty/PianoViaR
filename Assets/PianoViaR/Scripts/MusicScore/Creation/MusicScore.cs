@@ -68,8 +68,8 @@ namespace MusicScore
                 playMeasuresInLoopEnd = 0,
             };
 
-            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalBoxSize.x, globalBoxSize.y));
+            // SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
 
             Vector3 staffsXYDims;
 

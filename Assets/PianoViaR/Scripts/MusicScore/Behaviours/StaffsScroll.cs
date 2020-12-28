@@ -43,13 +43,13 @@ public class StaffsScroll : MonoBehaviour
         var newDimensions = staffsDimensions * scaleY;
 
         var currentSize = boxCollider.size;
-        boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z);
+        boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z * colliderScaleY);
         // Adjust this object position to center left
         transform.localScale *= scaleY;
 
         // Center relative to its parent
         transform.localPosition = Vector3.zero;
-        transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
+        // transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
     }
 
     public void CanCollide(bool canCollide)
