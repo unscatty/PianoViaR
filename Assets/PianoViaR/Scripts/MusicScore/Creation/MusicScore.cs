@@ -23,6 +23,7 @@ namespace MusicScore
         {
             currentMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
             CreateScore(currentMidiAssetPath);
+            // staffs.Initialize();
         }
 
         // Update is called once per frame

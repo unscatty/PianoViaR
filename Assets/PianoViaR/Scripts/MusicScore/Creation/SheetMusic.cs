@@ -303,7 +303,7 @@ namespace MidiSheetMusic
             HeightMargin = NoteHeadHeight;
 
             WidthPerChar = NoteHeadWidth * 0.75f;
-            NoteNameTextHeight = NoteHeadHeight * 2;
+            NoteNameTextHeight = NoteHeadHeight;
             MeasureNameTextHeight = NoteNameTextHeight * 2;
 
             NoteStemWidth = LineWidth;

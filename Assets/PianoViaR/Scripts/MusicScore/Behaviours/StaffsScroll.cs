@@ -6,18 +6,29 @@ using Leap.Unity.Interaction;
 [RequireComponent(typeof(InteractionBehaviour))]
 public class StaffsScroll : MonoBehaviour
 {
-    private BoxCollider boxCollider;
+    BoxCollider boxCollider;
     public GameObject GameObject { get { return this.gameObject; } }
     // Start is called before the first frame update
+
+    private void Awake()
+    {
+        Initialize();
+    }
+
     void Start()
     {
-        boxCollider = GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void Initialize()
+    {
+        if (boxCollider == null)
+            boxCollider = GetComponent<BoxCollider>();
     }
 
     public void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
@@ -36,7 +47,6 @@ public class StaffsScroll : MonoBehaviour
         // Adjust this object position to center left
         transform.localScale *= scaleY;
         transform.position += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
-        // transform.localPosition += Vector3.right * (newDimensions.x - scoreBoxSize.x) / 2;
     }
 
     public void CanCollide(bool canCollide)

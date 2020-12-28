@@ -121,8 +121,8 @@ namespace MidiSheetMusic
             // Change this
             twoStaffs = false;
             scrollVert = false;
-            // showMeasures = true;
-            // showNoteLetters = NoteNameFixedDoReMi;
+            showMeasures = true;
+            showNoteLetters = NoteNameFixedDoReMi;
         }
     }
 }

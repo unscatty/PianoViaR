@@ -153,8 +153,8 @@ namespace MidiSheetMusic
 
             above = Math.Max(above, clefsym.AboveStaff);
             below = Math.Max(below, clefsym.BelowStaff);
-            ytop = above + SheetMusic.HeightMargin;
-            height = ytop + SheetMusic.StaffHeight + below + SheetMusic.HeightMargin;
+            ytop = above;
+            height = ytop + SheetMusic.StaffHeight + below;
 
             if (showMeasures || lyrics != null)
             {
