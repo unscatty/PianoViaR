@@ -9,9 +9,10 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  */
+
 using System.Collections.Generic;
 
-namespace MidiSheetMusic
+namespace PianoViaR.MIDI.Parsing
 {
 
     /** @class MidiTrack
@@ -25,50 +26,50 @@ namespace MidiSheetMusic
      * The NoteOff() method is called when a NoteOff event is encountered,
      * in order to update the duration of the MidiNote.
      */
-    public class MidiTrack
+    public class MIDITrack
     {
         private int trackNumber;             /** The track number */
-        private List<MidiNote> notes;     /** List of Midi notes */
+        private List<MIDINote> notes;     /** List of Midi notes */
         private int instrument;           /** Instrument for this track */
-        private List<MidiEvent> lyrics;   /** The lyrics in this track */
+        private List<MIDIEvent> lyrics;   /** The lyrics in this track */
 
         /** Create an empty MidiTrack.  Used by the Clone method */
-        public MidiTrack(int tracknum)
+        public MIDITrack(int tracknum)
         {
             this.trackNumber = tracknum;
-            notes = new List<MidiNote>(20);
+            notes = new List<MIDINote>(20);
             instrument = 0;
         }
 
         /** Create a MidiTrack based on the Midi events.  Extract the NoteOn/NoteOff
          *  events to gather the list of MidiNotes.
          */
-        public MidiTrack(List<MidiEvent> events, int tracknum)
+        public MIDITrack(List<MIDIEvent> events, int tracknum)
         {
             this.trackNumber = tracknum;
-            notes = new List<MidiNote>(events.Count);
+            notes = new List<MIDINote>(events.Count);
             instrument = 0;
 
-            foreach (MidiEvent mevent in events)
+            foreach (MIDIEvent mevent in events)
             {
-                if (mevent.EventFlag == MidiFile.EventNoteOn && mevent.Velocity > 0)
+                if (mevent.EventFlag == MIDIFile.EventNoteOn && mevent.Velocity > 0)
                 {
-                    MidiNote note = new MidiNote(mevent.StartTime, mevent.Channel, mevent.Notenumber, 0);
+                    MIDINote note = new MIDINote(mevent.StartTime, mevent.Channel, mevent.Notenumber, 0);
                     AddNote(note);
                 }
-                else if (mevent.EventFlag == MidiFile.EventNoteOn && mevent.Velocity == 0)
+                else if (mevent.EventFlag == MIDIFile.EventNoteOn && mevent.Velocity == 0)
                 {
                     NoteOff(mevent.Channel, mevent.Notenumber, mevent.StartTime);
                 }
-                else if (mevent.EventFlag == MidiFile.EventNoteOff)
+                else if (mevent.EventFlag == MIDIFile.EventNoteOff)
                 {
                     NoteOff(mevent.Channel, mevent.Notenumber, mevent.StartTime);
                 }
-                else if (mevent.EventFlag == MidiFile.EventProgramChange)
+                else if (mevent.EventFlag == MIDIFile.EventProgramChange)
                 {
                     instrument = mevent.Instrument;
                 }
-                else if (mevent.Metaevent == MidiFile.MetaEventLyric)
+                else if (mevent.Metaevent == MIDIFile.MetaEventLyric)
                 {
                     AddLyric(mevent);
                 }
@@ -87,7 +88,7 @@ namespace MidiSheetMusic
             get { return trackNumber; }
         }
 
-        public List<MidiNote> Notes
+        public List<MIDINote> Notes
         {
             set
             {
@@ -114,20 +115,20 @@ namespace MidiSheetMusic
             get
             {
                 if (instrument >= 0 && instrument <= 128)
-                    return MidiFile.Instruments[instrument];
+                    return MIDIFile.Instruments[instrument];
                 else
                     return "";
             }
         }
 
-        public List<MidiEvent> Lyrics
+        public List<MIDIEvent> Lyrics
         {
             get { return lyrics; }
             set { lyrics = value; }
         }
 
         /** Add a MidiNote to this track.  This is called for each NoteOn event */
-        public void AddNote(MidiNote m)
+        public void AddNote(MIDINote m)
         {
             notes.Add(m);
         }
@@ -139,7 +140,7 @@ namespace MidiSheetMusic
         {
             for (int i = notes.Count - 1; i >= 0; i--)
             {
-                MidiNote note = notes[i];
+                MIDINote note = notes[i];
                 if (note.Channel == channel && note.Number == notenumber &&
                     note.Duration == 0)
                 {
@@ -150,28 +151,28 @@ namespace MidiSheetMusic
         }
 
         /** Add a Lyric MidiEvent */
-        public void AddLyric(MidiEvent mevent)
+        public void AddLyric(MIDIEvent mevent)
         {
             if (lyrics == null)
             {
-                lyrics = new List<MidiEvent>();
+                lyrics = new List<MIDIEvent>();
             }
             lyrics.Add(mevent);
         }
 
         /** Return a deep copy clone of this MidiTrack. */
-        public MidiTrack Clone()
+        public MIDITrack Clone()
         {
-            MidiTrack track = new MidiTrack(TrackNumber);
+            MIDITrack track = new MIDITrack(TrackNumber);
             track.instrument = instrument;
-            foreach (MidiNote note in notes)
+            foreach (MIDINote note in notes)
             {
                 track.notes.Add(note.Clone());
             }
             if (lyrics != null)
             {
-                track.lyrics = new List<MidiEvent>();
-                foreach (MidiEvent ev in lyrics)
+                track.lyrics = new List<MIDIEvent>();
+                foreach (MIDIEvent ev in lyrics)
                 {
                     track.lyrics.Add(ev);
                 }
@@ -181,7 +182,7 @@ namespace MidiSheetMusic
         public override string ToString()
         {
             string result = "Track number=" + trackNumber + " instrument=" + instrument + "\n";
-            foreach (MidiNote n in notes)
+            foreach (MIDINote n in notes)
             {
                 result = result + n + "\n";
             }

@@ -11,10 +11,9 @@
  */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** @class SymbolWidths

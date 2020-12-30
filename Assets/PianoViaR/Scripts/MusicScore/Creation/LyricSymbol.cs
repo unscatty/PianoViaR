@@ -10,13 +10,7 @@
  *  GNU General Public License for more details.
  */
 
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-
-
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** @class LyricSymbol

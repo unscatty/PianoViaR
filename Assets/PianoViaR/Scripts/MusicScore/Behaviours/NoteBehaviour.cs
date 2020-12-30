@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MusicScore.Behaviors
+namespace PianoViaR.Score.Behaviors
 {
 
     public class NoteBehaviour : MonoBehaviour

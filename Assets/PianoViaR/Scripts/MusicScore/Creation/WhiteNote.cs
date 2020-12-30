@@ -10,10 +10,9 @@
  *  GNU General Public License for more details.
  */
 
-using System;
 using System.Collections.Generic;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** Enumeration of the notes in a scale (A, A#, ... G#) */

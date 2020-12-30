@@ -14,11 +14,10 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using PianoViaR.MIDI.Helpers;
 
-
-namespace MidiSheetMusic
+namespace PianoViaR.MIDI.Parsing
 {
-
     /* This file contains the classes for parsing and modifying
      * MIDI music files.
      */
@@ -190,11 +189,11 @@ namespace MidiSheetMusic
      *   
      */
 
-    public class MidiFile
+    public class MIDIFile
     {
         private string filename;          /** The Midi file name */
-        private List<MidiEvent>[] events; /** The raw MidiEvents, one list per track */
-        private List<MidiTrack> tracks;  /** The tracks of the midifile that have notes */
+        private List<MIDIEvent>[] events; /** The raw MidiEvents, one list per track */
+        private List<MIDITrack> tracks;  /** The tracks of the midifile that have notes */
         private ushort trackmode;         /** 0 (single track), 1 (simultaneous tracks) 2 (independent tracks) */
         private TimeSignature timesig;    /** The time signature */
         private int quarternote;          /** The number of pulses per quarter note */
@@ -424,7 +423,7 @@ namespace MidiSheetMusic
 
 
         /** Get the list of tracks */
-        public List<MidiTrack> Tracks
+        public List<MIDITrack> Tracks
         {
             get { return tracks; }
         }
@@ -449,20 +448,20 @@ namespace MidiSheetMusic
 
 
         /** Create a new MidiFile from the file. */
-        public MidiFile(string filename)
+        public MIDIFile(string filename)
         {
-            MidiFileReader file = new MidiFileReader(filename);
+            MIDIFileReader file = new MIDIFileReader(filename);
             parse(file, filename);
         }
 
-        public MidiFile()
+        public MIDIFile()
         { // wang1ang
             CreateBlank();
         }
         /** Create a new MidiFile from the byte[]. */
-        public MidiFile(byte[] data, string title)
+        public MIDIFile(byte[] data, string title)
         {
-            MidiFileReader file = new MidiFileReader(data);
+            MIDIFileReader file = new MIDIFileReader(data);
             if (title == null)
                 title = "";
             parse(file, title);
@@ -475,34 +474,34 @@ namespace MidiSheetMusic
          * - All the tracks in the song which contain notes. 
          * - The number, starttime, and duration of each note.
          */
-        public void parse(MidiFileReader file, string filename)
+        public void parse(MIDIFileReader file, string filename)
         {
             string id;
             int len;
 
             this.filename = filename;
-            tracks = new List<MidiTrack>();
+            tracks = new List<MIDITrack>();
             trackPerChannel = false;
 
             id = file.ReadAscii(4);
             if (id != "MThd")
             {
-                throw new MidiFileException("Doesn't start with MThd", 0);
+                throw new MIDIFileException("Doesn't start with MThd", 0);
             }
             len = file.ReadInt();
             if (len != 6)
             {
-                throw new MidiFileException("Bad MThd header", 4);
+                throw new MIDIFileException("Bad MThd header", 4);
             }
             trackmode = file.ReadShort();
             int num_tracks = file.ReadShort();
             quarternote = file.ReadShort();
 
-            events = new List<MidiEvent>[num_tracks];
+            events = new List<MIDIEvent>[num_tracks];
             for (int tracknum = 0; tracknum < num_tracks; tracknum++)
             {
                 events[tracknum] = ReadTrack(file);
-                MidiTrack track = new MidiTrack(events[tracknum], tracknum);
+                MIDITrack track = new MIDITrack(events[tracknum], tracknum);
                 if (track.Notes.Count > 0 || track.Lyrics != null)
                 {
                     tracks.Add(track);
@@ -510,9 +509,9 @@ namespace MidiSheetMusic
             }
 
             /* Get the length of the song in pulses */
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                MidiNote last = track.Notes[track.Notes.Count - 1];
+                MIDINote last = track.Notes[track.Notes.Count - 1];
                 if (this.totalpulses < last.StartTime + last.Duration)
                 {
                     this.totalpulses = last.StartTime + last.Duration;
@@ -534,9 +533,9 @@ namespace MidiSheetMusic
             int tempo = 0;
             int numer = 0;
             int denom = 0;
-            foreach (List<MidiEvent> list in events)
+            foreach (List<MIDIEvent> list in events)
             {
-                foreach (MidiEvent mevent in list)
+                foreach (MIDIEvent mevent in list)
                 {
                     if (mevent.Metaevent == MetaEventTempo && tempo == 0)
                     {
@@ -569,23 +568,23 @@ namespace MidiSheetMusic
         public void CreateBlank()
         {
             this.filename = "";
-            tracks = new List<MidiTrack>();
+            tracks = new List<MIDITrack>();
             trackPerChannel = false;
 
             trackmode = 1; // file.ReadShort();
             int num_tracks = 2; // file.ReadShort();
             quarternote = 120; // file.ReadShort(); 
 
-            events = new List<MidiEvent>[num_tracks];
+            events = new List<MIDIEvent>[num_tracks];
             events[0] = NewTrack(60);
-            tracks.Add(new MidiTrack(events[0], 0));
+            tracks.Add(new MIDITrack(events[0], 0));
             events[1] = NewTrack(48);
-            tracks.Add(new MidiTrack(events[1], 1));
+            tracks.Add(new MIDITrack(events[1], 1));
 
             /* Get the length of the song in pulses */
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                MidiNote last = track.Notes[track.Notes.Count - 1];
+                MIDINote last = track.Notes[track.Notes.Count - 1];
                 if (this.totalpulses < last.StartTime + last.Duration)
                 {
                     this.totalpulses = last.StartTime + last.Duration;
@@ -607,9 +606,9 @@ namespace MidiSheetMusic
             int tempo = 0;
             int numer = 0;
             int denom = 0;
-            foreach (List<MidiEvent> list in events)
+            foreach (List<MIDIEvent> list in events)
             {
-                foreach (MidiEvent mevent in list)
+                foreach (MIDIEvent mevent in list)
                 {
                     if (mevent.Metaevent == MetaEventTempo && tempo == 0)
                     {
@@ -638,15 +637,15 @@ namespace MidiSheetMusic
          * the MTrk header.  Upon exiting, the file offset should be at the
          * start of the next MTrk header.
          */
-        private List<MidiEvent> ReadTrack(MidiFileReader file)
+        private List<MIDIEvent> ReadTrack(MIDIFileReader file)
         {
-            List<MidiEvent> result = new List<MidiEvent>(20);
+            List<MIDIEvent> result = new List<MIDIEvent>(20);
             int starttime = 0;
             string id = file.ReadAscii(4);
 
             if (id != "MTrk")
             {
-                throw new MidiFileException("Bad MTrk header", file.GetOffset() - 4);
+                throw new MIDIFileException("Bad MTrk header", file.GetOffset() - 4);
             }
             int tracklen = file.ReadInt();
             int trackend = tracklen + file.GetOffset();
@@ -668,12 +667,12 @@ namespace MidiSheetMusic
                     starttime += deltatime;
                     peekevent = file.Peek();
                 }
-                catch (MidiFileException)
+                catch (MIDIFileException)
                 {
                     return result;
                 }
 
-                MidiEvent mevent = new MidiEvent();
+                MIDIEvent mevent = new MIDIEvent();
                 result.Add(mevent);
                 mevent.DeltaTime = deltatime;
                 mevent.StartTime = starttime;
@@ -782,7 +781,7 @@ namespace MidiSheetMusic
                     {
                         if (mevent.Metalength != 3)
                         {
-                            throw new MidiFileException(
+                            throw new MIDIFileException(
                               "Meta Event Tempo len == " + mevent.Metalength +
                               " != 3", file.GetOffset());
                         }
@@ -795,7 +794,7 @@ namespace MidiSheetMusic
                 }
                 else
                 {
-                    throw new MidiFileException("Unknown event " + mevent.EventFlag,
+                    throw new MIDIFileException("Unknown event " + mevent.EventFlag,
                                                  file.GetOffset() - 1);
                 }
             }
@@ -803,11 +802,11 @@ namespace MidiSheetMusic
             return result;
         }
 
-        private List<MidiEvent> NewTrack(byte key)
+        private List<MIDIEvent> NewTrack(byte key)
         { // wang1ang
             int length = 120;
-            List<MidiEvent> result = new List<MidiEvent>(20);
-            MidiEvent mevent = new MidiEvent();
+            List<MIDIEvent> result = new List<MIDIEvent>(20);
+            MIDIEvent mevent = new MIDIEvent();
             result.Add(mevent);
             mevent.DeltaTime = 0;
             mevent.StartTime = 0;
@@ -819,7 +818,7 @@ namespace MidiSheetMusic
             mevent.Value = new byte[] { 4, 2, 24, 8 };
             mevent.Metalength = mevent.Value.Length;
 
-            mevent = new MidiEvent();
+            mevent = new MIDIEvent();
             result.Add(mevent);
             mevent.DeltaTime = 0;
             mevent.StartTime = 0;
@@ -828,7 +827,7 @@ namespace MidiSheetMusic
             mevent.Channel = 0;
             mevent.Instrument = 0;
 
-            mevent = new MidiEvent();
+            mevent = new MIDIEvent();
             result.Add(mevent);
             mevent.DeltaTime = 0;
             mevent.StartTime = 0;
@@ -838,7 +837,7 @@ namespace MidiSheetMusic
             mevent.Notenumber = key;
             mevent.Velocity = 60;
 
-            mevent = new MidiEvent();
+            mevent = new MIDIEvent();
             result.Add(mevent);
             mevent.DeltaTime = length;
             mevent.StartTime = length;
@@ -848,7 +847,7 @@ namespace MidiSheetMusic
             mevent.Notenumber = key;
             mevent.Velocity = 0;
 
-            mevent = new MidiEvent();
+            mevent = new MIDIEvent();
             result.Add(mevent);
             mevent.DeltaTime = 0;
             mevent.StartTime = length;
@@ -862,10 +861,10 @@ namespace MidiSheetMusic
          * If a MidiFile contains only one track, and it has multiple channels,
          * then we treat each channel as a separate track.
          */
-        static bool HasMultipleChannels(MidiTrack track)
+        static bool HasMultipleChannels(MIDITrack track)
         {
             int channel = track.Notes[0].Channel;
-            foreach (MidiNote note in track.Notes)
+            foreach (MIDINote note in track.Notes)
             {
                 if (note.Channel != channel)
                 {
@@ -923,11 +922,11 @@ namespace MidiSheetMusic
         }
 
         /** Calculate the track length (in bytes) given a list of Midi events */
-        private static int GetTrackLength(List<MidiEvent> events)
+        private static int GetTrackLength(List<MIDIEvent> events)
         {
             int len = 0;
             byte[] buf = new byte[1024];
-            foreach (MidiEvent mevent in events)
+            foreach (MIDIEvent mevent in events)
             {
                 len += VarlenToBytes(mevent.DeltaTime, buf, 0);
                 len += 1;  /* for eventflag */
@@ -965,7 +964,7 @@ namespace MidiSheetMusic
          *  Return true on success, and false on error.
          */
         private static bool
-        WriteEvents(Stream file, List<MidiEvent>[] events, int trackmode, int quarter)
+        WriteEvents(Stream file, List<MIDIEvent>[] events, int trackmode, int quarter)
         {
             try
             {
@@ -985,7 +984,7 @@ namespace MidiSheetMusic
                 buf[1] = (byte)(quarter & 0xFF);
                 file.Write(buf, 0, 2);
 
-                foreach (List<MidiEvent> list in events)
+                foreach (List<MIDIEvent> list in events)
                 {
                     /* Write the MTrk header and track length */
                     file.Write(ASCIIEncoding.ASCII.GetBytes("MTrk"), 0, 4);
@@ -993,7 +992,7 @@ namespace MidiSheetMusic
                     IntToBytes(len, buf, 0);
                     file.Write(buf, 0, 4);
 
-                    foreach (MidiEvent mevent in list)
+                    foreach (MIDIEvent mevent in list)
                     {
                         int varlen = VarlenToBytes(mevent.DeltaTime, buf, 0);
                         file.Write(buf, 0, varlen);
@@ -1091,15 +1090,15 @@ namespace MidiSheetMusic
 
 
         /** Clone the list of MidiEvents */
-        private static List<MidiEvent>[] CloneMidiEvents(List<MidiEvent>[] origlist)
+        private static List<MIDIEvent>[] CloneMidiEvents(List<MIDIEvent>[] origlist)
         {
-            List<MidiEvent>[] newlist = new List<MidiEvent>[origlist.Length];
+            List<MIDIEvent>[] newlist = new List<MIDIEvent>[origlist.Length];
             for (int tracknum = 0; tracknum < origlist.Length; tracknum++)
             {
-                List<MidiEvent> origevents = origlist[tracknum];
-                List<MidiEvent> newevents = new List<MidiEvent>(origevents.Count);
+                List<MIDIEvent> origevents = origlist[tracknum];
+                List<MIDIEvent> newevents = new List<MIDIEvent>(origevents.Count);
                 newlist[tracknum] = newevents;
-                foreach (MidiEvent mevent in origevents)
+                foreach (MIDIEvent mevent in origevents)
                 {
                     newevents.Add(mevent.Clone());
                 }
@@ -1108,9 +1107,9 @@ namespace MidiSheetMusic
         }
 
         /** Create a new Midi tempo event, with the given tempo  */
-        private static MidiEvent CreateTempoEvent(int tempo)
+        private static MIDIEvent CreateTempoEvent(int tempo)
         {
-            MidiEvent mevent = new MidiEvent();
+            MIDIEvent mevent = new MIDIEvent();
             mevent.DeltaTime = 0;
             mevent.StartTime = 0;
             mevent.HasEventflag = true;
@@ -1127,9 +1126,9 @@ namespace MidiSheetMusic
          *   update the control value.  Else, add a new ControlChange event.
          */
         private static void
-        UpdateControlChange(List<MidiEvent> newevents, MidiEvent changeEvent)
+        UpdateControlChange(List<MIDIEvent> newevents, MIDIEvent changeEvent)
         {
-            foreach (MidiEvent mevent in newevents)
+            foreach (MIDIEvent mevent in newevents)
             {
                 if ((mevent.EventFlag == changeEvent.EventFlag) &&
                     (mevent.Channel == changeEvent.Channel) &&
@@ -1148,18 +1147,18 @@ namespace MidiSheetMusic
          *  For other events, change the delta-time to 0 if they occur
          *  before the pause time.  Return the modified Midi Events.
          */
-        private static List<MidiEvent>[]
-        StartAtPauseTime(List<MidiEvent>[] list, int pauseTime)
+        private static List<MIDIEvent>[]
+        StartAtPauseTime(List<MIDIEvent>[] list, int pauseTime)
         {
-            List<MidiEvent>[] newlist = new List<MidiEvent>[list.Length];
+            List<MIDIEvent>[] newlist = new List<MIDIEvent>[list.Length];
             for (int tracknum = 0; tracknum < list.Length; tracknum++)
             {
-                List<MidiEvent> events = list[tracknum];
-                List<MidiEvent> newevents = new List<MidiEvent>(events.Count);
+                List<MIDIEvent> events = list[tracknum];
+                List<MIDIEvent> newevents = new List<MIDIEvent>(events.Count);
                 newlist[tracknum] = newevents;
 
                 bool foundEventAfterPause = false;
-                foreach (MidiEvent mevent in events)
+                foreach (MIDIEvent mevent in events)
                 {
 
                     if (mevent.StartTime < pauseTime)
@@ -1202,12 +1201,12 @@ namespace MidiSheetMusic
          * before performing the write.
          * Return true if the file was saved successfully, else false.
          */
-        public bool ChangeSound(string destfile, MidiOptions options)
+        public bool ChangeSound(string destfile, MIDIOptions options)
         {
             return Write(destfile, options);
         }
 
-        public bool Write(string destfile, MidiOptions options)
+        public bool Write(string destfile, MIDIOptions options)
         {
             try
             {
@@ -1228,9 +1227,9 @@ namespace MidiSheetMusic
          * before performing the write.
          * Return true if the file was saved successfully, else false.
          */
-        public bool Write(Stream stream, MidiOptions options)
+        public bool Write(Stream stream, MIDIOptions options)
         {
-            List<MidiEvent>[] newevents = events;
+            List<MIDIEvent>[] newevents = events;
             if (options != null)
             {
                 newevents = ApplyOptionsToEvents(options);
@@ -1246,8 +1245,8 @@ namespace MidiSheetMusic
          * - The tracks to include
          * Return the modified list of midi events.
          */
-        private List<MidiEvent>[]
-        ApplyOptionsToEvents(MidiOptions options)
+        private List<MIDIEvent>[]
+        ApplyOptionsToEvents(MIDIOptions options)
         {
             int i;
             if (trackPerChannel)
@@ -1271,7 +1270,7 @@ namespace MidiSheetMusic
             }
             for (int tracknum = 0; tracknum < tracks.Count; tracknum++)
             {
-                MidiTrack track = tracks[tracknum];
+                MIDITrack track = tracks[tracknum];
                 int realtrack = track.TrackNumber;
                 instruments[realtrack] = options.instruments[tracknum];
 
@@ -1281,19 +1280,19 @@ namespace MidiSheetMusic
                 }
             }
 
-            List<MidiEvent>[] newevents = CloneMidiEvents(events);
+            List<MIDIEvent>[] newevents = CloneMidiEvents(events);
 
             /* Set the tempo at the beginning of each track */
             for (int tracknum = 0; tracknum < newevents.Length; tracknum++)
             {
-                MidiEvent mevent = CreateTempoEvent(options.tempo);
+                MIDIEvent mevent = CreateTempoEvent(options.tempo);
                 newevents[tracknum].Insert(0, mevent);
             }
 
             /* Change the note number (transpose), instrument, and tempo */
             for (int tracknum = 0; tracknum < newevents.Length; tracknum++)
             {
-                foreach (MidiEvent mevent in newevents[tracknum])
+                foreach (MIDIEvent mevent in newevents[tracknum])
                 {
                     int num = mevent.Notenumber + options.transpose;
                     if (num < 0)
@@ -1323,7 +1322,7 @@ namespace MidiSheetMusic
                     count++;
                 }
             }
-            List<MidiEvent>[] result = new List<MidiEvent>[count];
+            List<MIDIEvent>[] result = new List<MIDIEvent>[count];
             i = 0;
             for (int tracknum = 0; tracknum < keeptracks.Length; tracknum++)
             {
@@ -1352,8 +1351,8 @@ namespace MidiSheetMusic
          * - We include/exclude channels, not tracks.
          * - We exclude a channel by setting the note volume/velocity to 0.
          */
-        private List<MidiEvent>[]
-        ApplyOptionsPerChannel(MidiOptions options)
+        private List<MIDIEvent>[]
+        ApplyOptionsPerChannel(MIDIOptions options)
         {
             /* Determine which channels to include/exclude.
              * Also, determine the instruments for each channel.
@@ -1367,7 +1366,7 @@ namespace MidiSheetMusic
             }
             for (int tracknum = 0; tracknum < tracks.Count; tracknum++)
             {
-                MidiTrack track = tracks[tracknum];
+                MIDITrack track = tracks[tracknum];
                 int channel = track.Notes[0].Channel;
                 instruments[channel] = options.instruments[tracknum];
 
@@ -1378,19 +1377,19 @@ namespace MidiSheetMusic
                 }
             }
 
-            List<MidiEvent>[] newevents = CloneMidiEvents(events);
+            List<MIDIEvent>[] newevents = CloneMidiEvents(events);
 
             /* Set the tempo at the beginning of each track */
             for (int tracknum = 0; tracknum < newevents.Length; tracknum++)
             {
-                MidiEvent mevent = CreateTempoEvent(options.tempo);
+                MIDIEvent mevent = CreateTempoEvent(options.tempo);
                 newevents[tracknum].Insert(0, mevent);
             }
 
             /* Change the note number (transpose), instrument, and tempo */
             for (int tracknum = 0; tracknum < newevents.Length; tracknum++)
             {
-                foreach (MidiEvent mevent in newevents[tracknum])
+                foreach (MIDIEvent mevent in newevents[tracknum])
                 {
                     int num = mevent.Notenumber + options.transpose;
                     if (num < 0)
@@ -1420,9 +1419,9 @@ namespace MidiSheetMusic
         /** Apply the given sheet music options to the MidiNotes.
          *  Return the midi tracks with the changes applied.
          */
-        public List<MidiTrack> ChangeMidiNotes(MidiOptions options)
+        public List<MIDITrack> ChangeMidiNotes(MIDIOptions options)
         {
-            List<MidiTrack> newtracks = new List<MidiTrack>();
+            List<MIDITrack> newtracks = new List<MIDITrack>();
 
             for (int track = 0; track < tracks.Count; track++)
             {
@@ -1442,20 +1441,20 @@ namespace MidiSheetMusic
             {
                 time = options.time;
             }
-            MidiFile.RoundStartTimes(newtracks, options.combineInterval, timesig);
-            MidiFile.RoundDurations(newtracks, time.Quarter);
+            MIDIFile.RoundStartTimes(newtracks, options.combineInterval, timesig);
+            MIDIFile.RoundDurations(newtracks, time.Quarter);
 
             if (options.twoStaffs)
             {
-                newtracks = MidiFile.CombineToTwoTracks(newtracks, timesig.Measure);
+                newtracks = MIDIFile.CombineToTwoTracks(newtracks, timesig.Measure);
             }
             if (options.shifttime != 0)
             {
-                MidiFile.ShiftTime(newtracks, options.shifttime);
+                MIDIFile.ShiftTime(newtracks, options.shifttime);
             }
             if (options.transpose != 0)
             {
-                MidiFile.Transpose(newtracks, options.transpose);
+                MIDIFile.Transpose(newtracks, options.transpose);
             }
 
             return newtracks;
@@ -1466,11 +1465,11 @@ namespace MidiSheetMusic
          * This is used by the Shift Notes menu to shift notes left/right.
          */
         public static void
-        ShiftTime(List<MidiTrack> tracks, int amount)
+        ShiftTime(List<MIDITrack> tracks, int amount)
         {
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     note.StartTime += amount;
                 }
@@ -1479,11 +1478,11 @@ namespace MidiSheetMusic
 
         /** Shift the note keys up/down by the given amount */
         public static void
-        Transpose(List<MidiTrack> tracks, int amount)
+        Transpose(List<MIDITrack> tracks, int amount)
         {
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     note.Number += amount;
                     if (note.Number < 0)
@@ -1504,7 +1503,7 @@ namespace MidiSheetMusic
          * reasonably close to this note.
          */
         private static void
-        FindHighLowNotes(List<MidiNote> notes, int measurelen, int startindex,
+        FindHighLowNotes(List<MIDINote> notes, int measurelen, int startindex,
                          int starttime, int endtime, ref int high, ref int low)
         {
 
@@ -1540,7 +1539,7 @@ namespace MidiSheetMusic
 
         /* Find the highest and lowest notes that start at this exact start time */
         private static void
-        FindExactHighLowNotes(List<MidiNote> notes, int startindex, int starttime,
+        FindExactHighLowNotes(List<MIDINote> notes, int startindex, int starttime,
                               ref int high, ref int low)
         {
 
@@ -1572,14 +1571,14 @@ namespace MidiSheetMusic
          * This function is used to split piano songs into left-hand (bottom)
          * and right-hand (top) tracks.
          */
-        public static List<MidiTrack> SplitTrack(MidiTrack track, int measurelen)
+        public static List<MIDITrack> SplitTrack(MIDITrack track, int measurelen)
         {
-            List<MidiNote> notes = track.Notes;
+            List<MIDINote> notes = track.Notes;
             int count = notes.Count;
 
-            MidiTrack top = new MidiTrack(1);
-            MidiTrack bottom = new MidiTrack(2);
-            List<MidiTrack> result = new List<MidiTrack>(2);
+            MIDITrack top = new MIDITrack(1);
+            MIDITrack bottom = new MIDITrack(2);
+            List<MIDITrack> result = new List<MIDITrack>(2);
             result.Add(top); result.Add(bottom);
 
             if (count == 0)
@@ -1589,7 +1588,7 @@ namespace MidiSheetMusic
             int prevlow = 45; /* A3, bottom of bass staff */
             int startindex = 0;
 
-            foreach (MidiNote note in notes)
+            foreach (MIDINote note in notes)
             {
                 int high, low, highExact, lowExact;
 
@@ -1696,10 +1695,10 @@ namespace MidiSheetMusic
          *  The individual tracks are already sorted.  To merge them, we
          *  use a mergesort-like algorithm.
          */
-        public static MidiTrack CombineToSingleTrack(List<MidiTrack> tracks)
+        public static MIDITrack CombineToSingleTrack(List<MIDITrack> tracks)
         {
             /* Add all notes into one track */
-            MidiTrack result = new MidiTrack(1);
+            MIDITrack result = new MIDITrack(1);
 
             if (tracks.Count == 0)
             {
@@ -1707,8 +1706,8 @@ namespace MidiSheetMusic
             }
             else if (tracks.Count == 1)
             {
-                MidiTrack track = tracks[0];
-                foreach (MidiNote note in track.Notes)
+                MIDITrack track = tracks[0];
+                foreach (MIDINote note in track.Notes)
                 {
                     result.AddNote(note);
                 }
@@ -1723,19 +1722,19 @@ namespace MidiSheetMusic
                 noteindex[tracknum] = 0;
                 notecount[tracknum] = tracks[tracknum].Notes.Count;
             }
-            MidiNote prevnote = null;
+            MIDINote prevnote = null;
             while (true)
             {
-                MidiNote lowestnote = null;
+                MIDINote lowestnote = null;
                 int lowestTrack = -1;
                 for (int tracknum = 0; tracknum < tracks.Count; tracknum++)
                 {
-                    MidiTrack track = tracks[tracknum];
+                    MIDITrack track = tracks[tracknum];
                     if (noteindex[tracknum] >= notecount[tracknum])
                     {
                         continue;
                     }
-                    MidiNote note = track.Notes[noteindex[tracknum]];
+                    MIDINote note = track.Notes[noteindex[tracknum]];
                     if (lowestnote == null)
                     {
                         lowestnote = note;
@@ -1787,13 +1786,13 @@ namespace MidiSheetMusic
          * the left-hand track, and the higher notes go into the right hand 
          * track.
          */
-        public static List<MidiTrack> CombineToTwoTracks(List<MidiTrack> tracks, int measurelen)
+        public static List<MIDITrack> CombineToTwoTracks(List<MIDITrack> tracks, int measurelen)
         {
-            MidiTrack single = CombineToSingleTrack(tracks);
-            List<MidiTrack> result = SplitTrack(single, measurelen);
+            MIDITrack single = CombineToSingleTrack(tracks);
+            List<MIDITrack> result = SplitTrack(single, measurelen);
 
-            List<MidiEvent> lyrics = new List<MidiEvent>();
-            foreach (MidiTrack track in tracks)
+            List<MIDIEvent> lyrics = new List<MIDIEvent>();
+            foreach (MIDITrack track in tracks)
             {
                 if (track.Lyrics != null)
                 {
@@ -1813,12 +1812,12 @@ namespace MidiSheetMusic
         /** Check that the MidiNote start times are in increasing order.
          * This is for debugging purposes.
          */
-        private static void CheckStartTimes(List<MidiTrack> tracks)
+        private static void CheckStartTimes(List<MIDITrack> tracks)
         {
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 int prevtime = -1;
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     if (note.StartTime < prevtime)
                     {
@@ -1845,13 +1844,13 @@ namespace MidiSheetMusic
          * that are close together (timewise).
          */
         public static void
-        RoundStartTimes(List<MidiTrack> tracks, int millisec, TimeSignature time)
+        RoundStartTimes(List<MIDITrack> tracks, int millisec, TimeSignature time)
         {
             /* Get all the starttimes in all tracks, in sorted order */
             List<int> starttimes = new List<int>();
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     starttimes.Add(note.StartTime);
                 }
@@ -1873,11 +1872,11 @@ namespace MidiSheetMusic
             CheckStartTimes(tracks);
 
             /* Adjust the note starttimes, so that it matches one of the starttimes values */
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 int i = 0;
 
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     while (i < starttimes.Count &&
                            note.StartTime - interval > starttimes[i])
@@ -1907,22 +1906,22 @@ namespace MidiSheetMusic
          * the next note where possible.
          */
         public static void
-        RoundDurations(List<MidiTrack> tracks, int quarternote)
+        RoundDurations(List<MIDITrack> tracks, int quarternote)
         {
 
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                MidiNote prevNote = null;
+                MIDINote prevNote = null;
                 for (int i = 0; i < track.Notes.Count - 1; i++)
                 {
-                    MidiNote note1 = track.Notes[i];
+                    MIDINote note1 = track.Notes[i];
                     if (prevNote == null)
                     {
                         prevNote = note1;
                     }
 
                     /* Get the next note that has a different start time */
-                    MidiNote note2 = note1;
+                    MIDINote note2 = note1;
                     for (int j = i + 1; j < track.Notes.Count; j++)
                     {
                         note2 = track.Notes[j];
@@ -1971,13 +1970,13 @@ namespace MidiSheetMusic
         /** Split the given track into multiple tracks, separating each
          * channel into a separate track.
          */
-        private static List<MidiTrack>
-        SplitChannels(MidiTrack origtrack, List<MidiEvent> events)
+        private static List<MIDITrack>
+        SplitChannels(MIDITrack origtrack, List<MIDIEvent> events)
         {
 
             /* Find the instrument used for each channel */
             int[] channelInstruments = new int[16];
-            foreach (MidiEvent mevent in events)
+            foreach (MIDIEvent mevent in events)
             {
                 if (mevent.EventFlag == EventProgramChange)
                 {
@@ -1986,11 +1985,11 @@ namespace MidiSheetMusic
             }
             channelInstruments[9] = 128; /* Channel 9 = Percussion */
 
-            List<MidiTrack> result = new List<MidiTrack>();
-            foreach (MidiNote note in origtrack.Notes)
+            List<MIDITrack> result = new List<MIDITrack>();
+            foreach (MIDINote note in origtrack.Notes)
             {
                 bool foundchannel = false;
-                foreach (MidiTrack track in result)
+                foreach (MIDITrack track in result)
                 {
                     if (note.Channel == track.Notes[0].Channel)
                     {
@@ -2000,7 +1999,7 @@ namespace MidiSheetMusic
                 }
                 if (!foundchannel)
                 {
-                    MidiTrack track = new MidiTrack(result.Count + 1);
+                    MIDITrack track = new MIDITrack(result.Count + 1);
                     track.AddNote(note);
                     track.Instrument = channelInstruments[note.Channel];
                     result.Add(track);
@@ -2008,9 +2007,9 @@ namespace MidiSheetMusic
             }
             if (origtrack.Lyrics != null)
             {
-                foreach (MidiEvent lyricEvent in origtrack.Lyrics)
+                foreach (MIDIEvent lyricEvent in origtrack.Lyrics)
                 {
-                    foreach (MidiTrack track in result)
+                    foreach (MIDITrack track in result)
                     {
                         if (lyricEvent.Channel == track.Notes[0].Channel)
                         {
@@ -2039,7 +2038,7 @@ namespace MidiSheetMusic
 
             /* Get the start time of the first note in the midi file. */
             int firstnote = timesig.Measure * 5;
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 if (firstnote > track.Notes[0].StartTime)
                 {
@@ -2050,10 +2049,10 @@ namespace MidiSheetMusic
             /* interval = 0.06 seconds, converted into pulses */
             int interval = timesig.Quarter * 60000 / timesig.Tempo;
 
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 int prevtime = 0;
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     if (note.StartTime - prevtime <= interval)
                         continue;
@@ -2083,7 +2082,7 @@ namespace MidiSheetMusic
         public int EndTime()
         {
             int lastStart = 0;
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 if (track.Notes.Count == 0)
                 {
@@ -2098,7 +2097,7 @@ namespace MidiSheetMusic
         /** Return true if this midi file has lyrics */
         public bool HasLyrics()
         {
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 if (track.Lyrics != null)
                 {
@@ -2112,7 +2111,7 @@ namespace MidiSheetMusic
         {
             string result = "Midi File tracks=" + tracks.Count + " quarter=" + quarternote + "\n";
             result += Time.ToString() + "\n";
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 result += track.ToString();
             }
@@ -2135,7 +2134,7 @@ namespace MidiSheetMusic
                 return;
             }
 
-            MidiFile f = new MidiFile(arg[0]);
+            MIDIFile f = new MIDIFile(arg[0]);
             Console.Write(f.ToString());
         }
 

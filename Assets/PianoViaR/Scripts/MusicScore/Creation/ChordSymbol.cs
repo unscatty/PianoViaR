@@ -10,14 +10,15 @@
  *  GNU General Public License for more details.
  */
 
-using UnityEngine;
-using System.Collections.Generic;
 using System;
-using MusicScore.Helpers;
-using MusicScore.Behaviors;
+using System.Collections.Generic;
+using UnityEngine;
+using PianoViaR.MIDI.Parsing;
+using PianoViaR.MIDI.Helpers;
+using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     public enum StemDir { Up, Down };
@@ -68,7 +69,7 @@ namespace MidiSheetMusic
          * each note.  Use the time signature to calculate the duration
          * of the notes. Use the clef when drawing the chord.
          */
-        public ChordSymbol(List<MidiNote> midinotes, KeySignature key,
+        public ChordSymbol(List<MIDINote> midinotes, KeySignature key,
                            TimeSignature time, Clef c, SheetMusic sheet)
         {
 
@@ -195,7 +196,7 @@ namespace MidiSheetMusic
          */
 
         private NoteData[]
-        CreateNoteData(List<MidiNote> midinotes, KeySignature key,
+        CreateNoteData(List<MIDINote> midinotes, KeySignature key,
                                   TimeSignature time)
         {
 
@@ -204,7 +205,7 @@ namespace MidiSheetMusic
 
             for (int i = 0; i < len; i++)
             {
-                MidiNote midi = midinotes[i];
+                MIDINote midi = midinotes[i];
                 generatedNoteData[i] = new NoteData();
                 generatedNoteData[i].number = midi.Number;
                 generatedNoteData[i].leftSide = true;
@@ -461,7 +462,7 @@ namespace MidiSheetMusic
             float dotWholeWidth = 0;
             float nameWidth = 0;
 
-            if (sheetMusic != null && sheetMusic.ShowNoteLetters != MidiOptions.NoteNameNone)
+            if (sheetMusic != null && sheetMusic.ShowNoteLetters != MIDIOptions.NoteNameNone)
             {
                 // Get Max length for a note name
                 var maxNoteNameLength = 0;
@@ -569,11 +570,11 @@ namespace MidiSheetMusic
         /** Get the name for this note */
         private string NoteName(int notenumber, WhiteNote whitenote)
         {
-            if (sheetMusic.ShowNoteLetters == MidiOptions.NoteNameLetter)
+            if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameLetter)
             {
                 return Letter(notenumber, whitenote);
             }
-            else if (sheetMusic.ShowNoteLetters == MidiOptions.NoteNameFixedDoReMi)
+            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameFixedDoReMi)
             {
                 string[] fixedDoReMi = {
                 "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
@@ -581,7 +582,7 @@ namespace MidiSheetMusic
                 int notescale = NoteScale.FromNumber(notenumber);
                 return fixedDoReMi[notescale];
             }
-            else if (sheetMusic.ShowNoteLetters == MidiOptions.NoteNameMovableDoReMi)
+            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameMovableDoReMi)
             {
                 string[] fixedDoReMi = {
                 "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
@@ -596,7 +597,7 @@ namespace MidiSheetMusic
                 int notescale = NoteScale.FromNumber(notenumber);
                 return fixedDoReMi[notescale];
             }
-            else if (sheetMusic.ShowNoteLetters == MidiOptions.NoteNameFixedNumber)
+            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameFixedNumber)
             {
                 string[] num = {
                 "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
@@ -604,7 +605,7 @@ namespace MidiSheetMusic
                 int notescale = NoteScale.FromNumber(notenumber);
                 return num[notescale];
             }
-            else if (sheetMusic.ShowNoteLetters == MidiOptions.NoteNameMovableNumber)
+            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameMovableNumber)
             {
                 string[] num = {
                 "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"

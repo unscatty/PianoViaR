@@ -1,10 +1,10 @@
-using UnityEngine;
-using BasicShape;
 using System;
 using System.Linq;
+using BasicShapes;
+using UnityEngine;
 
 
-namespace MusicScore.Behaviors
+namespace PianoViaR.Score.Creation.Custom
 {
     public static class ArrayExtensions
     {

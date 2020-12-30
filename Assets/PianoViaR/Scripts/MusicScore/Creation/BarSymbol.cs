@@ -11,10 +11,10 @@
  */
 
 using UnityEngine;
-using MusicScore.Helpers;
+using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
 

@@ -10,7 +10,7 @@
  *  GNU General Public License for more details.
  */
 
-namespace MidiSheetMusic
+namespace PianoViaR.MIDI.Parsing
 {
     /** The possible note durations */
     public enum NoteDuration
@@ -85,7 +85,7 @@ namespace MidiSheetMusic
         {
             if (numerator <= 0 || denominator <= 0 || quarternote <= 0)
             {
-                throw new MidiFileException("Invalid time signature", 0);
+                throw new MIDIFileException("Invalid time signature", 0);
             }
 
             /* Midi File gives wrong time signature sometimes */

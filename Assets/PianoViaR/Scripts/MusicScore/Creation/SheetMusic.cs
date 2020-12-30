@@ -13,10 +13,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using MusicScore.Helpers;
+using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
+using PianoViaR.MIDI.Parsing;
+using PianoViaR.MIDI.Helpers;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
 
@@ -87,18 +89,18 @@ namespace MidiSheetMusic
         private int showNoteLetters;    /** Display the note letters */
         public MusicSymbolFactory factory;
 
-        /** Create a new SheetMusic control, using the given parsed MidiFile.
+        /** Create a new SheetMusic control, using the given parsed MIDIFile.
          *  The options can be null.
          */
-        public SheetMusic(MidiFile file, MidiOptions options, MusicSymbolFactory factory)
+        public SheetMusic(MIDIFile file, MIDIOptions options, MusicSymbolFactory factory)
         {
             this.factory = factory;
             Initialize(file, options);
         }
 
         public SheetMusic(
-            MidiFile file,
-            MidiOptions options,
+            MIDIFile file,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         )
@@ -111,54 +113,54 @@ namespace MidiSheetMusic
         /** Create a new SheetMusic control, using the given midi filename.
          *  The options can be null.
          */
-        public SheetMusic(string filename, MidiOptions options, MusicSymbolFactory factory)
+        public SheetMusic(string filename, MIDIOptions options, MusicSymbolFactory factory)
         {
             this.factory = factory;
-            MidiFile file = new MidiFile(filename);
+            MIDIFile file = new MIDIFile(filename);
             Initialize(file, options);
         }
 
         public SheetMusic(
             string filename,
-            MidiOptions options,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         )
         {
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
-            MidiFile file = new MidiFile(filename);
+            MIDIFile file = new MIDIFile(filename);
             Initialize(file, options);
         }
 
         /** Create a new SheetMusic control, using the given raw midi byte[] data.
          *  The options can be null.
          */
-        public SheetMusic(byte[] data, string title, MidiOptions options, MusicSymbolFactory factory)
+        public SheetMusic(byte[] data, string title, MIDIOptions options, MusicSymbolFactory factory)
         {
             this.factory = factory;
-            MidiFile file = new MidiFile(data, title);
+            MIDIFile file = new MIDIFile(data, title);
             Initialize(file, options);
         }
 
         public SheetMusic(
             byte[] data,
             string title,
-            MidiOptions options,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         )
         {
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
-            MidiFile file = new MidiFile(data, title);
+            MIDIFile file = new MIDIFile(data, title);
             Initialize(file, options);
         }
 
         public SheetMusic(
-            List<MidiTrack> tracks,
+            List<MIDITrack> tracks,
             TimeSignature time,
-            MidiOptions options,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         )
@@ -169,9 +171,9 @@ namespace MidiSheetMusic
         }
 
         public SheetMusic(
-            MidiTrack track,
+            MIDITrack track,
             TimeSignature time,
-            MidiOptions options,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         )
@@ -179,52 +181,52 @@ namespace MidiSheetMusic
             (PageWidth, PageHeight) = pageDimensions;
             this.factory = factory;
 
-            List<MidiTrack> tracks = new List<MidiTrack> { track };
+            List<MIDITrack> tracks = new List<MIDITrack> { track };
 
             Initialize(tracks, options, time);
         }
 
         public SheetMusic(
-            List<MidiTrack> tracks,
-            MidiOptions options,
+            List<MIDITrack> tracks,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         ) : this(tracks, TimeSignature.Default, options, factory, pageDimensions) { }
 
         public SheetMusic(
-            MidiTrack track,
-            MidiOptions options,
+            MIDITrack track,
+            MIDIOptions options,
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         ) : this(track, TimeSignature.Default, options, factory, pageDimensions) { }
 
 
         /** Create a new SheetMusic control.
-         * MidiFile is the parsed midi file to display.
+         * MIDIFile is the parsed midi file to display.
          * SheetMusic Options are the menu options that were selected.
          *
-         * - Apply all the Menu Options to the MidiFile tracks.
+         * - Apply all the Menu Options to the MIDIFile tracks.
          * - Calculate the key signature
          * - For each track, create a list of MusicSymbols (notes, rests, bars, etc)
          * - Vertically align the music symbols in all the tracks
          * - Partition the music notes into horizontal staffs
          */
-        public void Initialize(MidiFile file, MidiOptions options)
+        public void Initialize(MIDIFile file, MIDIOptions options)
         {
             if (options == null)
             {
-                options = new MidiOptions(file);
+                options = new MIDIOptions(file);
             }
 
             filename = file.FileName;
 
-            List<MidiTrack> tracks = file.ChangeMidiNotes(options);
+            List<MIDITrack> tracks = file.ChangeMidiNotes(options);
             TimeSignature time = file.Time;
 
             Initialize(tracks, options, time, filename);
         }
 
-        private void Initialize(List<MidiTrack> tracks, MidiOptions options, TimeSignature time, String name = "")
+        private void Initialize(List<MIDITrack> tracks, MIDIOptions options, TimeSignature time, String name = "")
         {
             SetSizes(tracks.Count);
             scrollVert = options.scrollVert;
@@ -259,7 +261,7 @@ namespace MidiSheetMusic
             List<MusicSymbol>[] symbols = new List<MusicSymbol>[numtracks];
             for (int tracknum = 0; tracknum < numtracks; tracknum++)
             {
-                MidiTrack track = tracks[tracknum];
+                MIDITrack track = tracks[tracknum];
                 ClefMeasures clefs = new ClefMeasures(track.Notes, time.Measure);
                 List<ChordSymbol> chords = CreateChords(track.Notes, mainkey, time, clefs);
                 symbols[tracknum] = CreateSymbols(chords, clefs, time, lastStart);
@@ -293,15 +295,15 @@ namespace MidiSheetMusic
         }
 
         /** Return the last start time */
-        private int EndTime(MidiFile file)
+        private int EndTime(MIDIFile file)
         {
             return file.EndTime();
         }
 
-        private int EndTime(List<MidiTrack> tracks)
+        private int EndTime(List<MIDITrack> tracks)
         {
             int lastStart = 0;
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
                 if (track.Notes.Count == 0)
                 {
@@ -398,12 +400,12 @@ namespace MidiSheetMusic
 
 
         /** Get the best key signature given the midi notes in all the tracks. */
-        private KeySignature GetKeySignature(List<MidiTrack> tracks)
+        private KeySignature GetKeySignature(List<MIDITrack> tracks)
         {
             List<int> notenums = new List<int>();
-            foreach (MidiTrack track in tracks)
+            foreach (MIDITrack track in tracks)
             {
-                foreach (MidiNote note in track.Notes)
+                foreach (MIDINote note in track.Notes)
                 {
                     notenums.Add(note.Number);
                 }
@@ -420,7 +422,7 @@ namespace MidiSheetMusic
          * @ret An array of ChordSymbols
          */
         private
-        List<ChordSymbol> CreateChords(List<MidiNote> midinotes,
+        List<ChordSymbol> CreateChords(List<MIDINote> midinotes,
                                        KeySignature key,
                                        TimeSignature time,
                                        ClefMeasures clefs)
@@ -428,7 +430,7 @@ namespace MidiSheetMusic
 
             int i = 0;
             List<ChordSymbol> chords = new List<ChordSymbol>();
-            List<MidiNote> notegroup = new List<MidiNote>(12);
+            List<MIDINote> notegroup = new List<MIDINote>(12);
             int len = midinotes.Count;
 
             while (i < len)
@@ -903,7 +905,7 @@ namespace MidiSheetMusic
          */
         private List<Staff>
         CreateStaffsForTrack(List<MusicSymbol> symbols, int measurelen,
-                             KeySignature key, MidiOptions options,
+                             KeySignature key, MIDIOptions options,
                              int track, int totaltracks)
         {
             float keysigWidth = KeySignatureWidth(key);
@@ -1004,7 +1006,7 @@ namespace MidiSheetMusic
          */
         private List<Staff>
         CreateStaffs(List<MusicSymbol>[] allsymbols, KeySignature key,
-                     MidiOptions options, int measurelen)
+                     MIDIOptions options, int measurelen)
         {
 
             List<Staff>[] trackstaffs = new List<Staff>[allsymbols.Length];
@@ -1050,20 +1052,20 @@ namespace MidiSheetMusic
 
         /** Get the lyrics for each track */
         private static List<LyricSymbol>[]
-        GetLyrics(List<MidiTrack> tracks)
+        GetLyrics(List<MIDITrack> tracks)
         {
             bool hasLyrics = false;
             List<LyricSymbol>[] result = new List<LyricSymbol>[tracks.Count];
             for (int tracknum = 0; tracknum < tracks.Count; tracknum++)
             {
-                MidiTrack track = tracks[tracknum];
+                MIDITrack track = tracks[tracknum];
                 if (track.Lyrics == null)
                 {
                     continue;
                 }
                 hasLyrics = true;
                 result[tracknum] = new List<LyricSymbol>();
-                foreach (MidiEvent ev in track.Lyrics)
+                foreach (MIDIEvent ev in track.Lyrics)
                 {
                     String text = System.Text.Encoding.UTF8.GetString(ev.Value, 0, ev.Value.Length);
                     LyricSymbol sym = new LyricSymbol(ev.StartTime, text);

@@ -11,12 +11,10 @@
  */
 
 using UnityEngine;
-using MusicScore.Helpers;
-using MusicScore.Behaviors;
+using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
-using System;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** @class TimeSigSymbol

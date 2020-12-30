@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using PianoViaR.MIDIPlayback;
 
 public class PianoKeyController : MonoBehaviour
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MusicScore.Helpers
+namespace PianoViaR.Score.Helpers
 {
     public enum SymbolType
     {

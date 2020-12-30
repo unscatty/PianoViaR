@@ -11,9 +11,9 @@
  */
 
 using UnityEngine;
-using MusicScore.Helpers;
+using PianoViaR.Score.Helpers;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
 

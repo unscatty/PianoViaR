@@ -10,10 +10,10 @@
  *  GNU General Public License for more details.
  */
 
-using System;
 using System.Collections.Generic;
+using PianoViaR.MIDI.Parsing;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** @class ClefMeasures
@@ -31,7 +31,7 @@ namespace MidiSheetMusic
          * @param notes  The midi notes
          * @param measurelen The length of a measure, in pulses
          */
-        public ClefMeasures(List<MidiNote> notes, int measurelen)
+        public ClefMeasures(List<MIDINote> notes, int measurelen)
         {
             measure = measurelen;
             Clef mainclef = MainClef(notes);
@@ -105,11 +105,11 @@ namespace MidiSheetMusic
          * average note is below Middle C, use a bass clef.  Else, use a treble
          * clef.
          */
-        private static Clef MainClef(List<MidiNote> notes)
+        private static Clef MainClef(List<MIDINote> notes)
         {
             int middleC = WhiteNote.MiddleC.Number();
             int total = 0;
-            foreach (MidiNote m in notes)
+            foreach (MIDINote m in notes)
             {
                 total += m.Number;
             }

@@ -11,12 +11,13 @@
  */
 
 using UnityEngine;
-using MusicScore.Helpers;
-using BasicShape;
-using MusicScore.Behaviors;
+using PianoViaR.Score.Helpers;
+using PianoViaR.Score.Creation.Custom;
 using PianoViaR.Utils;
+using PianoViaR.MIDI.Parsing;
+using BasicShapes;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /** @class Stem
@@ -379,7 +380,7 @@ namespace MidiSheetMusic
         {
             float faceWidth = SheetMusic.LineWidth / 2;
             float faceHeight = SheetMusic.BeamWidth / 2;
-            const BasicShape.Plane plane = BasicShape.Plane.ZY;
+            const BasicShapes.Plane plane = BasicShapes.Plane.ZY;
 
             GameObject beam = factory.CreateSymbol(SymbolType.NOTE_BEAM);
             Beam beamBehavior = beam.GetComponent<Beam>();

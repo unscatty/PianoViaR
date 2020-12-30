@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace BasicShape
+namespace BasicShapes
 {
     public enum Plane { XY, YX, XZ, ZX, YZ, ZY };
     public class Ellipse

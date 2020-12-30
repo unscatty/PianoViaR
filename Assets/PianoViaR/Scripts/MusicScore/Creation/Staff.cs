@@ -13,11 +13,11 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using MusicScore.Helpers;
-using MusicScore.Behaviors;
+using PianoViaR.MIDI.Helpers;
+using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
     /* @class Staff
@@ -61,9 +61,13 @@ namespace MidiSheetMusic
          * with the staffs above and below. The SheetMusicOptions are used
          * to check whether to display measure numbers or not.
          */
-        public Staff(List<MusicSymbol> symbols, KeySignature key,
-                     MidiOptions options,
-                     int tracknum, int totaltracks)
+        public Staff(
+            List<MusicSymbol> symbols,
+            KeySignature key,
+            MIDIOptions options,
+            int tracknum,
+            int totaltracks
+        )
         {
 
             keysigWidth = SheetMusic.KeySignatureWidth(key);

@@ -10,13 +10,10 @@
  *  GNU General Public License for more details.
  */
 
-using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
+using PianoViaR.MIDI.Parsing;
 
-namespace MidiSheetMusic
+namespace PianoViaR.MIDI.Helpers
 {
 
     /** @class MidiOptions
@@ -26,7 +23,7 @@ namespace MidiSheetMusic
      * collected from the menu/dialog settings, and then are passed
      * to the SheetMusic and MidiPlayer classes.
      */
-    public class MidiOptions
+    public class MIDIOptions
     {
 
         // The possible values for showNoteLetters
@@ -67,11 +64,11 @@ namespace MidiSheetMusic
         public int playMeasuresInLoopEnd;   /** End measure to play in loop */
 
 
-        public MidiOptions()
+        public MIDIOptions()
         {
         }
 
-        public MidiOptions(MidiFile midifile)
+        public MIDIOptions(MIDIFile midifile)
         {
             filename = midifile.FileName;
             title = Path.GetFileName(midifile.FileName);

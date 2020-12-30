@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using MidiSheetMusic;
-using MusicScore.Helpers;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using PianoViaR.Utils;
-
-namespace MusicScore
+using PianoViaR.MIDI.Parsing;
+using PianoViaR.MIDI.Helpers;
+using PianoViaR.Score.Creation;
+using PianoViaR.Score.Helpers;
+using PianoViaR.Score.Behaviors;
+namespace PianoViaR.Score
 {
 
     public class MusicScore : MonoBehaviour
@@ -46,10 +46,10 @@ namespace MusicScore
 
             TimeSignature time = TimeSignature.Default;
             var testTrack = TestTrack(time);
-            var options = new MidiOptions
+            var options = new MIDIOptions
             {
                 scrollVert = false,
-                showNoteLetters = MidiOptions.NoteNameNone,
+                showNoteLetters = MIDIOptions.NoteNameNone,
                 key = -1,
                 shifttime = 0,
                 showLyrics = false,
@@ -84,7 +84,7 @@ namespace MusicScore
             staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
         }
 
-        private MidiTrack TestTrack(TimeSignature time)
+        private MIDITrack TestTrack(TimeSignature time)
         {
             NoteDuration[] durations = {
                 NoteDuration.Quarter, NoteDuration.Quarter, NoteDuration.Quarter
@@ -96,14 +96,14 @@ namespace MusicScore
 
             // int quarterDuration = time.DurationToTime()
 
-            List<MidiSheetMusic.MidiNote> notes = new List<MidiSheetMusic.MidiNote> {
-                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 0, 0, 60, startTimes[1]),
-                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 1, 0, 62, startTimes[2]),
-                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 2, 0, 64, startTimes[3]),
-                new MidiSheetMusic.MidiNote(startTimes[0] + startTimes[1] * 3, 0, 66, startTimes[3]),
+            List<MIDINote> notes = new List<MIDINote> {
+                new MIDINote(startTimes[0] + startTimes[1] * 0, 0, 60, startTimes[1]),
+                new MIDINote(startTimes[0] + startTimes[1] * 1, 0, 62, startTimes[2]),
+                new MIDINote(startTimes[0] + startTimes[1] * 2, 0, 64, startTimes[3]),
+                new MIDINote(startTimes[0] + startTimes[1] * 3, 0, 66, startTimes[3]),
             };
 
-            MidiTrack track = new MidiTrack(0)
+            MIDITrack track = new MIDITrack(0)
             {
                 Notes = notes,
                 Instrument = 0,

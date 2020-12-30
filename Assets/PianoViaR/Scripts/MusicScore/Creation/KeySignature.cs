@@ -13,7 +13,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MidiSheetMusic
+namespace PianoViaR.Score.Creation
 {
 
 
