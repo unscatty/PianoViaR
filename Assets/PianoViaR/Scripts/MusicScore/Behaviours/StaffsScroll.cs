@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using PianoViaR.Utils;
 using Leap.Unity.Interaction;
+using System.Collections;
 
 [RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(InteractionBehaviour))]
@@ -9,6 +10,8 @@ public class StaffsScroll : MonoBehaviour
     BoxCollider boxCollider;
     public GameObject GameObject { get { return this.gameObject; } }
     // Start is called before the first frame update
+    private Vector3 leftPosition;
+    public float positionResetTime; // 2 seconds
 
     private void Awake()
     {
@@ -29,6 +32,12 @@ public class StaffsScroll : MonoBehaviour
     {
         if (boxCollider == null)
             boxCollider = GetComponent<BoxCollider>();
+
+        if (leftPosition == null)
+            leftPosition = Vector3.zero;
+
+        if (positionResetTime <= 0)
+            positionResetTime = 1;
     }
 
     public void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
@@ -49,7 +58,9 @@ public class StaffsScroll : MonoBehaviour
 
         // Center relative to its parent
         transform.localPosition = Vector3.zero;
-        // transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
+        transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
+
+        leftPosition = transform.localPosition;
     }
 
     public void CanCollide(bool canCollide)
@@ -66,8 +77,29 @@ public class StaffsScroll : MonoBehaviour
         boxCollider.size = Vector3.one;
     }
 
+    public void RestoreToLeft()
+    {
+        // transform.localPosition = leftPosition;
+        StartCoroutine(RestorePosition(leftPosition, positionResetTime));
+    }
+
     public void Clear()
     {
         gameObject.Clear();
+    }
+
+    IEnumerator RestorePosition(Vector3 targetPosition, float duration)
+    {
+        float time = 0;
+        Vector3 startPositionX = new Vector3(transform.localPosition.x, 0, 0);
+        Vector3 targetPositionX = new Vector3(targetPosition.x, 0, 0);
+
+        while (time < duration)
+        {
+            transform.localPosition = Vector3.Lerp(startPositionX, targetPositionX, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        transform.localPosition = targetPosition;
     }
 }

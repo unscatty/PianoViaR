@@ -26,10 +26,12 @@ public class ScoreBoard : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         staffs.CanCollide(true);
+        Debug.Log("Can collide");
     }
 
     private void OnTriggerExit(Collider other)
     {
         staffs.CanCollide(false);
+        Debug.Log("Can not collide");
     }
 }
