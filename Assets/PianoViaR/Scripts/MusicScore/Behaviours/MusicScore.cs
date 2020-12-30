@@ -6,6 +6,9 @@ using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Creation;
 using PianoViaR.Score.Helpers;
 using PianoViaR.Score.Behaviors;
+using PianoViaR.MIDIPlayback;
+using System.IO;
+
 namespace PianoViaR.Score
 {
 
@@ -17,6 +20,8 @@ namespace PianoViaR.Score
         // The game object to hold the staffs created
         public StaffsScroll staffs;
         public ScoreBoard scoreBoard;
+        public MIDIPlayer midiPlayer;
+        public int transpose;
 
         // Start is called before the first frame update
         void Start()
@@ -34,6 +39,13 @@ namespace PianoViaR.Score
             if (currentMidiAssetPath != newMidiAssetPath)
             {
                 currentMidiAssetPath = newMidiAssetPath;
+                CreateScore(currentMidiAssetPath);
+
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
                 CreateScore(currentMidiAssetPath);
             }
         }
@@ -67,8 +79,23 @@ namespace PianoViaR.Score
                 playMeasuresInLoopStart = 0,
                 playMeasuresInLoopEnd = 0,
             };
+            var midifile = new MIDIFile(MidiAssetPath);
+            var midiOptions = new MIDIOptions(midifile);
+            midiOptions.transpose = transpose;
+            Stream midiStream = new MemoryStream();
 
-            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            var couldWrite = midifile.Write(midiStream, midiOptions, close: false, reset: true);
+            if (couldWrite)
+            {
+                midiPlayer.LoadMidi(new AudioSynthesis.Midi.MidiFile(midiStream));
+            }
+            else
+            {
+                Debug.Log("Could not write to stream");
+            }
+
+            // SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            SheetMusic sheet = new SheetMusic(midifile, midiOptions, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
             // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
 
             Vector3 staffsXYDims;

@@ -826,7 +826,7 @@ namespace PianoViaR.MIDI.Parsing
          *  Return true on success, and false on error.
          */
         private static bool
-        WriteEvents(Stream file, List<MIDIEvent>[] events, int trackmode, int quarter)
+        WriteEvents(Stream file, List<MIDIEvent>[] events, int trackmode, int quarter, bool close = true, bool reset = false)
         {
             try
             {
@@ -941,7 +941,12 @@ namespace PianoViaR.MIDI.Parsing
                         }
                     }
                 }
-                file.Close();
+                if (close)
+                    file.Close();
+
+                if (reset)
+                    file.Position = 0;
+
                 return true;
             }
             catch (IOException)
@@ -1089,14 +1094,14 @@ namespace PianoViaR.MIDI.Parsing
          * before performing the write.
          * Return true if the file was saved successfully, else false.
          */
-        public bool Write(Stream stream, MIDIOptions options)
+        public bool Write(Stream stream, MIDIOptions options, bool close = true, bool reset = false)
         {
             List<MIDIEvent>[] newevents = events;
             if (options != null)
             {
                 newevents = ApplyOptionsToEvents(options);
             }
-            return WriteEvents(stream, newevents, trackmode, quarternote);
+            return WriteEvents(stream, newevents, trackmode, quarternote, close: close, reset: reset);
         }
 
 

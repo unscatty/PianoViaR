@@ -120,6 +120,7 @@ namespace PianoViaR.MIDI.Helpers
             scrollVert = false;
             showMeasures = true;
             showNoteLetters = NoteNameFixedDoReMi;
+            // transpose = 12;
         }
     }
 }
