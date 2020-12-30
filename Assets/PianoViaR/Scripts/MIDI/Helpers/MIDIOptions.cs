@@ -81,7 +81,7 @@ namespace PianoViaR.MIDI.Helpers
                 tracks[i] = true;
                 mute[i] = false;
                 instruments[i] = midifile.Tracks[i].Instrument;
-                if (midifile.Tracks[i].InstrumentName == "Percussion")
+                if (midifile.Tracks[i].MIDIInstrument == MIDIInstrument.PERCUSSION)
                 {
                     tracks[i] = false;
                     mute[i] = true;

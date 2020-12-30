@@ -11,6 +11,7 @@
  */
 
 using System.Collections.Generic;
+using PianoViaR.MIDI.Helpers;
 
 namespace PianoViaR.MIDI.Parsing
 {
@@ -40,6 +41,18 @@ namespace PianoViaR.MIDI.Parsing
             notes = new List<MIDINote>(20);
             instrument = 0;
         }
+
+        public MIDITrack(List<MIDINote> notes, int trackNumber, int instrument, List<MIDIEvent> lyrics = null)
+        {
+            this.notes = notes;
+            this.trackNumber = trackNumber;
+            this.instrument = instrument;
+            this.lyrics = lyrics;
+        }
+
+        public MIDITrack(List<MIDINote> notes, int trackNumber, MIDIInstrument instrument, List<MIDIEvent> lyrics = null)
+        : this(notes, trackNumber, (int)instrument, lyrics)
+        { }
 
         /** Create a MidiTrack based on the Midi events.  Extract the NoteOn/NoteOff
          *  events to gather the list of MidiNotes.
@@ -110,12 +123,24 @@ namespace PianoViaR.MIDI.Parsing
             set { instrument = value; }
         }
 
+        public MIDIInstrument MIDIInstrument
+        {
+            get
+            {
+                return (MIDIInstrument)Instrument;
+            }
+            set
+            {
+                instrument = (int)value;
+            }
+        }
+
         public string InstrumentName
         {
             get
             {
                 if (instrument >= 0 && instrument <= 128)
-                    return MIDIFile.Instruments[instrument];
+                    return MIDIInstrument.Name();
                 else
                     return "";
             }

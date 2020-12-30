@@ -11,6 +11,7 @@
  */
 
 using System.Collections.Generic;
+using PianoViaR.Utils;
 
 namespace PianoViaR.MIDI.Parsing
 {
@@ -49,7 +50,9 @@ namespace PianoViaR.MIDI.Parsing
             this.duration = duration;
         }
 
-
+        public MIDINote(PianoNotes noteValue, int channel, int starttime, int duration)
+        : this(starttime, channel, noteValue.MIDINumber(), duration)
+        { }
         public int StartTime
         {
             get { return starttime; }
@@ -71,6 +74,14 @@ namespace PianoViaR.MIDI.Parsing
         {
             get { return notenumber; }
             set { notenumber = value; }
+        }
+
+        public PianoNotes PianoNote
+        {
+            get
+            {
+                return PianoNotesHelper.FromMIDINumber(notenumber);
+            }
         }
 
         public int Duration
