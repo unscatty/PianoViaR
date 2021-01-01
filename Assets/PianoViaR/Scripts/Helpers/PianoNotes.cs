@@ -1,4 +1,4 @@
-﻿namespace PianoViaR.Utils
+﻿namespace PianoViaR.Helpers
 {
     public enum PianoNotes
     {
@@ -97,13 +97,18 @@
     {
         public static int MIDINumber(this PianoNotes pianoNote)
         {
-            return (int)pianoNote;
+            return ToMIDINumber(pianoNote);
         }
 
         public static int PianoKeyNumber(this PianoNotes pianoNote)
         {
             // A0 is 21 in MIDI
             return pianoNote.MIDINumber() - 21;
+        }
+
+        public static int ToMIDINumber(PianoNotes pianoNote)
+        {
+            return (int)pianoNote;
         }
 
         public static PianoNotes FromMIDINumber(int noteNumber)

@@ -5,7 +5,8 @@ namespace PianoViaR.MIDI.Helpers
 {
     public enum MIDIInstrument
     {
-        ACOUSTIC_GRAND_PIANO,
+        NONE = -1,
+        ACOUSTIC_GRAND_PIANO = 0,
         BRIGHT_ACOUSTIC_PIANO,
         ELECTRIC_GRAND_PIANO,
         HONKY_TONK_PIANO,
@@ -136,7 +137,7 @@ namespace PianoViaR.MIDI.Helpers
         PERCUSSION,
     }
 
-    public static class InstrumentMethods
+    public static class MIDIInstrumentHelper
     {
         public static string Name(this MIDIInstrument instrument)
         {
@@ -148,6 +149,28 @@ namespace PianoViaR.MIDI.Helpers
         {
             TextInfo tInfo = new CultureInfo("en-US", false).TextInfo;
             return tInfo.ToTitleCase(snakeCase);
+        }
+
+        public static int MIDINumber(this MIDIInstrument instrument)
+        {
+            return ToMIDINumber(instrument);
+        }
+
+        public static int ToMIDINumber(MIDIInstrument instrument)
+        {
+            return (int)instrument;
+        }
+
+        public static MIDIInstrument FromMIDINumber(int instrumentNumber)
+        {
+            if (instrumentNumber >= 0 && instrumentNumber <= 127)
+            {
+                return (MIDIInstrument)instrumentNumber;
+            }
+            else
+            {
+                return MIDIInstrument.NONE;
+            }
         }
     }
 }
