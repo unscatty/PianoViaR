@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using AudioSynthesis.Sequencer;
 using AudioSynthesis.Bank;
 using AudioSynthesis.Midi;
-using AudioSynthesis.Synthesis;
-using PianoViaR.MIDI.Helpers;
 using System;
 using PianoViaR.Helpers;
 using System.IO;

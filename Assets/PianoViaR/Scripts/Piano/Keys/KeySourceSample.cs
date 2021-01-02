@@ -93,8 +93,6 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
                 if (current.isPlaying)
                 {
-                    // Stop(current);
-                    // RemoveFade(current);
                     current.volume -= Time.deltaTime * 2;
 
                     if (current.volume <= 0)
@@ -110,8 +108,6 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public override IEnumerator FadeAll(YieldInstruction instruction)
         {
-            // base.FadeAll();
-
             if (fadeList.Count > 0)
                 fadeList.RemoveRange(0, fadeList.Count);
 

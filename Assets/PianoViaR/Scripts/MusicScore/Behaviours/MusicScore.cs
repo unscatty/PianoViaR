@@ -5,11 +5,10 @@ using PianoViaR.MIDI.Parsing;
 using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Creation;
 using PianoViaR.Score.Helpers;
-using PianoViaR.Score.Behaviors;
 using PianoViaR.MIDI.Playback;
 using System.IO;
 
-namespace PianoViaR.Score
+namespace PianoViaR.Score.Behaviours
 {
 
     public class MusicScore : MonoBehaviour

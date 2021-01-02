@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using PianoViaR.Utils;
 
-namespace PianoViaR.Score.Behaviors
+namespace PianoViaR.Score.Behaviours
 {
     [RequireComponent(typeof(BoxCollider))]
     public class ScoreBoard : MonoBehaviour

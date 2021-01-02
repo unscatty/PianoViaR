@@ -3,7 +3,7 @@ using PianoViaR.Utils;
 using Leap.Unity.Interaction;
 using System.Collections;
 
-namespace PianoViaR.Score.Behaviors
+namespace PianoViaR.Score.Behaviours
 {
     [RequireComponent(typeof(BoxCollider))]
     [RequireComponent(typeof(InteractionBehaviour))]

@@ -383,13 +383,13 @@ namespace PianoViaR.Score.Creation
             const BasicShapes.Plane plane = BasicShapes.Plane.ZY;
 
             GameObject beam = factory.CreateSymbol(SymbolType.NOTE_BEAM);
-            Beam beamBehavior = beam.GetComponent<Beam>();
+            Beam beamBehaviour = beam.GetComponent<Beam>();
 
             var inverseY = new Vector3(1, -1, 1);
             var newCenterFace1 = centerFace1 + position;
             var newCenterFace2 = centerFace2 + position;
 
-            beamBehavior.Initialise(
+            beamBehaviour.Initialise(
                 new Ellipse(NoteBeamSides, faceWidth, faceHeight, center: newCenterFace1, plane),
                 new Ellipse(NoteBeamSides, faceWidth, faceHeight, center: newCenterFace2, plane)
             );

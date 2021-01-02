@@ -1,7 +1,5 @@
 using UnityEngine;
-using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using PianoViaR.MIDI.Playback;
 using UnityEditor;
@@ -77,31 +75,25 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public void SetupNotesSamples(PianoKey[] pianoKeys)
         {
-            for (int i = 0, sampleIdx = 0, note = 21; i < pianoKeys.Length; i++)
+            for (int i = 0, sampleIdx = 0, note = 21; i < pianoKeys.Length; i++, sampleIdx++, note++)
             {
                 PianoKey pianoKey = pianoKeys[i];
-                if (pianoKey)
-                {
-                    AudioSource keyAudioSource = pianoKey.GetComponent<AudioSource>();
-                    keyAudioSource.clip = NoteSamples[sampleIdx];
+                AudioSource keyAudioSource = pianoKey.GetComponent<AudioSource>();
+                keyAudioSource.clip = NoteSamples[sampleIdx];
 
-                    var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
-                    var keySource = new KeySourceSample(
-                        keyAudioSource,
-                        NoMultiAudioSource,
-                        pianoKey.GameObject,
-                        SustainPedalPressed,
-                        SustainSeconds
-                    );
+                var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
+                var keySource = new KeySourceSample(
+                    keyAudioSource,
+                    NoMultiAudioSource,
+                    pianoKey.GameObject,
+                    SustainPedalPressed,
+                    SustainSeconds
+                );
 
-                    Suscribe(pianoKey);
+                Suscribe(pianoKey);
 
-                    pianoKey.EventArgs = eventArgs;
-                    pianoKey.KeySource = keySource;
-
-                    sampleIdx++;
-                    note++;
-                }
+                pianoKey.EventArgs = eventArgs;
+                pianoKey.KeySource = keySource;
             }
         }
 
@@ -125,11 +117,9 @@ namespace PianoViaR.Piano.Behaviours.Keys
             midiNotePlayer.LoadBank(bank);
 
             // Assign the corresponding midi note and instrument to every PianoKey child of PianoKeysParent
-            for (int i = 0, note = 21; i < pianoKeys.Length; i++)
+            for (int i = 0, note = 21; i < pianoKeys.Length; i++, note++)
             {
                 PianoKey pianoKey = pianoKeys[i];
-                // if (pianoKey)
-                // {
                 var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
                 var keySource = new KeySourceMIDI(eventArgs);
 
@@ -140,9 +130,6 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
-
-                note++;
-                // }
             }
         }
 

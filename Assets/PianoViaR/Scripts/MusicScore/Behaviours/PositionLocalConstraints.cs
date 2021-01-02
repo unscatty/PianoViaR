@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PianoViaR.Score.Behaviors
+namespace PianoViaR.Score.Behaviours
 {
     public class PositionLocalConstraints : MonoBehaviour
     {
