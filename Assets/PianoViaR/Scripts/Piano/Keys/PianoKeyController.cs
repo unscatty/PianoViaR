@@ -3,7 +3,11 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using PianoViaR.MIDIPlayback;
+using PianoViaR.MIDI.Playback;
+using PianoViaR.Piano.Behaviours;
+using UnityEditor;
+using AudioSynthesis.Bank;
+using PianoViaR.Helpers;
 
 public class PianoKeyController : MonoBehaviour
 {
@@ -35,16 +39,16 @@ public class PianoKeyController : MonoBehaviour
     private float _sustainPedalLerp = 1;
 
     // Should be controlled via MidiPlayer
-    public KeyMode KeyMode;
-    // {
-    //     get
-    //     {
-    //         // if (MidiPlayer)
-    //         //     return MidiPlayer.KeyMode;
-    //         // else
-    //             return KeyMode.Physical;
-    //     }
-    // }
+    // public KeyMode KeyMode;
+    // // {
+    // //     get
+    // //     {
+    // //         // if (MidiPlayer)
+    // //         //     return MidiPlayer.KeyMode;
+    // //         // else
+    // //             return KeyMode.Physical;
+    // //     }
+    // // }
 
     [Header("Note: Leave regex blank to sort alphabetically")]
     public string Regex;
@@ -53,6 +57,9 @@ public class PianoKeyController : MonoBehaviour
 
     private readonly string[] _keyIndex = new string[12] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
+    public UnityEngine.Object patchBank;
+
+    // This must be on Start
     void Awake()
     {
         if (Sort)
@@ -61,8 +68,11 @@ public class PianoKeyController : MonoBehaviour
             Notes = Notes.OrderBy(note => sortReg.Match(note.name).Value).ToArray();
         }
 
-        // var count = 0;
+        var midiPlayerGO = new GameObject("midiPlayer");
+        var midiNotePlayer = midiPlayerGO.AddComponent<MIDINotePlayer>();
+        var bank = new PatchBank(AssetDatabase.GetAssetPath(patchBank));
 
+        midiNotePlayer.LoadBank(bank);
 
         // Assign the corresponding audio clip to every PianoKey child of PianoKeysParent
         for (int i = 0, note = 21; i < PianoKeysParent.childCount; i++)
@@ -70,10 +80,18 @@ public class PianoKeyController : MonoBehaviour
             PianoKey pianoKey = PianoKeysParent.GetChild(i).GetComponent<PianoKey>();
             if (pianoKey)
             {
-                pianoKey.Instrument = Instrument;
-                pianoKey.NoteValue = note;
-                pianoKey.midiPlayer = MIDIPlayer;
-                pianoKey.PianoKeyController = this;
+                var eventArgs = new PianoNoteEventArgs(note, 0);
+                var keySource = new KeySourceMIDI(eventArgs);
+
+                keySource.NotePlayed += midiNotePlayer.PlayNote;
+                keySource.NoteStopped += midiNotePlayer.StopNote;
+
+                pianoKey.KeyPressed += SayKeyPressed;
+                pianoKey.KeyReleased += SayKeyReleased;
+                
+                pianoKey.KeySource = keySource;
+                pianoKey.EventArgs = eventArgs;
+
                 note++;
             }
 
@@ -92,29 +110,13 @@ public class PianoKeyController : MonoBehaviour
         }
     }
 
-    // https://stackoverflow.com/a/228060
-    string Reverse(string s)
+    void SayKeyPressed(object source, PianoNoteEventArgs args)
     {
-        char[] charArray = s.ToCharArray();
-        Array.Reverse(charArray);
-        return new string(charArray);
+        Debug.Log($"You pressed the key: {args.Note}");
     }
 
-    void Update()
+    void SayKeyReleased(object source, PianoNoteEventArgs args)
     {
-        //SustainPedal.localEulerAngles += Vector3.left *  (SustainPressed ? 1 : -1);
-
-        // _sustainPedalLerp -= Time.deltaTime * (SustainPedalPressed ? 1 : -1) * 3.5f;
-        // _sustainPedalLerp = Mathf.Clamp01(_sustainPedalLerp);
-
-        // if (PedalPressedAngle > PedalReleasedAngle)
-        //     SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalReleasedAngle, 0, 0), Quaternion.Euler(PedalPressedAngle, 0, 0), _sustainPedalLerp);
-        // else
-        //     SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalPressedAngle, 0, 0), Quaternion.Euler(PedalReleasedAngle, 0, 0), _sustainPedalLerp);
-    }
-
-    string KeyString(int count)
-    {
-        return _keyIndex[count % 12] + (Mathf.Floor(count / 12) + StartOctave);
+        Debug.Log($"You released the key: {args.Note}");
     }
 }

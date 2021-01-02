@@ -11,6 +11,7 @@
  */
 
 using System.Collections.Generic;
+using PianoViaR.Helpers;
 using PianoViaR.Utils;
 
 namespace PianoViaR.MIDI.Parsing

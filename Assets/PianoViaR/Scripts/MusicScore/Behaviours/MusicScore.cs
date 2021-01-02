@@ -6,7 +6,7 @@ using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Creation;
 using PianoViaR.Score.Helpers;
 using PianoViaR.Score.Behaviors;
-using PianoViaR.MIDIPlayback;
+using PianoViaR.MIDI.Playback;
 using System.IO;
 
 namespace PianoViaR.Score
@@ -20,7 +20,7 @@ namespace PianoViaR.Score
         // The game object to hold the staffs created
         public StaffsScroll staffs;
         public ScoreBoard scoreBoard;
-        public MIDIPlayer midiPlayer;
+        public MIDISongPlayer midiPlayer;
         public int transpose;
 
         // Start is called before the first frame update

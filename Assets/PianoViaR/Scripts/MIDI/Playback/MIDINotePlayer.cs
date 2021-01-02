@@ -26,6 +26,11 @@ namespace PianoViaR.MIDI.Playback
         {
             player = new MIDIPlayer();
             audioSource = GetComponent<AudioSource>();
+            // Play();
+        }
+
+        void Start()
+        {
             Play();
         }
 
