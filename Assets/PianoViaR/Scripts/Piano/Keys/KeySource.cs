@@ -1,13 +1,31 @@
 using System;
 using System.Collections.Generic;
 using PianoViaR.Helpers;
+using PianoViaR.MIDI.Helpers;
 
-namespace PianoViaR.Piano.Behaviours
+namespace PianoViaR.Piano.Behaviours.Keys
 {
     public abstract class KeySource
     {
         protected List<dynamic> fadeList;
         public PianoNoteEventArgs EventArgs;
+
+        public PianoNotes PianoNote
+        {
+            get { return EventArgs.PianoNote; }
+            set
+            {
+                EventArgs.PianoNote = value;
+            }
+        }
+        public MIDIInstrument MIDIInstrument
+        {
+            get { return EventArgs.MIDIInstrument; }
+            set
+            {
+                EventArgs.MIDIInstrument = value;
+            }
+        }
         public event EventHandler<PianoNoteEventArgs> NotePlayed;
         public event EventHandler<PianoNoteEventArgs> NoteStopped;
 

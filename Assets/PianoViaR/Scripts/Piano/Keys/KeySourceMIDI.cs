@@ -1,27 +1,10 @@
-﻿using System.Collections.Generic;
-using PianoViaR.Helpers;
+﻿using PianoViaR.Helpers;
 using PianoViaR.MIDI.Helpers;
 
-namespace PianoViaR.Piano.Behaviours
+namespace PianoViaR.Piano.Behaviours.Keys
 {
     public class KeySourceMIDI : KeySource
     {
-        public PianoNotes PianoNote
-        {
-            get { return EventArgs.PianoNote; }
-            set
-            {
-                EventArgs.PianoNote = value;
-            }
-        }
-        public MIDIInstrument MIDIInstrument
-        {
-            get { return EventArgs.MIDIInstrument; }
-            set
-            {
-                EventArgs.MIDIInstrument = value;
-            }
-        }
         public KeySourceMIDI(int note, int instrument)
         : this(new PianoNoteEventArgs(note, instrument))
         { }
@@ -42,14 +25,14 @@ namespace PianoViaR.Piano.Behaviours
             AddFade(EventArgs.Note);
         }
 
-        public void Stop(int source)
+        private void Stop()
         {
             OnNoteStopped();
         }
 
         public override void Stop(dynamic source)
         {
-            Stop(source);
+            Stop();
         }
 
         public override void FadeAll()
