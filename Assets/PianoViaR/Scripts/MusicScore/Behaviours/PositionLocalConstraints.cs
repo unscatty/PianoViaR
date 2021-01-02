@@ -6,11 +6,11 @@ namespace PianoViaR.Score.Behaviors
     {
         [Header("Freeze Local Position")]
         [SerializeField]
-        bool x;
+        bool x = false;
         [SerializeField]
-        bool y;
+        bool y = false;
         [SerializeField]
-        bool z;
+        bool z = false;
 
         Vector3 localPosition0;    //original local position
 

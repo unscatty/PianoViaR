@@ -1,5 +1,7 @@
-﻿using PianoViaR.Helpers;
+﻿using System.Collections;
+using PianoViaR.Helpers;
 using PianoViaR.MIDI.Helpers;
+using UnityEngine;
 
 namespace PianoViaR.Piano.Behaviours.Keys
 {
@@ -19,10 +21,12 @@ namespace PianoViaR.Piano.Behaviours.Keys
             Initialize();
         }
 
-        public override void Play()
+        public override IEnumerator Play(YieldInstruction instruction)
         {
             OnNotePlayed();
             AddFade(EventArgs.Note);
+
+            yield return null;
         }
 
         private void Stop()
@@ -35,11 +39,11 @@ namespace PianoViaR.Piano.Behaviours.Keys
             Stop();
         }
 
-        public override void FadeAll()
+        public override IEnumerator FadeAll(YieldInstruction instruction)
         {
             Stop(EventArgs.Note);
 
-            base.FadeAll();
+            yield return base.FadeAll(null);
         }
 
         public override void FadeList()

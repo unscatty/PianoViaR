@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using PianoViaR.Helpers;
+using System.Collections;
 
 namespace PianoViaR.Piano.Behaviours.Keys
 {
@@ -20,7 +21,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
             if ((transform.eulerAngles.x > 350 && transform.eulerAngles.x < 359.5f) && !played)
             {
                 played = true;
-                Play();
+                StartCoroutine(Play(new WaitForFixedUpdate()));
                 // Notify of key pressed (Primarily to score based events)
                 OnKeyPressed(EventArgs);
 
@@ -29,13 +30,17 @@ namespace PianoViaR.Piano.Behaviours.Keys
                     FadeList();
                 }
             }
-            else if ((transform.eulerAngles.x > 359.9 || transform.eulerAngles.x < 350) && played)
+            else if ((transform.eulerAngles.x > 359.9 || transform.eulerAngles.x < 350) /* && played */)
             {
+                if (played)
+                {
+                    OnKeyReleased(EventArgs);
+                }
+                
                 played = false;
                 // Notify of key released (Primarily to score based events)
-                OnKeyReleased(EventArgs);
 
-                FadeAll();
+                StartCoroutine(FadeAll(null));
             }
         }
 
@@ -49,9 +54,9 @@ namespace PianoViaR.Piano.Behaviours.Keys
             KeyReleased?.Invoke(this, args);
         }
 
-        void Play()
+        IEnumerator Play(YieldInstruction instruction)
         {
-            KeySource.Play();
+            yield return KeySource.Play(instruction);
         }
 
         void FadeList()
@@ -59,9 +64,9 @@ namespace PianoViaR.Piano.Behaviours.Keys
             KeySource.FadeList();
         }
 
-        void FadeAll()
+        IEnumerator FadeAll(YieldInstruction instruction)
         {
-            KeySource.FadeAll();
+            yield return KeySource.FadeAll(instruction);
         }
     }
 }

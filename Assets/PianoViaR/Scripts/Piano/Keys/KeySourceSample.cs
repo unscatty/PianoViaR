@@ -1,16 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PianoViaR.Piano.Behaviours.Keys
 {
     public class KeySourceSample : KeySource
     {
+        const float DefaultSustain = 0.5f;
         AudioSource CurrentAudioSource;
         List<AudioSource> AudioSources;
         bool NoMultiAudioSource;
         GameObject AttachedGameObject;
+        bool SustainPedalPressed = false;
+        float SustainSeconds = DefaultSustain;
 
-        public KeySourceSample(AudioSource audioSource, bool noMultiAudioSource, GameObject gameObject)
+        public KeySourceSample(
+            AudioSource audioSource,
+            bool noMultiAudioSource,
+            GameObject gameObject,
+            bool sustainPedalPressed = false,
+            float sustainSeconds = DefaultSustain
+        )
         {
             AudioSources = new List<AudioSource>();
             AudioSources.Add(audioSource);
@@ -19,10 +29,12 @@ namespace PianoViaR.Piano.Behaviours.Keys
             NoMultiAudioSource = noMultiAudioSource;
             AttachedGameObject = gameObject;
             CurrentAudioSource.volume = 1;
+            SustainPedalPressed = sustainPedalPressed;
+            SustainSeconds = sustainSeconds;
 
             Initialize();
         }
-        public override void Play()
+        public override IEnumerator Play(YieldInstruction instruction)
         {
             if (!NoMultiAudioSource && CurrentAudioSource.isPlaying)
             {
@@ -48,6 +60,16 @@ namespace PianoViaR.Piano.Behaviours.Keys
                 }
 
                 AddFade(AudioSources[index]);
+            }
+
+            var startAngle = AttachedGameObject.transform.eulerAngles.x;
+
+            yield return instruction;
+            yield return instruction;
+
+            if (Mathf.Abs(startAngle - AttachedGameObject.transform.eulerAngles.x) > 0)
+            {
+                CurrentAudioSource.volume = Mathf.Lerp(0, 1, Mathf.Clamp((Mathf.Abs(startAngle - AttachedGameObject.transform.eulerAngles.x) / 2f), 0, 1));
             }
 
             CurrentAudioSource.Play();
@@ -86,20 +108,25 @@ namespace PianoViaR.Piano.Behaviours.Keys
             }
         }
 
-        public override void FadeAll()
+        public override IEnumerator FadeAll(YieldInstruction instruction)
         {
-            base.FadeAll();
+            // base.FadeAll();
+
+            if (fadeList.Count > 0)
+                fadeList.RemoveRange(0, fadeList.Count);
 
             foreach (var audioSource in AudioSources)
             {
                 if (audioSource.isPlaying)
                 {
-                    audioSource.volume -= 0.5f;
+                    audioSource.volume -= Time.deltaTime / (SustainPedalPressed ? SustainSeconds : DefaultSustain);
 
                     if (audioSource.volume <= 0)
                         audioSource.Stop();
                 }
             }
+
+            yield return instruction;
         }
 
         AudioSource CloneAudioSource()

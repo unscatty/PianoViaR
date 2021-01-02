@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using PianoViaR.Helpers;
 using PianoViaR.MIDI.Helpers;
+using UnityEngine;
 
 namespace PianoViaR.Piano.Behaviours.Keys
 {
@@ -31,7 +33,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public virtual int Count { get { return fadeList.Count; } }
         // public abstract void Setup();
-        public abstract void Play();
+        public abstract IEnumerator Play(YieldInstruction instruction);
         public abstract void Stop(dynamic source);
         protected virtual void Initialize()
         {
@@ -54,12 +56,14 @@ namespace PianoViaR.Piano.Behaviours.Keys
             fadeList.Remove(source);
         }
         public abstract void FadeList();
-        public virtual void FadeAll()
+        public virtual IEnumerator FadeAll(YieldInstruction instruction)
         {
             if (fadeList.Count > 0)
             {
                 fadeList.RemoveRange(0, fadeList.Count);
             }
+
+            yield return instruction;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace PianoViaR.MIDI.Helpers
 {
     public enum MIDIInstrument
     {
-        NONE = -1,
+        AUTO = -1,
         ACOUSTIC_GRAND_PIANO = 0,
         BRIGHT_ACOUSTIC_PIANO,
         ELECTRIC_GRAND_PIANO,
@@ -134,7 +134,6 @@ namespace PianoViaR.MIDI.Helpers
         HELICOPTER,
         APPLAUSE,
         GUNSHOT,
-        PERCUSSION,
     }
 
     public static class MIDIInstrumentHelper
@@ -169,7 +168,7 @@ namespace PianoViaR.MIDI.Helpers
             }
             else
             {
-                return MIDIInstrument.NONE;
+                return MIDIInstrument.AUTO;
             }
         }
     }

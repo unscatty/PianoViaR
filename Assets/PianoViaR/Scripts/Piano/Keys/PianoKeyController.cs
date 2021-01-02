@@ -26,7 +26,8 @@ namespace PianoViaR.Piano.Behaviours.Keys
         [Header("Properties")]
         public bool Sort = true;                // Sorts the Notes. If regex is not empty, it will use that to do the sorting.
         public bool NoMultiAudioSource;         // Will prevent duplicates if true, if you need to optimise. Multiple Audio sources are necessary to remove crackling.
-
+        public float SustainSeconds = 0.5f;		// May want to reduce this if there's too many AudioSources being generated per key.
+        public bool SustainPedalPressed = true;	// When enabled, keys will not stop playing immediately after release.
         public MIDIInstrument Instrument = MIDIInstrument.ACOUSTIC_GRAND_PIANO; // Instrument
 
         [Header("Note: Leave regex blank to sort alphabetically")]
@@ -85,7 +86,13 @@ namespace PianoViaR.Piano.Behaviours.Keys
                     keyAudioSource.clip = NoteSamples[sampleIdx];
 
                     var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
-                    var keySource = new KeySourceSample(keyAudioSource, NoMultiAudioSource, pianoKey.GameObject);
+                    var keySource = new KeySourceSample(
+                        keyAudioSource,
+                        NoMultiAudioSource,
+                        pianoKey.GameObject,
+                        SustainPedalPressed,
+                        SustainSeconds
+                    );
 
                     Suscribe(pianoKey);
 
