@@ -47,39 +47,11 @@ namespace PianoViaR.Score.Creation
      */
     public class SheetMusic
     {
-        /* Measurements used when drawing.  All measurements are in pixels.
-         * The values depend on whether the menu 'Large Notes' or 'Small Notes' is selected.
-         */
         public const int NotesPerStaff = 24;
-        public static float LineWidth;    /** The width of a line */
-        public static float LeftMargin;  /** The left margin */
-        public static float HeightMargin; /** The margin for bottom an top */
-        public static float LineSpace;        /** The space between lines in the staff */
-        public static float WholeLineSpace; /** The space between lines in the staff plus the width of a staff bar */
-        public static float StaffHeight;      /** The height between the 5 horizontal lines of the staff */
-        public static float SpaceBetweenStaffs; /** The space between every staff */
-        public static float NoteHeadHeight;      /** The height of a whole note */
-        public static float NoteHeadWidth;       /** The width of a whole note */
-        public static float NoteStemWidth;      /** The width of a note stem */
-        public static float NoteBarWidth; /** The width of a note top/bottom bar */
-        public static float DotWidth; /** The width of a note dot */
-        public static float BeamWidth; /** The width of a note beam */
-        public static float WidthPerChar;   /** The width for every character */
-        public static float NoteNameTextHeight; /** The height of the text for note names */
-        public static float MeasureNameTextHeight; /** The height for the measure numbers */
-        public static float NoteToDotDistance; /** The distance between a note head and a dot */
-        public static float NoteToNoteDistance; /** The distance between a note head and another */
-        public static float ChordWidth;         /** The width of a note head plus spacing between another chord */
-        public static float ChordOverlapWidth;  /** The width of two note heads plus spacing between another chord */
-        public static float ChordWidthOffset; /** The spacing between chords */
-        public static float NoteToAccidentalDistance; /** The distance between a note head and an accidental symbol */
-        public static float AccidentalSpacing;  /** The distance between accidental symbols **/
-        public static float NoteToNameDistance; /** The distance between a note and its name */
-        public static float NoteVerticalSpacing; /** The vertical spacing between note heads */
-        public static float NoteToStemOffset; /** The vertical offset for stems to reach note head curvature */
 
-        public static float PageWidth;    /** The width of each page */
-        public static float PageHeight;  /** The height of each page (when printing) */
+        public readonly float PageWidth;    /** The width of each page */
+        public readonly float PageHeight;  /** The height of each page (when printing) */
+        public const float LeftMargin = 0;
         private List<Staff> staffs; /** The array of staffs to display (from top to bottom) */
         private KeySignature mainkey; /** The main key signature */
         private int numtracks;     /** The number of tracks */
@@ -88,6 +60,7 @@ namespace PianoViaR.Score.Creation
         private string filename;      /** The name of the midi file */
         private int showNoteLetters;    /** Display the note letters */
         public MusicSymbolFactory factory;
+        private ScoreDimensions dimensions;
 
         /** Create a new SheetMusic control, using the given parsed MIDIFile.
          *  The options can be null.
@@ -270,7 +243,7 @@ namespace PianoViaR.Score.Creation
             List<LyricSymbol>[] lyrics = null;
             if (options.showLyrics)
             {
-                lyrics = GetLyrics(tracks);
+                lyrics = GetLyrics(tracks, in dimensions);
             }
 
             /* Vertically align the music symbols */
@@ -356,46 +329,7 @@ namespace PianoViaR.Score.Creation
          */
         public void SetSizes(float noteHeadHeight, float noteHeadWidth)
         {
-            NoteHeadHeight = noteHeadHeight;
-            NoteHeadWidth = noteHeadWidth;
-
-            LeftMargin = 0;
-
-            LineSpace = NoteHeadHeight;
-            LineWidth = NoteHeadHeight / 8;
-            NoteBarWidth = NoteHeadWidth * 1.5f;
-            DotWidth = NoteHeadHeight / 2 - LineWidth / 2;
-            BeamWidth = LineWidth * 3;
-
-            WholeLineSpace = LineSpace + LineWidth;
-            NoteVerticalSpacing = WholeLineSpace / 2;
-            NoteToStemOffset = NoteHeadHeight / 4;
-            // There are 4 spaces in the whole staff, plus the size of every line
-            StaffHeight = WholeLineSpace * 4 + LineWidth;
-            SpaceBetweenStaffs = NoteHeadHeight * 2;
-            HeightMargin = NoteHeadHeight;
-
-            WidthPerChar = NoteHeadWidth * 0.75f;
-            NoteNameTextHeight = NoteHeadHeight + LineWidth * 2;
-            MeasureNameTextHeight = NoteNameTextHeight * 2;
-
-            NoteStemWidth = LineWidth;
-            NoteToDotDistance = LineWidth * 2;
-            NoteToNameDistance = LineWidth;
-
-            // Chord Alignment
-            NoteToNoteDistance = NoteHeadWidth * 2;
-            ChordWidthOffset = NoteToNoteDistance / 2;
-
-            var chorOverlapDisplayWidth = NoteHeadWidth * 2 - NoteStemWidth;
-            var chordDisplayWidth = NoteHeadWidth;
-
-            ChordOverlapWidth = chorOverlapDisplayWidth + NoteToNoteDistance;
-            ChordWidth = chordDisplayWidth + NoteToNoteDistance;
-
-            // Accidental alignment
-            NoteToAccidentalDistance = NoteHeadWidth;
-            AccidentalSpacing = LineWidth;
+            dimensions = new ScoreDimensions(noteHeadHeight, noteHeadWidth, PageWidth, PageHeight, LeftMargin);
         }
 
 
@@ -410,7 +344,7 @@ namespace PianoViaR.Score.Creation
                     notenums.Add(note.Number);
                 }
             }
-            return KeySignature.Guess(notenums);
+            return KeySignature.Guess(notenums, in dimensions);
         }
 
 
@@ -454,7 +388,7 @@ namespace PianoViaR.Score.Creation
                 /* Create a single chord from the group of midi notes with
                  * the same start time.
                  */
-                ChordSymbol chord = new ChordSymbol(notegroup, key, time, clef, this);
+                ChordSymbol chord = new ChordSymbol(notegroup, key, time, clef, this, in dimensions);
                 chords.Add(chord);
             }
 
@@ -488,7 +422,7 @@ namespace PianoViaR.Score.Creation
 
             List<MusicSymbol> symbols = new List<MusicSymbol>();
 
-            TimeSigSymbol timesig = new TimeSigSymbol(time.Numerator, time.Denominator);
+            TimeSigSymbol timesig = new TimeSigSymbol(time.Numerator, time.Denominator, in dimensions);
             symbols.Add(timesig);
 
             /* The starttime of the beginning of the measure */
@@ -499,7 +433,7 @@ namespace PianoViaR.Score.Creation
             {
                 if (measuretime <= chords[i].StartTime)
                 {
-                    symbols.Add(new BarSymbol(measuretime));
+                    symbols.Add(new BarSymbol(measuretime, in dimensions));
                     measuretime += time.Measure;
                 }
                 else
@@ -512,12 +446,12 @@ namespace PianoViaR.Score.Creation
             /* Keep adding bars until the last StartTime (the end of the song) */
             while (measuretime < lastStart)
             {
-                symbols.Add(new BarSymbol(measuretime));
+                symbols.Add(new BarSymbol(measuretime, in dimensions));
                 measuretime += time.Measure;
             }
 
             /* Add the final vertical bar to the last measure */
-            symbols.Add(new BarSymbol(measuretime));
+            symbols.Add(new BarSymbol(measuretime, in dimensions));
             return symbols;
         }
 
@@ -578,28 +512,28 @@ namespace PianoViaR.Score.Creation
                 case NoteDuration.Half:
                 case NoteDuration.Quarter:
                 case NoteDuration.Eighth:
-                    r1 = new RestSymbol(start, dur);
+                    r1 = new RestSymbol(start, dur, in dimensions);
                     result = new RestSymbol[] { r1 };
                     return result;
 
                 case NoteDuration.DottedHalf:
-                    r1 = new RestSymbol(start, NoteDuration.Half);
+                    r1 = new RestSymbol(start, NoteDuration.Half, in dimensions);
                     r2 = new RestSymbol(start + time.Quarter * 2,
-                                        NoteDuration.Quarter);
+                                        NoteDuration.Quarter, in dimensions);
                     result = new RestSymbol[] { r1, r2 };
                     return result;
 
                 case NoteDuration.DottedQuarter:
-                    r1 = new RestSymbol(start, NoteDuration.Quarter);
+                    r1 = new RestSymbol(start, NoteDuration.Quarter, in dimensions);
                     r2 = new RestSymbol(start + time.Quarter,
-                                        NoteDuration.Eighth);
+                                        NoteDuration.Eighth, in dimensions);
                     result = new RestSymbol[] { r1, r2 };
                     return result;
 
                 case NoteDuration.DottedEighth:
-                    r1 = new RestSymbol(start, NoteDuration.Eighth);
+                    r1 = new RestSymbol(start, NoteDuration.Eighth, in dimensions);
                     r2 = new RestSymbol(start + time.Quarter / 2,
-                                        NoteDuration.Sixteenth);
+                                        NoteDuration.Sixteenth, in dimensions);
                     result = new RestSymbol[] { r1, r2 };
                     return result;
 
@@ -631,7 +565,7 @@ namespace PianoViaR.Score.Creation
                     Clef clef = clefs.GetClef(symbol.StartTime);
                     if (clef != prevclef)
                     {
-                        result.Add(new ClefSymbol(clef, symbol.StartTime - 1, true));
+                        result.Add(new ClefSymbol(clef, symbol.StartTime - 1, true, in dimensions));
                     }
                     prevclef = clef;
                 }
@@ -886,9 +820,9 @@ namespace PianoViaR.Score.Creation
 
         /** Get the width (in pixels) needed to display the key signature */
         public static float
-        KeySignatureWidth(KeySignature key)
+        KeySignatureWidth(KeySignature key, in ScoreDimensions dimensions)
         {
-            ClefSymbol clefsym = new ClefSymbol(Clef.Treble, 0, false);
+            ClefSymbol clefsym = new ClefSymbol(Clef.Treble, 0, false, in dimensions);
             float result = clefsym.MinWidth;
             AccidSymbol[] keys = key.GetSymbols(Clef.Treble);
             foreach (AccidSymbol symbol in keys)
@@ -908,7 +842,7 @@ namespace PianoViaR.Score.Creation
                              KeySignature key, MIDIOptions options,
                              int track, int totaltracks)
         {
-            float keysigWidth = KeySignatureWidth(key);
+            float keysigWidth = KeySignatureWidth(key, in dimensions);
             int startindex = 0;
             List<Staff> thestaffs = new List<Staff>(symbols.Count / 50);
 
@@ -924,7 +858,7 @@ namespace PianoViaR.Score.Creation
                 /* If we're scrolling vertically, the maximum width is PageWidth. */
                 if (scrollVert)
                 {
-                    maxwidth = SheetMusic.PageWidth;
+                    maxwidth = PageWidth;
                 }
                 else
                 {
@@ -975,10 +909,10 @@ namespace PianoViaR.Score.Creation
                 int range = endindex + 1 - startindex;
                 if (scrollVert)
                 {
-                    width = SheetMusic.PageWidth;
+                    width = PageWidth;
                 }
                 Staff staff = new Staff(symbols.GetRange(startindex, range),
-                                        key, options, track, totaltracks);
+                                        key, options, track, totaltracks, in dimensions);
                 thestaffs.Add(staff);
                 startindex = endindex + 1;
             }
@@ -1052,7 +986,7 @@ namespace PianoViaR.Score.Creation
 
         /** Get the lyrics for each track */
         private static List<LyricSymbol>[]
-        GetLyrics(List<MIDITrack> tracks)
+        GetLyrics(List<MIDITrack> tracks, in ScoreDimensions dimensions)
         {
             bool hasLyrics = false;
             List<LyricSymbol>[] result = new List<LyricSymbol>[tracks.Count];
@@ -1068,7 +1002,7 @@ namespace PianoViaR.Score.Creation
                 foreach (MIDIEvent ev in track.Lyrics)
                 {
                     String text = System.Text.Encoding.UTF8.GetString(ev.Value, 0, ev.Value.Length);
-                    LyricSymbol sym = new LyricSymbol(ev.StartTime, text);
+                    LyricSymbol sym = new LyricSymbol(ev.StartTime, text, in dimensions);
                     result[tracknum].Add(sym);
                 }
             }
@@ -1149,7 +1083,7 @@ namespace PianoViaR.Score.Creation
 
         public void Create(ref GameObject parent, Vector3 position, out Vector3 dimensions)
         {
-            float viewPageHeight = SheetMusic.PageHeight;
+            float viewPageHeight = PageHeight;
             float ypos = 0;
             int staffnum = 0;
 

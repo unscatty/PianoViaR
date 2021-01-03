@@ -53,6 +53,7 @@ namespace PianoViaR.Score.Creation
         private int starttime;              /** The time (in pulses) of first symbol */
         private int endtime;                /** The time (in pulses) of last symbol */
         private int measureLength;          /** The time (in pulses) of a measure */
+        private ScoreDimensions dimensions;
 
         /** Create a new staff with the given list of music symbols,
          * and the given key signature.  The clef is determined by
@@ -66,18 +67,19 @@ namespace PianoViaR.Score.Creation
             KeySignature key,
             MIDIOptions options,
             int tracknum,
-            int totaltracks
+            int totaltracks,
+            in ScoreDimensions dimensions
         )
         {
-
-            keysigWidth = SheetMusic.KeySignatureWidth(key);
+            this.dimensions = dimensions;
+            keysigWidth = SheetMusic.KeySignatureWidth(key, in dimensions);
             this.tracknum = tracknum;
             this.totaltracks = totaltracks;
             showMeasures = (options.showMeasures && tracknum == 0);
             measureLength = options.time.Measure;
             Clef clef = FindClef(symbols);
 
-            clefsym = new ClefSymbol(clef, 0, false);
+            clefsym = new ClefSymbol(clef, 0, false, in dimensions);
             keys = key.GetSymbols(clef);
             this.symbols = symbols;
 
@@ -158,17 +160,17 @@ namespace PianoViaR.Score.Creation
             above = Math.Max(above, clefsym.AboveStaff);
             below = Math.Max(below, clefsym.BelowStaff);
             ytop = above;
-            height = ytop + SheetMusic.StaffHeight + below;
+            height = ytop + dimensions.StaffHeight + below;
 
             if (showMeasures || lyrics != null)
             {
-                height += SheetMusic.MeasureNameTextHeight;
+                height += dimensions.MeasureNameTextHeight;
             }
 
             /* Add some extra vertical space between staffs
              */
             if (tracknum != totaltracks - 1 && totaltracks != 1)
-                height += SheetMusic.SpaceBetweenStaffs;
+                height += dimensions.SpaceBetweenStaffs;
         }
 
         /** Calculate the width of this staff */
@@ -176,7 +178,7 @@ namespace PianoViaR.Score.Creation
         {
             if (scrollVert)
             {
-                width = SheetMusic.PageWidth;
+                width = dimensions.PageWidth;
                 return;
             }
 
@@ -189,7 +191,7 @@ namespace PianoViaR.Score.Creation
             if (extra)
             {
                 // Add some extra width
-                width += SheetMusic.NoteToNoteDistance;
+                width += dimensions.NoteToNoteDistance;
             }
         }
 
@@ -224,7 +226,7 @@ namespace PianoViaR.Score.Creation
         /** Full-Justify the symbols, so that they expand to fill the whole staff. */
         private void FullJustify()
         {
-            if (width != SheetMusic.PageWidth)
+            if (width != dimensions.PageWidth)
                 return;
 
             float totalwidth = keysigWidth;
@@ -244,10 +246,10 @@ namespace PianoViaR.Score.Creation
                 }
             }
 
-            float extrawidth = (SheetMusic.PageWidth - totalwidth - 1) / totalsymbols;
-            if (extrawidth > SheetMusic.NoteHeadWidth * 2)
+            float extrawidth = (dimensions.PageWidth - totalwidth - 1) / totalsymbols;
+            if (extrawidth > dimensions.NoteHeadWidth * 2)
             {
-                extrawidth = SheetMusic.NoteHeadWidth * 2;
+                extrawidth = dimensions.NoteHeadWidth * 2;
             }
             i = 0;
             while (i < symbols.Count)
@@ -296,7 +298,7 @@ namespace PianoViaR.Score.Creation
                 if (symbolindex < symbols.Count &&
                     (symbols[symbolindex] is BarSymbol))
                 {
-                    lyric.X += SheetMusic.NoteHeadWidth;
+                    lyric.X += dimensions.NoteHeadWidth;
                 }
                 lyrics.Add(lyric);
             }
@@ -312,7 +314,7 @@ namespace PianoViaR.Score.Creation
         {
             /* Skip the left side Clef symbol and key signature */
             float xpos = keysigWidth;
-            float ypos = height - SheetMusic.NoteHeadHeight * 2;
+            float ypos = height - dimensions.NoteHeadHeight * 2;
 
             // foreach (LyricSymbol lyric in lyrics)
             // {
@@ -334,9 +336,9 @@ namespace PianoViaR.Score.Creation
         {
             /* Skip the left side Clef symbol and key signature */
             float xpos = keysigWidth;
-            // float ypos = height - SheetMusic.WholeLineSpace;
+            // float ypos = height - dimensions.WholeLineSpace;
             float ypos = 0;
-            // float ypos = -SheetMusic.WholeLineSpace;
+            // float ypos = -dimensions.WholeLineSpace;
             var offset = new Vector3(xpos, -ypos);
 
             // GameObject to hold the measures
@@ -353,8 +355,8 @@ namespace PianoViaR.Score.Creation
                     measureGO.name = "measure" + measure;
                     measureGO.TextSetText(measureText);
 
-                    var textWidth = measureText.Length * SheetMusic.WidthPerChar;
-                    measureGO.TextFitToHeight(SheetMusic.NoteNameTextHeight * 2f);
+                    var textWidth = measureText.Length * dimensions.WidthPerChar;
+                    measureGO.TextFitToHeight(dimensions.NoteNameTextHeight * 2f);
                     measureGO.TextFitOnlyToWidth(textWidth);
                     measureGO.TextPlaceUpperLeft(position, offset, new Vector3(symbol.Width / 2, 0));
 
@@ -375,25 +377,25 @@ namespace PianoViaR.Score.Creation
             GameObject staffLinesGO = new GameObject();
 
             int line = 1;
-            float y = ytop - SheetMusic.LineWidth;
+            float y = ytop - dimensions.LineWidth;
             // pen.Width = 1;
             for (line = 1; line <= 5; line++)
             {
 
                 // Create the game object
                 var bar = factory.CreateSymbol(SymbolType.STAFF_BAR);
-                bar.FitToHeight(SheetMusic.LineWidth);
+                bar.FitToHeight(dimensions.LineWidth);
                 // Fit the game object in its X dimension (Y axis of game object since it is rotated 90 degrees)
                 bar.FitOnlyTo(width, Axis.Y, Axis.X);
 
                 // Place game object at the right position
-                var offset = new Vector3(SheetMusic.LeftMargin, -y);
+                var offset = new Vector3(dimensions.LeftMargin, -y);
                 bar.PlaceUpperLeft(position, offset);
 
                 bar.name = "staffLine";
                 bar.transform.SetParent(staffLinesGO.transform);
 
-                y += SheetMusic.WholeLineSpace;
+                y += dimensions.WholeLineSpace;
             }
 
             return staffLinesGO;
@@ -412,7 +414,7 @@ namespace PianoViaR.Score.Creation
              *   End exactly at the bottom of the staff.
              */
             float ystart, yend;
-            var yAbove = ytop - SheetMusic.LineWidth;
+            var yAbove = ytop - dimensions.LineWidth;
             if (tracknum == 0)
                 // ystart = ytop;
                 ystart = yAbove;
@@ -420,7 +422,7 @@ namespace PianoViaR.Score.Creation
                 ystart = 0;
 
             if (tracknum == (totaltracks - 1))
-                yend = yAbove + SheetMusic.StaffHeight;
+                yend = yAbove + dimensions.StaffHeight;
             else
                 yend = height;
 
@@ -430,7 +432,7 @@ namespace PianoViaR.Score.Creation
 
             // Create the game object
             var line1 = factory.CreateSymbol(SymbolType.NOTE_STEM);
-            line1.FitToWidth(SheetMusic.LineWidth);
+            line1.FitToWidth(dimensions.LineWidth);
             // Fit the game object in its Y axis (enlarge by Y axis)
             line1.FitOnlyToHeight(heightToFit);
 
@@ -438,7 +440,7 @@ namespace PianoViaR.Score.Creation
             line1.transform.SetParent(endLines.transform);
 
             // Place game object at the right position
-            var offset1 = new Vector3(SheetMusic.LeftMargin, -ystart);
+            var offset1 = new Vector3(dimensions.LeftMargin, -ystart);
             line1.PlaceUpperLeft(position, offset1);
 
             // Duplicate Line 1
@@ -459,7 +461,7 @@ namespace PianoViaR.Score.Creation
             GameObject signatureGO = new GameObject("keySignature");
 
             /* Draw the left side Clef symbol */
-            var newPosition = new Vector3(SheetMusic.LeftMargin, 0) + position;
+            var newPosition = new Vector3(dimensions.LeftMargin, 0) + position;
 
             var clefGO = clefsym.Create(factory, newPosition, ytop);
             clefGO.transform.SetParent(signatureGO.transform);

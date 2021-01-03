@@ -10,6 +10,8 @@
  *  GNU General Public License for more details.
  */
 
+using PianoViaR.Score.Helpers;
+
 namespace PianoViaR.Score.Creation
 {
 
@@ -22,9 +24,11 @@ namespace PianoViaR.Score.Creation
         private int starttime;   /** The start time, in pulses */
         private string text;     /** The lyric text */
         private float x;           /** The x (horizontal) position within the staff */
+        private ScoreDimensions dimensions;
 
-        public LyricSymbol(int starttime, string text)
+        public LyricSymbol(int starttime, string text, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             this.starttime = starttime;
             this.text = text;
         }
@@ -57,7 +61,7 @@ namespace PianoViaR.Score.Creation
          */
         private float minWidth()
         {
-            float widthPerChar = SheetMusic.WidthPerChar;
+            float widthPerChar = dimensions.WidthPerChar;
             float width = text.Length * widthPerChar;
             if (text.IndexOf("i") >= 0)
             {

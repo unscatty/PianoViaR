@@ -36,13 +36,15 @@ namespace PianoViaR.Score.Creation
         private Clef clef;            /** Which clef the symbols is in */
         private float width;            /** Width of symbol */
         private bool chord; /** If this accidental symbol is used in a Chord symbol */
+        private ScoreDimensions dimensions;
 
         /** 
          * Create a new AccidSymbol with the given accidental, that is
          * displayed at the given note in the given clef.
          */
-        public AccidSymbol(Accid accid, WhiteNote note, Clef clef, bool chord = false)
+        public AccidSymbol(Accid accid, WhiteNote note, Clef clef, in ScoreDimensions dimensions, bool chord = false)
         {
+            this.dimensions = dimensions;
             this.accid = accid;
             this.whitenote = note;
             this.clef = clef;
@@ -87,7 +89,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                var actualWidth = SheetMusic.NoteHeadWidth;
+                var actualWidth = dimensions.NoteHeadWidth;
 
                 if (accid == Accid.Flat)
                 {
@@ -104,11 +106,11 @@ namespace PianoViaR.Score.Creation
             {
                 if (chord)
                 {
-                    return SheetMusic.AccidentalSpacing;
+                    return dimensions.AccidentalSpacing;
                 }
                 else
                 {
-                    return SheetMusic.AccidentalSpacing * 4;
+                    return dimensions.AccidentalSpacing * 4;
                 }
             }
         }
@@ -117,7 +119,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return SheetMusic.WholeLineSpace * 3 - SheetMusic.LineWidth;
+                return dimensions.WholeLineSpace * 3 - dimensions.LineWidth;
             }
         }
 
@@ -143,7 +145,7 @@ namespace PianoViaR.Score.Creation
         float GetAboveStaff()
         {
             float dist = WhiteNote.Top(clef).Dist(whitenote) *
-                       SheetMusic.NoteVerticalSpacing;
+                       dimensions.NoteVerticalSpacing;
 
             if (dist < 0)
                 return -dist;
@@ -162,7 +164,7 @@ namespace PianoViaR.Score.Creation
         private float GetBelowStaff()
         {
             float dist = WhiteNote.Bottom(clef).Dist(whitenote) *
-                       SheetMusic.NoteVerticalSpacing;
+                       dimensions.NoteVerticalSpacing;
 
             if (dist > 0)
                 return dist;
@@ -184,7 +186,7 @@ namespace PianoViaR.Score.Creation
                 distance += 1;
             }
 
-            ynote = ytop + (distance * SheetMusic.NoteVerticalSpacing) - SheetMusic.LineWidth / 2;
+            ynote = ytop + (distance * dimensions.NoteVerticalSpacing) - dimensions.LineWidth / 2;
 
             GameObject accidental;
 

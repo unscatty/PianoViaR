@@ -29,10 +29,12 @@ namespace PianoViaR.Score.Creation
         private int starttime;          /** The starttime of the rest */
         private NoteDuration duration;  /** The rest duration (eighth, quarter, half, whole) */
         private float width;              /** The width in pixels */
+        private ScoreDimensions dimensions;
 
         /** Create a new rest symbol with the given start time and duration */
-        public RestSymbol(int start, NoteDuration dur)
+        public RestSymbol(int start, NoteDuration dur, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             starttime = start;
             duration = dur;
             width = MinWidth;
@@ -60,7 +62,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return ActualWidth + SheetMusic.NoteToNoteDistance * 2;
+                return ActualWidth + dimensions.NoteToNoteDistance * 2;
             }
         }
 
@@ -73,15 +75,15 @@ namespace PianoViaR.Score.Creation
                     case NoteDuration.Whole:
                     case NoteDuration.Half:
                     case NoteDuration.Eighth:
-                        return SheetMusic.NoteHeadWidth * 1.5f;
+                        return dimensions.NoteHeadWidth * 1.5f;
                     case NoteDuration.Quarter:
-                        return SheetMusic.NoteHeadWidth;
+                        return dimensions.NoteHeadWidth;
                     case NoteDuration.Sixteenth:
-                        return SheetMusic.NoteHeadWidth * 2;
+                        return dimensions.NoteHeadWidth * 2;
                     case NoteDuration.ThirtySecond:
-                        return SheetMusic.NoteHeadWidth * 2.5f;
+                        return dimensions.NoteHeadWidth * 2.5f;
                     default:
-                        return SheetMusic.NoteHeadWidth;
+                        return dimensions.NoteHeadWidth;
                 }
             }
         }
@@ -110,7 +112,7 @@ namespace PianoViaR.Score.Creation
         {
             /* Align the rest symbol to the right */
             // g.TranslateTransform(Width - MinWidth, 0);
-            // g.TranslateTransform(SheetMusic.NoteHeight / 2, 0);
+            // g.TranslateTransform(dimensions.NoteHeight / 2, 0);
 
             float xOffset = Width / 2;
             var newPosition = new Vector3(xOffset, 0) + position;
@@ -140,8 +142,8 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateWhole(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop + SheetMusic.NoteHeadHeight;
-            float heightToFit = SheetMusic.LineSpace * 0.75f;
+            float y = ytop + dimensions.NoteHeadHeight;
+            float heightToFit = dimensions.LineSpace * 0.75f;
 
             // Create the game object
             var wholeRest = factory.CreateSymbol(SymbolType.REST_WHOLE);
@@ -161,8 +163,8 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateHalf(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop + SheetMusic.WholeLineSpace * 2;
-            float heightToFit = SheetMusic.LineSpace * 0.75f;
+            float y = ytop + dimensions.WholeLineSpace * 2;
+            float heightToFit = dimensions.LineSpace * 0.75f;
 
             // Create the game object
             var halfRest = factory.CreateSymbol(SymbolType.REST_HALF);
@@ -182,8 +184,8 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateQuarter(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop - SheetMusic.LineWidth + SheetMusic.StaffHeight / 2;
-            float heightToFit = SheetMusic.WholeLineSpace * 3;
+            float y = ytop - dimensions.LineWidth + dimensions.StaffHeight / 2;
+            float heightToFit = dimensions.WholeLineSpace * 3;
 
             // Create the game object
             var quarterRest = factory.CreateSymbol(SymbolType.REST_QUARTER);
@@ -204,8 +206,8 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateEighth(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop - SheetMusic.LineWidth + SheetMusic.StaffHeight / 2;
-            float heightToFit = SheetMusic.WholeLineSpace * 2 - SheetMusic.LineWidth;
+            float y = ytop - dimensions.LineWidth + dimensions.StaffHeight / 2;
+            float heightToFit = dimensions.WholeLineSpace * 2 - dimensions.LineWidth;
 
             // Create the game object
             var eighthRest = factory.CreateSymbol(SymbolType.REST_EIGHTH);
@@ -223,7 +225,7 @@ namespace PianoViaR.Score.Creation
         public GameObject CreateSixteenth(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
             float y = ytop;
-            float heightToFit = SheetMusic.WholeLineSpace * 3 - SheetMusic.LineWidth;
+            float heightToFit = dimensions.WholeLineSpace * 3 - dimensions.LineWidth;
 
             // Create the game object
             var sixteenthRest = factory.CreateSymbol(SymbolType.REST_SIXTEENTH);
@@ -241,7 +243,7 @@ namespace PianoViaR.Score.Creation
         public GameObject CreateThirtySecond(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
             float y = ytop;
-            float heightToFit = SheetMusic.StaffHeight - SheetMusic.LineWidth;
+            float heightToFit = dimensions.StaffHeight - dimensions.LineWidth;
 
             // Create the game object
             var thirtySecondRest = factory.CreateSymbol(SymbolType.REST_THIRTY_SECOND);

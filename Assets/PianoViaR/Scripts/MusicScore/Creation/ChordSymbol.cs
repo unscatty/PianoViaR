@@ -59,6 +59,7 @@ namespace PianoViaR.Score.Creation
         private SheetMusic sheetMusic; /** Used to get colors and other options */
         private WhiteNote topNote;         /** Topmost note in chord */
         private WhiteNote bottomNote;      /** Bottommost note in chord */
+        private ScoreDimensions dimensions;
 
         private (int noteIdx, int accidIdx)[] noteToAccidIndexes;
 
@@ -70,9 +71,9 @@ namespace PianoViaR.Score.Creation
          * of the notes. Use the clef when drawing the chord.
          */
         public ChordSymbol(List<MIDINote> midinotes, KeySignature key,
-                           TimeSignature time, Clef c, SheetMusic sheet)
+                           TimeSignature time, Clef c, SheetMusic sheet, in ScoreDimensions dimensions)
         {
-
+            this.dimensions = dimensions;
             int len = midinotes.Count;
             int i;
 
@@ -134,6 +135,7 @@ namespace PianoViaR.Score.Creation
                                  noteData[change - 1].whiteNote,
                                  dur1,
                                  Stem.Down,
+                                 in dimensions,
                                  stem1Overlaps,
                                  hasDots
                                 );
@@ -143,6 +145,7 @@ namespace PianoViaR.Score.Creation
                                  noteData[noteData.Length - 1].whiteNote,
                                  dur2,
                                  Stem.Up,
+                                 in dimensions,
                                  stem2Overlaps,
                                  hasDots
                                 );
@@ -161,6 +164,7 @@ namespace PianoViaR.Score.Creation
                                  noteData[noteData.Length - 1].whiteNote,
                                  dur1,
                                  direction,
+                                 in dimensions,
                                  stemOverlaps
                                 );
                 stem2 = null;
@@ -273,7 +277,7 @@ namespace PianoViaR.Score.Creation
 
                 if (nData.accid != Accid.None)
                 {
-                    symbols[accIdx] = new AccidSymbol(nData.accid, nData.whiteNote, clef, chord: true);
+                    symbols[accIdx] = new AccidSymbol(nData.accid, nData.whiteNote, clef, in dimensions, chord: true);
                     noteToAccidIndexes[accIdx] = (noteIdx: noteIdx, accidIdx: accIdx);
 
                     accIdx++;
@@ -394,9 +398,9 @@ namespace PianoViaR.Score.Creation
             get
             {
                 if (hasOverlap)
-                    return SheetMusic.ChordOverlapWidth;
+                    return dimensions.ChordOverlapWidth;
                 else
-                    return SheetMusic.ChordWidth;
+                    return dimensions.ChordWidth;
             }
         }
 
@@ -404,7 +408,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return WholeWidth - SheetMusic.NoteToNoteDistance;
+                return WholeWidth - dimensions.NoteToNoteDistance;
             }
         }
 
@@ -440,7 +444,7 @@ namespace PianoViaR.Score.Creation
                     }
                 }
 
-                accidsWidth += SheetMusic.NoteToAccidentalDistance;
+                accidsWidth += dimensions.NoteToAccidentalDistance;
                 // Remove one of the spacing so left space is ChordWidthOffset
                 accidsWidth -= accidSymbols[i - 1].AccidentalSpacing;
             }
@@ -450,7 +454,7 @@ namespace PianoViaR.Score.Creation
             float extraLeft = 0;
             float extraRight = 0;
 
-            float spacing = SheetMusic.ChordWidthOffset;
+            float spacing = dimensions.ChordWidthOffset;
 
             if (accidsWidth > spacing)
             {
@@ -471,12 +475,12 @@ namespace PianoViaR.Score.Creation
                     maxNoteNameLength = Math.Max(maxNoteNameLength, NoteName(data.number, data.whiteNote).Length);
                 }
 
-                nameWidth = maxNoteNameLength * SheetMusic.WidthPerChar + SheetMusic.NoteToNameDistance;
+                nameWidth = maxNoteNameLength * dimensions.WidthPerChar + dimensions.NoteToNameDistance;
             }
 
             if (hasDots)
             {
-                dotWholeWidth = SheetMusic.DotWidth + SheetMusic.NoteToDotDistance;
+                dotWholeWidth = dimensions.DotWidth + dimensions.NoteToDotDistance;
             }
 
             if (dotWholeWidth + nameWidth > spacing)
@@ -512,7 +516,7 @@ namespace PianoViaR.Score.Creation
                 topnote = WhiteNote.Max(topnote, stem2.End);
 
             // float dist = topnote.Dist(WhiteNote.Top(clef)) * SheetMusic.NoteHeadHeight / 2;
-            float dist = topnote.Dist(WhiteNote.Top(clef)) * SheetMusic.NoteVerticalSpacing;
+            float dist = topnote.Dist(WhiteNote.Top(clef)) * dimensions.NoteVerticalSpacing;
             float result = 0;
             if (dist > 0)
                 result = dist;
@@ -549,7 +553,7 @@ namespace PianoViaR.Score.Creation
             if (stem2 != null)
                 bottomnote = WhiteNote.Min(bottomnote, stem2.End);
 
-            float dist = WhiteNote.Bottom(clef).Dist(bottomnote) * SheetMusic.NoteVerticalSpacing;
+            float dist = WhiteNote.Bottom(clef).Dist(bottomnote) * dimensions.NoteVerticalSpacing;
             //    SheetMusic.NoteHeadHeight / 2;
 
             float result = 0;
@@ -829,7 +833,7 @@ namespace PianoViaR.Score.Creation
                 // left and right of the center
 
                 // Move left half the width of note stem
-                xOffsetRight = ActualWidth / 2 - SheetMusic.NoteStemWidth / 2;
+                xOffsetRight = ActualWidth / 2 - dimensions.NoteStemWidth / 2;
             }
 
             // foreach (NoteData note in noteData)
@@ -840,7 +844,7 @@ namespace PianoViaR.Score.Creation
                 GameObject noteGO = new GameObject("note");
 
                 var distanceToTopStaff = topstaff.Dist(note.whiteNote);
-                float ynote = ytop + distanceToTopStaff * SheetMusic.NoteVerticalSpacing;
+                float ynote = ytop + distanceToTopStaff * dimensions.NoteVerticalSpacing;
 
                 float xOffset = xnote;
 
@@ -866,7 +870,7 @@ namespace PianoViaR.Score.Creation
                 }
 
                 // Fit the game object to its width
-                noteHead.FitToWidth(SheetMusic.NoteHeadWidth);
+                noteHead.FitToWidth(dimensions.NoteHeadWidth);
                 // Place the game object at the right position
                 noteHead.PlaceUpperLeft(originalPosition, xyPosition);
 
@@ -881,12 +885,12 @@ namespace PianoViaR.Score.Creation
                     // Create the game object (Note Dot)
                     noteDot = factory.CreateSymbol(SymbolType.NOTE_DOT);
                     // Fit the game object to its width
-                    noteDot.FitToWidth(SheetMusic.DotWidth);
+                    noteDot.FitToWidth(dimensions.DotWidth);
                     // Place the game object at the right position
                     // Place note dot at bottom of note head
 
-                    float xDotOffset = ActualWidth + SheetMusic.NoteToDotDistance;
-                    float yDotOffset = SheetMusic.NoteHeadHeight - SheetMusic.DotWidth;
+                    float xDotOffset = ActualWidth + dimensions.NoteToDotDistance;
+                    float yDotOffset = dimensions.NoteHeadHeight - dimensions.DotWidth;
                     var dotOffset = new Vector3(xDotOffset, -yDotOffset);
                     noteDot.PlaceUpperLeft(originalPosition, xyPosition, dotOffset);
 
@@ -901,11 +905,11 @@ namespace PianoViaR.Score.Creation
                 /* Draw horizontal lines if note is above/below the staff */
                 WhiteNote top = topstaff.Add(1);
                 int dist = note.whiteNote.Dist(top);
-                float y = ytop - SheetMusic.LineWidth;
-                var noteBarWidth = SheetMusic.NoteBarWidth;
+                float y = ytop - dimensions.LineWidth;
+                var noteBarWidth = dimensions.NoteBarWidth;
 
-                var xBarOffset = xOffset + SheetMusic.NoteHeadWidth / 2;
-                var yBarOffset = SheetMusic.LineWidth / 2;
+                var xBarOffset = xOffset + dimensions.NoteHeadWidth / 2;
+                var yBarOffset = dimensions.LineWidth / 2;
 
                 if (dist >= 2)
                 {
@@ -914,8 +918,8 @@ namespace PianoViaR.Score.Creation
                     // Top bars
                     for (int i = 2; i <= dist; i += 2)
                     {
-                        // y -= SheetMusic.NoteHeight;
-                        y -= SheetMusic.WholeLineSpace;
+                        // y -= dimensions.NoteHeight;
+                        y -= dimensions.WholeLineSpace;
                         // Create the game object (Note Bar)
                         var noteBar = factory.CreateSymbol(SymbolType.NOTE_BAR);
                         var offset = new Vector3(xBarOffset, -(y + yBarOffset));
@@ -927,7 +931,7 @@ namespace PianoViaR.Score.Creation
                 }
 
                 WhiteNote bottom = top.Add(-8);
-                y = ytop + SheetMusic.WholeLineSpace * 4;
+                y = ytop + dimensions.WholeLineSpace * 4;
                 dist = bottom.Dist(note.whiteNote);
                 if (dist >= 2)
                 {
@@ -936,7 +940,7 @@ namespace PianoViaR.Score.Creation
                     // Bottom bars
                     for (int i = 2; i <= dist; i += 2)
                     {
-                        y += SheetMusic.WholeLineSpace;
+                        y += dimensions.WholeLineSpace;
                         // Create the game object (Note Bar)
                         var noteBar = factory.CreateSymbol(SymbolType.NOTE_BAR);
                         var offset = new Vector3(xBarOffset, -(y - yBarOffset));
@@ -958,9 +962,9 @@ namespace PianoViaR.Score.Creation
 
         private void PlaceBar(ref GameObject bar, Vector3 position, Vector3 offset)
         {
-            bar.FitToHeight(SheetMusic.LineWidth);
+            bar.FitToHeight(dimensions.LineWidth);
             // Fit the game object to its width
-            bar.FitOnlyTo(SheetMusic.NoteBarWidth, Axis.Y, Axis.X);
+            bar.FitOnlyTo(dimensions.NoteBarWidth, Axis.Y, Axis.X);
             // Place the game object at the right position
             bar.PlaceCenter(position, offset);
         }
@@ -973,15 +977,15 @@ namespace PianoViaR.Score.Creation
         {
             var names = new GameObject[noteData.Length];
 
-            float xnote = ActualWidth + SheetMusic.NoteToNameDistance;
+            float xnote = ActualWidth + dimensions.NoteToNameDistance;
 
             if (hasDots)
             {
                 // Move to the right the space necessary for the dots
-                xnote += SheetMusic.NoteToDotDistance + SheetMusic.DotWidth;
+                xnote += dimensions.NoteToDotDistance + dimensions.DotWidth;
             }
 
-            var spacing = SheetMusic.NoteVerticalSpacing;
+            var spacing = dimensions.NoteVerticalSpacing;
 
             for (int i = 0; i < noteData.Length; i++)
             {
@@ -993,13 +997,13 @@ namespace PianoViaR.Score.Creation
                 var noteNameGO = factory.CreateSymbol(SymbolType.NOTE_NAME_TEXT);
                 var noteName = NoteName(note.number, note.whiteNote);
                 noteNameGO.TextSetText(noteName);
-                var widthPerChar = SheetMusic.WidthPerChar;
+                var widthPerChar = dimensions.WidthPerChar;
                 var width = noteName.Length * widthPerChar;
                 // Fit the game object to its height
-                noteNameGO.TextFitToHeight(SheetMusic.NoteNameTextHeight);
+                noteNameGO.TextFitToHeight(dimensions.NoteNameTextHeight);
                 noteNameGO.TextFitOnlyToWidth(width);
                 // Place the game object at the right position (centered vertically)
-                var offset = new Vector3(xnote, -(ynote + SheetMusic.NoteHeadHeight / 2));
+                var offset = new Vector3(xnote, -(ynote + dimensions.NoteHeadHeight / 2));
                 noteNameGO.TextPlaceCenterLeft(originalPosition, offset);
 
                 noteNameGO.name = noteName;

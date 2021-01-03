@@ -59,6 +59,7 @@ namespace PianoViaR.Score.Creation
         private float widthToPair;      /** The width (in pixels) to the chord pair */
         private bool receiverInPair;  /** This stem is the receiver of a horizontal
                                     * beam stem from another chord. */
+        private ScoreDimensions dimensions;
 
         private const int NoteBeamSides = 36; /** Sides to the beam ellipse faces */
 
@@ -110,7 +111,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return SheetMusic.NoteStemWidth;
+                return dimensions.NoteStemWidth;
             }
         }
 
@@ -118,7 +119,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return SheetMusic.NoteHeadWidth;
+                return dimensions.NoteHeadWidth;
             }
         }
 
@@ -129,9 +130,9 @@ namespace PianoViaR.Score.Creation
          * stem must be drawn on the right side.
          */
         public Stem(WhiteNote bottom, WhiteNote top,
-                    NoteDuration duration, int direction, bool overlap, bool hasDots = false)
+                    NoteDuration duration, int direction, in ScoreDimensions dimensions, bool overlap, bool hasDots = false)
         {
-
+            this.dimensions = dimensions;
             this.top = top;
             this.bottom = bottom;
             this.duration = duration;
@@ -266,27 +267,27 @@ namespace PianoViaR.Score.Creation
             float xnote = 0;
 
             if (side != LeftSide)
-                xnote += SheetMusic.NoteHeadWidth - SheetMusic.NoteStemWidth;
+                xnote += dimensions.NoteHeadWidth - dimensions.NoteStemWidth;
 
             var stemLine = factory.CreateSymbol(SymbolType.NOTE_STEM);
             float heightToFit = 0;
             Vector3 offset = Vector3.zero;
 
-            float spacing = SheetMusic.NoteVerticalSpacing;
+            float spacing = dimensions.NoteVerticalSpacing;
             float ystart = 0;
             float yend = 0;
 
             if (direction == Up)
             {
                 var distanceToBottom = topstaff.Dist(bottom) + 1;
-                ystart = ytop + distanceToBottom * spacing - SheetMusic.LineWidth / 2;
+                ystart = ytop + distanceToBottom * spacing - dimensions.LineWidth / 2;
 
                 var distanceToEnd = topstaff.Dist(end);
                 yend = ytop + distanceToEnd * spacing;
             }
             else if (direction == Down)
             {
-                yend = ytop + (topstaff.Dist(top) + 1) * spacing - SheetMusic.LineWidth / 2;
+                yend = ytop + (topstaff.Dist(top) + 1) * spacing - dimensions.LineWidth / 2;
 
                 ystart = ytop + (topstaff.Dist(end) + 1) * spacing;
             }
@@ -341,13 +342,13 @@ namespace PianoViaR.Score.Creation
 
             float xstart = 0;
             if (side == LeftSide)
-                xstart = SheetMusic.NoteStemWidth * 0.75f;
+                xstart = dimensions.NoteStemWidth * 0.75f;
             else
-                xstart = SheetMusic.NoteHeadWidth - SheetMusic.NoteStemWidth * 0.25f;
+                xstart = dimensions.NoteHeadWidth - dimensions.NoteStemWidth * 0.25f;
 
-            float heightToFit = SheetMusic.WholeLineSpace * 3;
+            float heightToFit = dimensions.WholeLineSpace * 3;
 
-            float spacing = SheetMusic.NoteVerticalSpacing;
+            float spacing = dimensions.NoteVerticalSpacing;
             float distanceToEnd = topstaff.Dist(end);
             float ystem = ytop + distanceToEnd * spacing;
 
@@ -378,8 +379,8 @@ namespace PianoViaR.Score.Creation
 
         private GameObject CreateBeam(MusicSymbolFactory factory, Vector3 position, Vector3 centerFace1, Vector3 centerFace2)
         {
-            float faceWidth = SheetMusic.LineWidth / 2;
-            float faceHeight = SheetMusic.BeamWidth / 2;
+            float faceWidth = dimensions.LineWidth / 2;
+            float faceHeight = dimensions.BeamWidth / 2;
             const BasicShapes.Plane plane = BasicShapes.Plane.ZY;
 
             GameObject beam = factory.CreateSymbol(SymbolType.NOTE_BEAM);
@@ -413,17 +414,17 @@ namespace PianoViaR.Score.Creation
             if (side == LeftSide)
                 xstart = 0;
             else if (side == RightSide)
-                xstart = SheetMusic.NoteHeadWidth - SheetMusic.NoteStemWidth;
+                xstart = dimensions.NoteHeadWidth - dimensions.NoteStemWidth;
 
             if (pair.side == LeftSide)
-                xstart2 = SheetMusic.NoteStemWidth;
+                xstart2 = dimensions.NoteStemWidth;
             else if (pair.side == RightSide)
-                xstart2 = SheetMusic.NoteHeadWidth;
+                xstart2 = dimensions.NoteHeadWidth;
 
             xstart2 += offset;
 
-            var yOffset = SheetMusic.BeamWidth * 2;
-            var spacing = SheetMusic.NoteVerticalSpacing;
+            var yOffset = dimensions.BeamWidth * 2;
+            var spacing = dimensions.NoteVerticalSpacing;
 
             float xend = widthToPair + xstart2;
             float ystart = ytop + topstaff.Dist(end) * spacing;
@@ -453,7 +454,7 @@ namespace PianoViaR.Score.Creation
             /* A dotted eighth will connect to a 16th note. */
             if (duration == NoteDuration.DottedEighth)
             {
-                float x = xend - SheetMusic.NoteHeadWidth;
+                float x = xend - dimensions.NoteHeadWidth;
                 float slope = (yend - ystart) * 1.0f / (xend - xstart);
                 float y = slope * (x - xend) + yend;
 

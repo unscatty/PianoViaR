@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using PianoViaR.Score.Helpers;
 
 namespace PianoViaR.Score.Creation
 {
@@ -75,14 +76,16 @@ namespace PianoViaR.Score.Creation
 
         /** The measure used in the previous call to GetAccidental() */
         private int prevmeasure;
+        private ScoreDimensions dimensions;
 
 
         /** Create new key signature, with the given number of
          * sharps and flats.  One of the two must be 0, you can't
          * have both sharps and flats in the key signature.
          */
-        public KeySignature(int num_sharps, int num_flats)
+        public KeySignature(int num_sharps, int num_flats, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             if (!(num_sharps == 0 || num_flats == 0))
             {
                 throw new System.ArgumentException("Bad KeySigature args");
@@ -409,8 +412,8 @@ namespace PianoViaR.Score.Creation
 
             for (int i = 0; i < count; i++)
             {
-                treble[i] = new AccidSymbol(a, treblenotes[i], Clef.Treble, chord: false);
-                bass[i] = new AccidSymbol(a, bassnotes[i], Clef.Bass, chord: false);
+                treble[i] = new AccidSymbol(a, treblenotes[i], Clef.Treble, in dimensions, chord: false);
+                bass[i] = new AccidSymbol(a, bassnotes[i], Clef.Bass, in dimensions, chord: false);
             }
         }
 
@@ -596,7 +599,7 @@ namespace PianoViaR.Score.Creation
         /** Guess the key signature, given the midi note numbers used in
          * the song.
          */
-        public static KeySignature Guess(List<int> notes)
+        public static KeySignature Guess(List<int> notes, in ScoreDimensions dimensions)
         {
             CreateAccidentalMaps();
 
@@ -655,11 +658,11 @@ namespace PianoViaR.Score.Creation
             }
             if (is_best_sharp)
             {
-                return new KeySignature(bestkey, 0);
+                return new KeySignature(bestkey, 0, in dimensions);
             }
             else
             {
-                return new KeySignature(0, bestkey);
+                return new KeySignature(0, bestkey, in dimensions);
             }
         }
 

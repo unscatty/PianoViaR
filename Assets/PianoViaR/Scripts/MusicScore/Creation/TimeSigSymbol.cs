@@ -29,10 +29,12 @@ namespace PianoViaR.Score.Creation
         private int numerator;         /** The numerator */
         private int denominator;       /** The denominator */
         private float width;             /** The width in pixels */
+        private ScoreDimensions dimensions;
 
         /** Create a new TimeSigSymbol */
-        public TimeSigSymbol(int numer, int denom)
+        public TimeSigSymbol(int numer, int denom, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             numerator = numer;
             denominator = denom;
 
@@ -52,7 +54,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return ActualWidth + SheetMusic.NoteToNoteDistance * 2;
+                return ActualWidth + dimensions.NoteToNoteDistance * 2;
             }
         }
 
@@ -67,14 +69,14 @@ namespace PianoViaR.Score.Creation
 
         public float ActualWidth
         {
-            get { return SheetMusic.NoteHeadWidth * 2; }
+            get { return dimensions.NoteHeadWidth * 2; }
         }
 
         public float Height
         {
             get
             {
-                return SheetMusic.StaffHeight + SheetMusic.WholeLineSpace;
+                return dimensions.StaffHeight + dimensions.WholeLineSpace;
             }
         }
 
@@ -100,7 +102,7 @@ namespace PianoViaR.Score.Creation
         public GameObject Create(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
             float x = Width / 2;
-            float ynote = ytop - SheetMusic.LineWidth + SheetMusic.StaffHeight / 2;
+            float ynote = ytop - dimensions.LineWidth + dimensions.StaffHeight / 2;
 
             float heightToFit = Height;
 
@@ -114,7 +116,7 @@ namespace PianoViaR.Score.Creation
             textSignature.TextPlaceCenter(position, xyPosition);
 
             // var dot = factory.CreateSymbol(SymbolType.NOTE_DOT);
-            // dot.FitToWidth(SheetMusic.DotWidth);
+            // dot.FitToWidth(dimensions.DotWidth);
             // dot.PlaceCenterLeft(position, xyPosition);
 
             return textSignature;

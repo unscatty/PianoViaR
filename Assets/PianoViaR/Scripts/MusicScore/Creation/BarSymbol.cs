@@ -27,10 +27,12 @@ namespace PianoViaR.Score.Creation
     {
         private int starttime;
         private float width;
+        private ScoreDimensions dimensions;
 
         /** Create a BarSymbol. The starttime should be the beginning of a measure. */
-        public BarSymbol(int starttime)
+        public BarSymbol(int starttime, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             this.starttime = starttime;
             width = MinWidth;
         }
@@ -46,7 +48,7 @@ namespace PianoViaR.Score.Creation
         /** Get the minimum width (in pixels) needed to draw this symbol */
         public float MinWidth
         {
-            get { return ActualWidth + SheetMusic.NoteToNoteDistance * 2; }
+            get { return ActualWidth + dimensions.NoteToNoteDistance * 2; }
         }
 
         /** Get/Set the width (in pixels) of this symbol. The width is set
@@ -62,13 +64,13 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return SheetMusic.LineWidth;
+                return dimensions.LineWidth;
             }
         }
 
         public float Height
         {
-            get { return SheetMusic.LineSpace * 4 + SheetMusic.LineWidth * 3; }
+            get { return dimensions.LineSpace * 4 + dimensions.LineWidth * 3; }
         }
 
         /** Get the number of pixels this symbol extends above the staff. Used

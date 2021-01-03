@@ -33,10 +33,12 @@ namespace PianoViaR.Score.Creation
         private bool smallsize;       /** True if this is a small clef, false otherwise */
         private Clef clef;            /** The clef, Treble or Bass */
         private float width;
+        private ScoreDimensions dimensions;
 
         /** Create a new ClefSymbol, with the given clef, starttime, and size */
-        public ClefSymbol(Clef clef, int starttime, bool small)
+        public ClefSymbol(Clef clef, int starttime, bool small, in ScoreDimensions dimensions)
         {
+            this.dimensions = dimensions;
             this.clef = clef;
             this.starttime = starttime;
             smallsize = small;
@@ -56,7 +58,7 @@ namespace PianoViaR.Score.Creation
         {
             get
             {
-                return ActualWidth + SheetMusic.ChordWidthOffset * 4;
+                return ActualWidth + dimensions.ChordWidthOffset * 4;
             }
         }
 
@@ -74,9 +76,9 @@ namespace PianoViaR.Score.Creation
             get
             {
                 if (smallsize)
-                    return SheetMusic.NoteHeadWidth * 1.8f;
+                    return dimensions.NoteHeadWidth * 1.8f;
                 else
-                    return SheetMusic.NoteHeadWidth * 2.6f;
+                    return dimensions.NoteHeadWidth * 2.6f;
             }
         }
 
@@ -88,7 +90,7 @@ namespace PianoViaR.Score.Creation
             get
             {
                 if (clef == Clef.Treble && !smallsize)
-                    return SheetMusic.NoteHeadHeight * 2;
+                    return dimensions.NoteHeadHeight * 2;
                 else
                     return 0;
             }
@@ -102,9 +104,9 @@ namespace PianoViaR.Score.Creation
             get
             {
                 if (clef == Clef.Treble && !smallsize)
-                    return SheetMusic.NoteHeadHeight * 2;
+                    return dimensions.NoteHeadHeight * 2;
                 else if (clef == Clef.Treble && smallsize)
-                    return SheetMusic.NoteHeadHeight;
+                    return dimensions.NoteHeadHeight;
                 else
                     return 0;
             }
