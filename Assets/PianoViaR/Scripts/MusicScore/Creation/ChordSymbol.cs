@@ -681,7 +681,7 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject Create(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            GameObject chord = new GameObject("chord");
+            GameObject chord = factory.CreateSymbol(SymbolType.CHORD);
 
             float halfWidth = Width / 2;
 

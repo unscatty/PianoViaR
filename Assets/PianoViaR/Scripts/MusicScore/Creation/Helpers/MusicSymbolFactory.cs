@@ -29,6 +29,7 @@ namespace PianoViaR.Score.Helpers
         NOTE_NAME_TEXT,
         SIGNATURE_TEXT,
         MEASURES_TEXT,
+        CHORD
     }
 
     public class MusicSymbolFactory : MonoBehaviour
@@ -42,6 +43,7 @@ namespace PianoViaR.Score.Helpers
         public GameObject noteStem;
 
         [Header("Miscellaneous")]
+        public GameObject chord;
         public GameObject noteBeam;
         public GameObject noteDot;
         public GameObject noteBar;
@@ -184,6 +186,9 @@ namespace PianoViaR.Score.Helpers
 
                 case SymbolType.MEASURES_TEXT:
                     return measuresText;
+
+                case SymbolType.CHORD:
+                    return chord;
 
                 default:
                     throw new ArgumentException($"Unknown type: {symbolType}");
