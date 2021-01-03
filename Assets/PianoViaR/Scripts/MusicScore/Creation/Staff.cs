@@ -54,6 +54,8 @@ namespace PianoViaR.Score.Creation
         private int endtime;                /** The time (in pulses) of last symbol */
         private int measureLength;          /** The time (in pulses) of a measure */
         private ScoreDimensions dimensions;
+        public bool hideKeySignature = false;
+        public bool showOnlyChords = false;
 
         /** Create a new staff with the given list of music symbols,
          * and the given key signature.  The clef is determined by
@@ -68,11 +70,15 @@ namespace PianoViaR.Score.Creation
             MIDIOptions options,
             int tracknum,
             int totaltracks,
-            in ScoreDimensions dimensions
+            in ScoreDimensions dimensions,
+            bool hideKeySignature,
+            bool showOnlyChords
         )
         {
             this.dimensions = dimensions;
-            keysigWidth = SheetMusic.KeySignatureWidth(key, in dimensions);
+            this.hideKeySignature = hideKeySignature;
+            this.showOnlyChords = showOnlyChords;
+
             this.tracknum = tracknum;
             this.totaltracks = totaltracks;
             showMeasures = (options.showMeasures && tracknum == 0);
@@ -82,6 +88,15 @@ namespace PianoViaR.Score.Creation
             clefsym = new ClefSymbol(clef, 0, false, in dimensions);
             keys = key.GetSymbols(clef);
             this.symbols = symbols;
+
+            if (hideKeySignature)
+            {
+                keysigWidth = clefsym.MinWidth;
+            }
+            else
+            {
+                keysigWidth = SheetMusic.KeySignatureWidth(key, in dimensions);
+            }
 
             CalculateWidth(options.scrollVert);
             CalculateHeight();
@@ -183,9 +198,19 @@ namespace PianoViaR.Score.Creation
             }
 
             width = keysigWidth;
-            foreach (MusicSymbol s in symbols)
+
+            var i = 0;
+
+            if (hideKeySignature)
             {
-                width += s.Width;
+                // Hide the first symbol (time signature)
+                i = 1;
+            }
+
+            for (; i < symbols.Count; i++)
+            {
+                width += symbols[i].Width;
+
             }
 
             if (extra)
@@ -469,7 +494,7 @@ namespace PianoViaR.Score.Creation
             newPosition.x += clefsym.Width;
 
             /* Create the key signature */
-            if (keys.Length > 0)
+            if (keys.Length > 0 && !hideKeySignature)
             {
                 GameObject signatureAccids = new GameObject("accidentals");
 
@@ -490,13 +515,17 @@ namespace PianoViaR.Score.Creation
              *
              * For fast performance, only draw symbols that are in the clip area.
              */
-
             var timeSignature = symbols[0];
-            var timeSigGO = timeSignature.Create(factory, newPosition, ytop);
-            timeSigGO.name = "timeSignature";
-            timeSigGO.transform.SetParent(signatureGO.transform);
 
-            newPosition.x += timeSignature.Width;
+            if (!hideKeySignature)
+            {
+                var timeSigGO = timeSignature.Create(factory, newPosition, ytop);
+                timeSigGO.name = "timeSignature";
+                timeSigGO.transform.SetParent(signatureGO.transform);
+
+                newPosition.x += timeSignature.Width;
+            }
+
 
             var firstBar = symbols[1];
             var firstBarGO = firstBar.Create(factory, newPosition, ytop);
@@ -512,8 +541,16 @@ namespace PianoViaR.Score.Creation
             for (int i = 2; i < symbols.Count; i++)
             {
                 var musicSymbol = symbols[i];
-                var symbolGO = musicSymbol.Create(factory, newPosition, ytop);
-                symbolGO?.transform.SetParent(symbolsGO.transform);
+
+                if (showOnlyChords && (!(musicSymbol is ChordSymbol) && !(musicSymbol is BarSymbol)))
+                {
+                    // Dont draw if it is not a chord nor a bar
+                }
+                else
+                {
+                    var symbolGO = musicSymbol.Create(factory, newPosition, ytop);
+                    symbolGO?.transform.SetParent(symbolsGO.transform);
+                }
 
                 newPosition.x += musicSymbol.Width;
             }

@@ -99,7 +99,16 @@ namespace PianoViaR.Score.Creation
             // Creates the notes, also checks if any note has a dotted duration
             noteData = CreateNoteData(midinotes, key, time);
             // Creates the accidental symbols, if any *hasAccidentals* becomes true
-            accidSymbols = GetAccidSymbols(noteData, clef);
+            if (sheet.hideAccidentals)
+            {
+                hasAccidentals = false;
+                noteToAccidIndexes = new (int, int)[0];
+                accidSymbols = new AccidSymbol[0];
+            }
+            else
+            {
+                accidSymbols = GetAccidSymbols(noteData, clef);
+            }
 
 
             /* Find out how many stems we need (1 or 2) */

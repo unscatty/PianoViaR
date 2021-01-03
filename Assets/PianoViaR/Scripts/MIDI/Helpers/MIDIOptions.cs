@@ -63,10 +63,35 @@ namespace PianoViaR.MIDI.Helpers
         public int playMeasuresInLoopStart; /** Start measure to play in loop */
         public int playMeasuresInLoopEnd;   /** End measure to play in loop */
 
+        public static MIDIOptions Default
+        {
+            get { return new MIDIOptions(); }
+        }
+
+        public MIDIOptions(TimeSignature timeSignature)
+        {
+            scrollVert = false;
+            showNoteLetters = MIDIOptions.NoteNameNone;
+            key = -1;
+            shifttime = 0;
+            showLyrics = false;
+            showMeasures = false;
+            time = timeSignature;
+            useDefaultInstruments = true;
+            largeNoteSize = false;
+            twoStaffs = false;
+            transpose = 0;
+            combineInterval = 40;
+            tempo = time.Tempo;
+            pauseTime = 0;
+            playMeasuresInLoop = false;
+            playMeasuresInLoopStart = 0;
+            playMeasuresInLoopEnd = 0;
+        }
 
         public MIDIOptions()
-        {
-        }
+        : this(TimeSignature.Default)
+        { }
 
         public MIDIOptions(MIDIFile midifile)
         {

@@ -17,6 +17,7 @@ using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
 using PianoViaR.MIDI.Parsing;
 using PianoViaR.MIDI.Helpers;
+using PianoViaR.Score.Behaviours.Helpers;
 
 namespace PianoViaR.Score.Creation
 {
@@ -61,6 +62,10 @@ namespace PianoViaR.Score.Creation
         private int showNoteLetters;    /** Display the note letters */
         public MusicSymbolFactory factory;
         private ScoreDimensions dimensions;
+
+        public bool hideKeySignature = false;
+        public bool showOnlyChords = false;
+        public bool hideAccidentals = false;
 
         /** Create a new SheetMusic control, using the given parsed MIDIFile.
          *  The options can be null.
@@ -172,6 +177,22 @@ namespace PianoViaR.Score.Creation
             MusicSymbolFactory factory,
             (float pageWidth, float pageHeight) pageDimensions
         ) : this(track, TimeSignature.Default, options, factory, pageDimensions) { }
+
+        public SheetMusic(ConsecutiveNotes notes, MIDIOptions options, MusicSymbolFactory factory, (float pageWidth, float pageHeight) pageDimensions)
+        {
+            showOnlyChords = true;
+            hideKeySignature = true;
+            hideAccidentals = true;
+
+            var track = notes.GetTrack();
+
+            (PageWidth, PageHeight) = pageDimensions;
+            this.factory = factory;
+
+            List<MIDITrack> tracks = new List<MIDITrack> { track };
+
+            Initialize(tracks, options, notes.TimeSignature);
+        }
 
 
         /** Create a new SheetMusic control.
@@ -912,7 +933,7 @@ namespace PianoViaR.Score.Creation
                     width = PageWidth;
                 }
                 Staff staff = new Staff(symbols.GetRange(startindex, range),
-                                        key, options, track, totaltracks, in dimensions);
+                                        key, options, track, totaltracks, in dimensions, hideKeySignature, showOnlyChords);
                 thestaffs.Add(staff);
                 startindex = endindex + 1;
             }
@@ -1102,7 +1123,12 @@ namespace PianoViaR.Score.Creation
                 for (; staffnum + 1 < staffs.Count; staffnum += 2)
                 {
                     var newPosition = new Vector3(0, -ypos) + topLeft;
-                    var staffTrack1 = staffs[staffnum].Create(factory, newPosition);
+
+                    var evenStaff = staffs[staffnum];
+                    evenStaff.hideKeySignature = hideKeySignature;
+                    evenStaff.showOnlyChords = showOnlyChords;
+
+                    var staffTrack1 = evenStaff.Create(factory, newPosition);
                     staffTrack1.name = $"staffTrack{staffnum + 1}";
                     staffTrack1.transform.position = parent.transform.position;
                     staffTrack1.transform.rotation = parent.transform.rotation;
@@ -1111,7 +1137,12 @@ namespace PianoViaR.Score.Creation
                     ypos += staffs[staffnum].Height;
 
                     newPosition.y -= ypos;
-                    var staffTrack2 = staffs[staffnum + 1].Create(factory, newPosition);
+
+                    var oddStafff = staffs[staffnum + 1];
+                    oddStafff.hideKeySignature = hideKeySignature;
+                    oddStafff.showOnlyChords = showOnlyChords;
+
+                    var staffTrack2 = oddStafff.Create(factory, newPosition);
                     staffTrack2.name = $"staffTrack{staffnum + 2}";
                     staffTrack2.transform.position = parent.transform.position;
                     staffTrack2.transform.rotation = parent.transform.rotation;
@@ -1127,7 +1158,12 @@ namespace PianoViaR.Score.Creation
                 for (; staffnum < staffs.Count; staffnum++)
                 {
                     var newPosition = new Vector3(0, -ypos) + topLeft;
-                    var staffGO = staffs[staffnum].Create(factory, newPosition);
+
+                    var currentStaff = staffs[staffnum];
+                    currentStaff.showOnlyChords = showOnlyChords;
+                    currentStaff.hideKeySignature = hideKeySignature;
+
+                    var staffGO = currentStaff.Create(factory, newPosition);
                     staffGO.name = $"staffTrack{staffnum + 1}";
                     staffGO.transform.position = parent.transform.position;
                     staffGO.transform.rotation = parent.transform.rotation;

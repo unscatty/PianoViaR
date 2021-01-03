@@ -7,6 +7,7 @@ using PianoViaR.Score.Creation;
 using PianoViaR.Score.Helpers;
 using PianoViaR.MIDI.Playback;
 using System.IO;
+using PianoViaR.Score.Behaviours.Helpers;
 
 namespace PianoViaR.Score.Behaviours
 {
@@ -56,7 +57,8 @@ namespace PianoViaR.Score.Behaviours
             var globalScoreBoxSize = scoreBoard.BoxSize();
 
             TimeSignature time = TimeSignature.Default;
-            var testTrack = TestTrack(time);
+            // var testTrack = TestTrack(time);
+            var testTrack = TrackBuild();
             var options = new MIDIOptions
             {
                 scrollVert = false,
@@ -93,9 +95,16 @@ namespace PianoViaR.Score.Behaviours
                 Debug.Log("Could not write to stream");
             }
 
+            var consNotes = new ConsecutiveNotes()
+            {
+                Notes = new int[] { 60, 62, 64, 66, 64, 66, 68, 70 },
+                Duration = NoteDuration.Quarter
+            };
+
             // SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            SheetMusic sheet = new SheetMusic(midifile, midiOptions, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            // SheetMusic sheet = new SheetMusic(midifile, midiOptions, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
             // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            SheetMusic sheet = new SheetMusic(consNotes, MIDIOptions.Default, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
 
             Vector3 staffsXYDims;
 
@@ -137,6 +146,15 @@ namespace PianoViaR.Score.Behaviours
             };
 
             return track;
+        }
+
+        private MIDITrack TrackBuild()
+        {
+            return (new ConsecutiveNotes()
+            {
+                Notes = new int[] { 66, 68, 70, 72 }
+                // Notes = new int[] { 60, 62, 64, 66, }
+            }).GetTrack();
         }
 
         void Clear()
