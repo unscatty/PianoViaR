@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PianoViaR.Score.Behaviours
+namespace PianoViaR.Score.Behaviours.Notes
 {
-
     public class NoteBehaviour : MonoBehaviour
     {
         // Start is called before the first frame update

@@ -88,7 +88,7 @@ namespace PianoViaR.Score.Behaviours
             var couldWrite = midifile.Write(midiStream, midiOptions, close: false, reset: true);
             if (couldWrite)
             {
-                midiPlayer.LoadMidi(new AudioSynthesis.Midi.MidiFile(midiStream));
+                midiPlayer?.LoadMidi(new AudioSynthesis.Midi.MidiFile(midiStream));
             }
             else
             {

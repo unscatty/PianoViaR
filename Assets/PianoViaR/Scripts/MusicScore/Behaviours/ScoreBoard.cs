@@ -1,16 +1,26 @@
 ﻿using UnityEngine;
 using PianoViaR.Utils;
+using Leap.Unity.Interaction;
 
 namespace PianoViaR.Score.Behaviours
 {
+    [RequireComponent(typeof(InteractionBehaviour))]
     [RequireComponent(typeof(BoxCollider))]
     public class ScoreBoard : MonoBehaviour
     {
         public StaffsScroll staffs;
+        InteractionBehaviour interaction;
+        BoxCollider boxCollider;
+
+        // Must be set in editor
+        public LayerMask disableMask;
+        LayerMask defaultMask;
         // Start is called before the first frame update
         void Start()
         {
-
+            interaction = GetComponent<InteractionBehaviour>();
+            boxCollider = GetComponent<BoxCollider>();
+            defaultMask = gameObject.layer;
         }
 
         // Update is called once per frame
@@ -34,6 +44,16 @@ namespace PianoViaR.Score.Behaviours
         {
             staffs.CanCollide(false);
             Debug.Log("Can not collide");
+        }
+
+        public void DisableContact()
+        {
+            gameObject.layer = disableMask;
+        }
+
+        public void EnableContact()
+        {
+            gameObject.layer = defaultMask;
         }
     }
 }

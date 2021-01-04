@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PianoViaR.Score.Behaviours
+namespace PianoViaR.Score.Behaviours.Notes
 {
     public class ChordBehaviour : MonoBehaviour
     {
