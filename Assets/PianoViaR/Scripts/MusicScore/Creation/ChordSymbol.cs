@@ -17,6 +17,7 @@ using PianoViaR.MIDI.Parsing;
 using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Helpers;
 using PianoViaR.Utils;
+using PianoViaR.Score.Behaviours.Notes;
 
 namespace PianoViaR.Score.Creation
 {
@@ -60,6 +61,7 @@ namespace PianoViaR.Score.Creation
         private WhiteNote topNote;         /** Topmost note in chord */
         private WhiteNote bottomNote;      /** Bottommost note in chord */
         private ScoreDimensions dimensions;
+        private int instrument;
 
         private (int noteIdx, int accidIdx)[] noteToAccidIndexes;
 
@@ -71,8 +73,9 @@ namespace PianoViaR.Score.Creation
          * of the notes. Use the clef when drawing the chord.
          */
         public ChordSymbol(List<MIDINote> midinotes, KeySignature key,
-                           TimeSignature time, Clef c, SheetMusic sheet, in ScoreDimensions dimensions)
+                           TimeSignature time, Clef c, SheetMusic sheet, int instrument, in ScoreDimensions dimensions)
         {
+            this.instrument = instrument;
             this.dimensions = dimensions;
             int len = midinotes.Count;
             int i;
@@ -692,6 +695,8 @@ namespace PianoViaR.Score.Creation
         {
             GameObject chord = factory.CreateSymbol(SymbolType.CHORD);
             chord.name = "chord";
+            var chordBehaviour = chord.GetComponent<ChordBehaviour>();
+            chordBehaviour.FirstNoteValue = noteData[0].number;
 
             float halfWidth = Width / 2;
 

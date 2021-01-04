@@ -6,6 +6,8 @@ namespace PianoViaR.Score.Behaviours.Notes
 {
     public class ChordBehaviour : MonoBehaviour
     {
+        public int FirstNoteValue;
+        public int Instrument;
         // Start is called before the first frame update
         void Start()
         {

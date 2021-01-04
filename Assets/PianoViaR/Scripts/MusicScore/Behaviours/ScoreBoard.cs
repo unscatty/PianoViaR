@@ -14,6 +14,7 @@ namespace PianoViaR.Score.Behaviours
 
         // Must be set in editor
         public LayerMask disableMask;
+        public GameObject GameObject { get { return this.gameObject; } }
         LayerMask defaultMask;
         // Start is called before the first frame update
         void Start()

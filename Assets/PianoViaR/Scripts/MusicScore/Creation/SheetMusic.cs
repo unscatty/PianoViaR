@@ -257,7 +257,7 @@ namespace PianoViaR.Score.Creation
             {
                 MIDITrack track = tracks[tracknum];
                 ClefMeasures clefs = new ClefMeasures(track.Notes, time.Measure);
-                List<ChordSymbol> chords = CreateChords(track.Notes, mainkey, time, clefs);
+                List<ChordSymbol> chords = CreateChords(track.Notes, mainkey, time, clefs, track.Instrument);
                 symbols[tracknum] = CreateSymbols(chords, clefs, time, lastStart);
             }
 
@@ -380,7 +380,7 @@ namespace PianoViaR.Score.Creation
         List<ChordSymbol> CreateChords(List<MIDINote> midinotes,
                                        KeySignature key,
                                        TimeSignature time,
-                                       ClefMeasures clefs)
+                                       ClefMeasures clefs, int instrument)
         {
 
             int i = 0;
@@ -409,7 +409,7 @@ namespace PianoViaR.Score.Creation
                 /* Create a single chord from the group of midi notes with
                  * the same start time.
                  */
-                ChordSymbol chord = new ChordSymbol(notegroup, key, time, clef, this, in dimensions);
+                ChordSymbol chord = new ChordSymbol(notegroup, key, time, clef, this, instrument, in dimensions);
                 chords.Add(chord);
             }
 
