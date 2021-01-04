@@ -101,10 +101,10 @@ namespace PianoViaR.Score.Behaviours
                 Duration = NoteDuration.Quarter
             };
 
-            // SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
             // SheetMusic sheet = new SheetMusic(midifile, midiOptions, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
             // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            SheetMusic sheet = new SheetMusic(consNotes, MIDIOptions.Default, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            // SheetMusic sheet = new SheetMusic(consNotes, MIDIOptions.Default, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
 
             Vector3 staffsXYDims;
 
