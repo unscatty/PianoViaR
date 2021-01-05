@@ -197,6 +197,7 @@ namespace PianoViaR.Score.Behaviours
 
         SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, MIDIFile midiFile)
         {
+            // TODO: change to merge with 
             return new SheetMusic(midiFile, null, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
         }
 

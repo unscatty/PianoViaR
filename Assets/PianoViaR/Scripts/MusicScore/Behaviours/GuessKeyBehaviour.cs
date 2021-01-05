@@ -42,22 +42,19 @@ namespace PianoViaR.Score.Behaviours
             correctKey = false;
             pressingNote = -1;
 
-            elements.resetButton.enabled = false;
+            ElementsEnabled(false);
+        }
 
-            var grabBarXOffset = elements.scoreBoard.transform.localPosition - elements.grabBar.transform.localPosition;
-            grabBarXOffset.y = 0;
-            grabBarXOffset.z = 0;
-
-            GrabBarXOffset = grabBarXOffset;
-
-            elements.grabBar.transform.position += grabBarXOffset;
-
-            elements.scoreBoard.DisableContact();
-            elements.staffs.CanCollide(false);
+        private void ElementsEnabled(bool enabled)
+        {
+            elements.resetButton.gameObject.SetActive(enabled);
+            elements.grabBar.gameObject.SetActive(enabled);
+            elements.scoreBoard.ContactEnabled(enabled);
+            elements.staffs.CanCollide(enabled);
         }
         public override void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
+            Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensionsX(scoreBoxSize, staffsDimensions);
             elements.staffs.gameObject.transform.SetParent(null);
 
             elements.scoreBoard.GameObject.FitOnlyToWidth(newStaffsDimensions.x * 1.025f);
@@ -171,12 +168,7 @@ namespace PianoViaR.Score.Behaviours
         public override void UnInitialize()
         {
             // Revert changes
-            elements.resetButton.enabled = true;
-
-            elements.grabBar.transform.position -= GrabBarXOffset;
-
-            elements.scoreBoard.EnableContact();
-            elements.staffs.CanCollide(true);
+            ElementsEnabled(true);
         }
     }
 }

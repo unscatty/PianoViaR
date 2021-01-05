@@ -42,29 +42,63 @@ namespace PianoViaR.Score.Behaviours
                 positionResetTime = 1;
         }
 
-        public Vector3 AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
+        public Vector3 AdaptToDimensionsScroll(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            ResetToNormal();
+            var newDimensions = AdaptToDimensionsY(scoreBoxSize, staffsDimensions);
 
-            float scaleY = scoreBoxSize.y / staffsDimensions.y;
-
-            float colliderScaleX = staffsDimensions.x / scoreBoxSize.x;
-            float colliderScaleY = staffsDimensions.y / scoreBoxSize.y;
-
-            var newDimensions = staffsDimensions * scaleY;
-
-            var currentSize = boxCollider.size;
-            boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z * colliderScaleY);
-            // Adjust this object position to center left
-            transform.localScale *= scaleY;
-
-            // Center relative to its parent
-            transform.localPosition = Vector3.zero;
             transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
 
             leftPosition = transform.localPosition;
 
             return newDimensions;
+        }
+
+        public Vector3 AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions, Axis axis)
+        {
+            ResetToNormal();
+
+            float scaleY = scoreBoxSize.y / staffsDimensions.y;
+            float scaleX = scoreBoxSize.x / staffsDimensions.x;
+
+            float colliderScaleX = staffsDimensions.x / scoreBoxSize.x;
+            float colliderScaleY = staffsDimensions.y / scoreBoxSize.y;
+            
+            Vector3 newDimensions;
+            float scale;
+
+            switch (axis)
+            {
+                case Axis.X:
+                    newDimensions = staffsDimensions * scaleX;
+                    scale = scaleX;
+                    break;
+                case Axis.Y:
+                    newDimensions = staffsDimensions * scaleY;
+                    scale = scaleY;
+                    break;
+                default:
+                    return staffsDimensions;
+            }
+
+            var currentSize = boxCollider.size;
+            boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z * colliderScaleY);
+
+            transform.localScale *= scale;
+
+            // Center relative to its parent
+            transform.localPosition = Vector3.zero;
+
+            return newDimensions;
+        }
+
+        public Vector3 AdaptToDimensionsY(Vector3 scoreBoxSize, Vector3 staffsDimensions)
+        {
+            return AdaptToDimensions(scoreBoxSize, staffsDimensions, Axis.Y);
+        }
+
+        public Vector3 AdaptToDimensionsX(Vector3 scoreBoxSize, Vector3 staffsDimensions)
+        {
+            return AdaptToDimensions(scoreBoxSize, staffsDimensions, Axis.X);
         }
 
         public void CanCollide(bool canCollide)

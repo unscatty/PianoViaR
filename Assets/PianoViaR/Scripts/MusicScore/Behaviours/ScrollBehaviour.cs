@@ -19,7 +19,7 @@ namespace PianoViaR.Score.Behaviours
 
         public override void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            elements.staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
+            elements.staffs.AdaptToDimensionsScroll(scoreBoxSize, staffsDimensions);
         }
 
         public override void Initialize()

@@ -49,6 +49,18 @@ namespace PianoViaR.Score.Behaviours
             Debug.Log("Can not collide");
         }
 
+        public void ContactEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                EnableContact();
+            }
+            else
+            {
+                DisableContact();
+            }
+        }
+
         public void DisableContact()
         {
             gameObject.layer = disableLayer;
