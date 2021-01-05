@@ -189,6 +189,7 @@ namespace PianoViaR.MIDI.Parsing
      *   
      */
 
+    [System.Serializable]
     public class MIDIFile
     {
         private string filename;          /** The Midi file name */

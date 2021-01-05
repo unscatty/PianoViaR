@@ -448,6 +448,7 @@ namespace PianoViaR.Utils
         {
             foreach (Transform child in gameObject.transform)
             {
+                child.SetParent(null);
                 GameObject.Destroy(child.gameObject);
             }
         }

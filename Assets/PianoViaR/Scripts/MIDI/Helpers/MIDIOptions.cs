@@ -23,6 +23,7 @@ namespace PianoViaR.MIDI.Helpers
      * collected from the menu/dialog settings, and then are passed
      * to the SheetMusic and MidiPlayer classes.
      */
+    [System.Serializable]
     public class MIDIOptions
     {
 

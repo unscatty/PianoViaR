@@ -36,6 +36,10 @@ namespace PianoViaR.Piano.Behaviours.Keys
         private PianoKey[] pianoKeys;
         public KeyOption option;
 
+        public Color correctColor;
+        public Color incorrectColor;
+        public Color hintColor;
+
         // This must be on Start
         void Start()
         {
@@ -94,6 +98,10 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
+
+                pianoKey.correctColor = correctColor;
+                pianoKey.incorrectColor = incorrectColor;
+                pianoKey.hintColor = hintColor;
             }
         }
 
@@ -130,6 +138,10 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
+
+                pianoKey.correctColor = correctColor;
+                pianoKey.incorrectColor = incorrectColor;
+                pianoKey.hintColor = hintColor;
             }
         }
 

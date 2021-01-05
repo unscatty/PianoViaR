@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using PianoViaR.Utils;
 using Leap.Unity.Interaction;
+using PianoViaR.Helpers;
 
 namespace PianoViaR.Score.Behaviours
 {
@@ -13,15 +14,16 @@ namespace PianoViaR.Score.Behaviours
         BoxCollider boxCollider;
 
         // Must be set in editor
-        public LayerMask disableMask;
+        [SerializeField, Layer]
+        public int disableLayer;
         public GameObject GameObject { get { return this.gameObject; } }
-        LayerMask defaultMask;
+        int defaultLayer;
         // Start is called before the first frame update
         void Start()
         {
             interaction = GetComponent<InteractionBehaviour>();
             boxCollider = GetComponent<BoxCollider>();
-            defaultMask = gameObject.layer;
+            defaultLayer = gameObject.layer;
         }
 
         // Update is called once per frame
@@ -49,12 +51,14 @@ namespace PianoViaR.Score.Behaviours
 
         public void DisableContact()
         {
-            gameObject.layer = disableMask;
+            gameObject.layer = disableLayer;
+            boxCollider.enabled = false;
         }
 
         public void EnableContact()
         {
-            gameObject.layer = defaultMask;
+            gameObject.layer = defaultLayer;
+            boxCollider.enabled = true;
         }
     }
 }

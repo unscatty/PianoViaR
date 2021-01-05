@@ -42,7 +42,7 @@ namespace PianoViaR.Score.Behaviours
                 positionResetTime = 1;
         }
 
-        public void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
+        public Vector3 AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
             ResetToNormal();
 
@@ -63,6 +63,8 @@ namespace PianoViaR.Score.Behaviours
             transform.Translate(new Vector3(((newDimensions.x - scoreBoxSize.x)) / 2, 0, 0), Space.Self);
 
             leftPosition = transform.localPosition;
+
+            return newDimensions;
         }
 
         public void CanCollide(bool canCollide)

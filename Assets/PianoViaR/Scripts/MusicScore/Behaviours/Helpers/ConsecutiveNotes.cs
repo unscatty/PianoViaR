@@ -5,9 +5,10 @@ using PianoViaR.MIDI.Parsing;
 
 namespace PianoViaR.Score.Behaviours.Helpers
 {
+    [System.Serializable]
     public class ConsecutiveNotes
     {
-        private List<int> notes;
+        public List<int> notes;
         public IEnumerable<int> Notes
         {
             get { return notes; }
@@ -24,9 +25,9 @@ namespace PianoViaR.Score.Behaviours.Helpers
                 Notes = GetNotes(value);
             }
         }
-        public MIDIInstrument Instrument { get; set; }
-        public TimeSignature TimeSignature { get; set; }
-        public NoteDuration Duration { get; set; }
+        public MIDIInstrument Instrument;
+        public TimeSignature TimeSignature;
+        public NoteDuration Duration;
 
         private void Initialize(TimeSignature time, NoteDuration duration, MIDIInstrument instrument, List<int> notes)
         {

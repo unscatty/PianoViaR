@@ -31,6 +31,7 @@ namespace PianoViaR.MIDI.Parsing
      * pulses).  This class is used mainly to convert pulse durations
      * (like 120, 240, etc) into note durations (half, quarter, eighth, etc).
      */
+    [System.Serializable]
 
     public class TimeSignature
     {

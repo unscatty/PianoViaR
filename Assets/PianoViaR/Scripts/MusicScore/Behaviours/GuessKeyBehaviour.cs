@@ -1,4 +1,5 @@
 ﻿using PianoViaR.Helpers;
+using PianoViaR.Piano.Behaviours.Keys;
 using PianoViaR.Score.Behaviours.Helpers;
 using PianoViaR.Score.Behaviours.Notes;
 using PianoViaR.Utils;
@@ -11,9 +12,11 @@ namespace PianoViaR.Score.Behaviours
         public int CurrentIndex { get; private set; }
         public ChordBehaviour CurrentChord { get { return chords[CurrentIndex]; } }
         public bool KeyPressed;
+        private bool correctKey;
+        public int pressingNote;
 
         private Vector3 GrabBarXOffset;
-        protected GuessKeyBehaviour(
+        public GuessKeyBehaviour(
             ScoreElements elements,
             ChordBehaviour[] chords,
             Color correctColor,
@@ -23,7 +26,7 @@ namespace PianoViaR.Score.Behaviours
         : base(elements, chords, correctColor, incorrectColor, auxiliarColor)
         { }
 
-        protected GuessKeyBehaviour(
+        public GuessKeyBehaviour(
             ScoreElements elements,
             Color correctColor,
             Color incorrectColor,
@@ -36,6 +39,8 @@ namespace PianoViaR.Score.Behaviours
         {
             CurrentIndex = 0;
             KeyPressed = false;
+            correctKey = false;
+            pressingNote = -1;
 
             elements.resetButton.enabled = false;
 
@@ -52,8 +57,13 @@ namespace PianoViaR.Score.Behaviours
         }
         public override void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            elements.staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
-            elements.scoreBoard.GameObject.FitToHeight(staffsDimensions.y);
+            Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
+            elements.staffs.gameObject.transform.SetParent(null);
+
+            elements.scoreBoard.GameObject.FitOnlyToWidth(newStaffsDimensions.x * 1.025f);
+            elements.scoreBoard.GameObject.FitOnlyToHeight(newStaffsDimensions.y * 1.1f);
+            elements.staffs.gameObject.transform.SetParent(elements.scoreBoard.transform);
+            elements.staffs.transform.localPosition = Vector3.zero;
         }
 
         // Must suscribe piano key to this
@@ -64,22 +74,26 @@ namespace PianoViaR.Score.Behaviours
                 if (!KeyPressed)
                 {
                     KeyPressed = true;
+                    pressingNote = args.Note;
 
-                    EvaluatePressedKey(args);
+                    EvaluatePressedKey(source, args);
                 }
             }
         }
 
-        private void EvaluatePressedKey(PianoNoteEventArgs args)
+        private void EvaluatePressedKey(object source, PianoNoteEventArgs args)
         {
             Color color;
             GameplayState state;
 
-            if (IsRightNote(args.Note))
+            correctKey = IsRightNote(args.Note);
+
+            if (correctKey)
             {
                 // Right key
                 color = CorrectColor;
                 state = GameplayState.CORRECT;
+
             }
             else
             {
@@ -88,10 +102,12 @@ namespace PianoViaR.Score.Behaviours
                 state = GameplayState.INCORRECT;
             }
 
-            var gameplayArgs = new PianoGameplayEventArgs(state);
+            var gameplayArgs = new PianoGameplayEventArgs(state, args);
 
             // Notify piano key
-            OnEvaluateBegin(this, gameplayArgs);
+            OnEvaluateBegin(gameplayArgs);
+            // var pianoKey = (PianoKey)source;
+            // pianoKey.OnEvaluateBegin(this, gameplayArgs);
 
             // Change the chord color
             ChangeColor(CurrentChord, color);
@@ -119,22 +135,37 @@ namespace PianoViaR.Score.Behaviours
         {
             if (!RoundEnded)
             {
-                if (KeyPressed)
+                if (KeyPressed && args.Note == pressingNote)
                 {
-                    // Notify piano key to stop
-                    OnEvaluateEnd(this, new PianoGameplayEventArgs(GameplayState.IDLE));
+                    KeyPressed = false;
 
-                    if (CurrentIndex < (chords.Length - 1))
+                    // Notify piano key to stop
+                    OnEvaluateEnd(new PianoGameplayEventArgs(GameplayState.IDLE, args));
+                    // var pianoKey = (PianoKey)source;
+                    // pianoKey.OnEvaluateEnd(this, new PianoGameplayEventArgs(GameplayState.IDLE, args));
+
+                    if (correctKey)
                     {
-                        CurrentIndex++;
+                        if (CurrentIndex < (chords.Length - 1))
+                        {
+                            CurrentIndex++;
+                        }
+                        else
+                        {
+                            // Round is over
+                            OnRoundEnd();
+                        }
                     }
-                    else
-                    {
-                        // Round is over
-                        OnRoundEnd();
-                    }
+
+                    pressingNote = -1;
                 }
             }
+        }
+
+        protected override void OnRoundEnd()
+        {
+            UnInitialize();
+            base.OnRoundEnd();
         }
 
         public override void UnInitialize()

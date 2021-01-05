@@ -5,118 +5,214 @@ using PianoViaR.MIDI.Parsing;
 using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Creation;
 using PianoViaR.Score.Helpers;
-using PianoViaR.MIDI.Playback;
-using System.IO;
 using PianoViaR.Score.Behaviours.Helpers;
+using PianoViaR.Piano.Behaviours.Keys;
+using PianoViaR.Score.Behaviours.Notes;
+using System;
 
 namespace PianoViaR.Score.Behaviours
 {
+    public enum ScoreBehaviourOptions
+    {
+        SCROLL, GUESS_KEYS, GUESS_NOTES, SCORE_HERO
+    }
 
     public class MusicScore : MonoBehaviour
     {
+        public Transform PianoKeysParent;
         public MusicSymbolFactory factory;
         public UnityEngine.Object midifile;
         private string currentMidiAssetPath;
-        // The game object to hold the staffs created
-        public StaffsScroll staffs;
-        public ScoreBoard scoreBoard;
-        public MIDISongPlayer midiPlayer;
-        public int transpose;
+        public ScoreElements elements;
+        public ScoreBehaviour behaviour;
+        public ScoreBehaviourOptions behaviourOption;
+
+        [SerializeField]
+        public List<ScoreDataHolder> Data;
+        private int dataIndex;
+        public MIDIOptions MIDIOptions = MIDIOptions.Default;
+        private PianoKey[] PianoKeys;
+        private ChordBehaviour[] Chords;
+        public Color correctColor;
+        public Color incorrectColor;
+        public Color hintColor;
+
+        private ScoreDataHolder CurrentData { get { return Data[dataIndex]; } }
 
         // Start is called before the first frame update
         void Start()
         {
             currentMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
-            CreateScore(currentMidiAssetPath);
-            // staffs.Initialize();
+            factory = elements.factory;
+            dataIndex = 0;
+
+            PianoKeys = PianoKeysParent.GetComponentsInChildren<PianoKey>();
+
+            Data = TestData();
+
+            CreateScore();
+        }
+
+        List<ScoreDataHolder> TestData()
+        {
+            return new List<ScoreDataHolder>()
+            {
+                new ScoreDataHolder(
+                    ScoreBehaviourOptions.SCROLL
+                //     new ConsecutiveNotes()
+                //     {
+                //         Notes = new int[] { 60, 62, 64 }
+                //     }
+                )
+                {
+                MIDIFile = new MIDIFile(currentMidiAssetPath)
+                }
+                // new ScoreDataHolder(
+                //     new ConsecutiveNotes()
+                //     {
+                //         Notes = new int[] { 62, 64, 66, 68 }
+                //     }
+                // )
+            };
         }
 
         // Update is called once per frame
         void Update()
         {
-            var newMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
+            // var newMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
 
-            if (currentMidiAssetPath != newMidiAssetPath)
-            {
-                currentMidiAssetPath = newMidiAssetPath;
-                CreateScore(currentMidiAssetPath);
+            // if (currentMidiAssetPath != newMidiAssetPath)
+            // {
+            //     currentMidiAssetPath = newMidiAssetPath;
+            //     CreateScore(currentMidiAssetPath);
 
-                return;
-            }
+            //     return;
+            // }
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                CreateScore(currentMidiAssetPath);
+                dataIndex = 0;
+                CreateScore();
             }
         }
 
-        void CreateScore(string MidiAssetPath)
+        void CreateScore()
         {
             Clear();
 
-            var globalScoreBoxSize = scoreBoard.BoxSize();
+            var globalScoreBoxSize = elements.scoreBoard.BoxSize();
 
-            TimeSignature time = TimeSignature.Default;
-            // var testTrack = TestTrack(time);
-            var testTrack = TrackBuild();
-            var options = new MIDIOptions
-            {
-                scrollVert = false,
-                showNoteLetters = MIDIOptions.NoteNameNone,
-                key = -1,
-                shifttime = 0,
-                showLyrics = false,
-                showMeasures = false,
-                time = time,
+            var data = CurrentData;
 
-                useDefaultInstruments = true,
-                largeNoteSize = false,
-                twoStaffs = false,
-                transpose = 0,
-                combineInterval = 40,
-                tempo = time.Tempo,
-                pauseTime = 0,
-                playMeasuresInLoop = false,
-                playMeasuresInLoopStart = 0,
-                playMeasuresInLoopEnd = 0,
-            };
-            var midifile = new MIDIFile(MidiAssetPath);
-            var midiOptions = new MIDIOptions(midifile);
-            midiOptions.transpose = transpose;
-            Stream midiStream = new MemoryStream();
-
-            var couldWrite = midifile.Write(midiStream, midiOptions, close: false, reset: true);
-            if (couldWrite)
-            {
-                midiPlayer?.LoadMidi(new AudioSynthesis.Midi.MidiFile(midiStream));
-            }
-            else
-            {
-                Debug.Log("Could not write to stream");
-            }
-
-            var consNotes = new ConsecutiveNotes()
-            {
-                Notes = new int[] { 60, 62, 64, 66, 64, 66, 68, 70 },
-                Duration = NoteDuration.Quarter
-            };
-
-            SheetMusic sheet = new SheetMusic(MidiAssetPath, null, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            // SheetMusic sheet = new SheetMusic(midifile, midiOptions, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            // SheetMusic sheet = new SheetMusic(testTrack, time, options, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
-            // SheetMusic sheet = new SheetMusic(consNotes, MIDIOptions.Default, factory, (globalScoreBoxSize.x, globalScoreBoxSize.y));
+            var scoreBehaviourOption = data.behaviourOption;
 
             Vector3 staffsXYDims;
+            // Create 
+            CreateSheetMusic(data, globalScoreBoxSize, out staffsXYDims);
 
-            var staffsGO = staffs.GameObject;
-            sheet.Create(ref staffsGO, out staffsXYDims);
+            // var chords = elements.staffs.GetComponentsInChildren<ChordBehaviour>();
+            // Debug.Log("Chords length " + chords.Length);
+
+            switch (scoreBehaviourOption)
+            {
+                case ScoreBehaviourOptions.GUESS_KEYS:
+                    this.behaviour = new GuessKeyBehaviour(elements, correctColor, incorrectColor, hintColor);
+                    break;
+                case ScoreBehaviourOptions.SCROLL:
+                    this.behaviour = new ScrollBehaviour(elements, correctColor, incorrectColor, hintColor);
+                    break;
+                default:
+                    break;
+            }
 
             AdaptStaffsToDimensions(globalScoreBoxSize, staffsXYDims);
+
+            UnSuscribePianoKeys();  // Prevent double subscription
+            SuscribePianoKeys();
+
+            this.behaviour.RoundEnd += RoundEnded;
+        }
+
+        void RoundEnded(object source, EventArgs e)
+        {
+            UnSuscribePianoKeys();
+
+            if (dataIndex < (Data.Count - 1))
+            {
+                dataIndex++;
+
+                this.behaviour = null;
+
+                CreateScore();
+            }
+        }
+
+        void CreateSheetMusic(ScoreDataHolder data, in Vector3 scoreBoardBoxSize, out Vector3 staffsXYDims)
+        {
+            SheetMusic sheet;
+            switch (data.behaviourOption)
+            {
+                case ScoreBehaviourOptions.GUESS_KEYS:
+                    sheet = CreateSingleScore(scoreBoardBoxSize, data.SingleScoreNotes);
+                    break;
+                case ScoreBehaviourOptions.SCROLL:
+                    sheet = CreateSingleScore(scoreBoardBoxSize, data.MIDIFile);
+                    break;
+                default:
+                    sheet = null;
+                    break;
+            }
+
+            var staffsGO = elements.staffs.GameObject;
+            sheet.Create(ref staffsGO, out staffsXYDims);
+        }
+
+        void SuscribePianoKeys()
+        {
+            foreach (PianoKey pianoKey in PianoKeys)
+            {
+                // Piano key press/release events
+                pianoKey.KeyPressed += this.behaviour.OnKeyPressed;
+                pianoKey.KeyReleased += this.behaviour.OnKeyReleased;
+
+                // Score evaluation events
+                this.behaviour.EvaluateBegin += pianoKey.OnEvaluateBegin;
+                this.behaviour.EvaluateEnd += pianoKey.OnEvaluateEnd;
+            }
+        }
+
+        void UnSuscribePianoKeys()
+        {
+            foreach (PianoKey pianoKey in PianoKeys)
+            {
+                // Piano key press/release events
+                pianoKey.KeyPressed -= this.behaviour.OnKeyPressed;
+                pianoKey.KeyReleased -= this.behaviour.OnKeyReleased;
+
+                // Score evaluation events
+                this.behaviour.EvaluateBegin -= pianoKey.OnEvaluateBegin;
+                this.behaviour.EvaluateEnd -= pianoKey.OnEvaluateEnd;
+            }
+        }
+
+        SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, MIDIFile midiFile)
+        {
+            return new SheetMusic(midiFile, null, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
+        }
+
+        SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, string midiFilePath)
+        {
+            return new SheetMusic(midiFilePath, MIDIOptions, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
+        }
+
+        SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, ConsecutiveNotes notes)
+        {
+            return new SheetMusic(notes, MIDIOptions, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
         }
 
         void AdaptStaffsToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            staffs.AdaptToDimensions(scoreBoxSize, staffsDimensions);
+            this.behaviour.AdaptToDimensions(scoreBoxSize, staffsDimensions);
         }
 
         private MIDITrack TestTrack(TimeSignature time)
@@ -159,8 +255,13 @@ namespace PianoViaR.Score.Behaviours
 
         void Clear()
         {
-            staffs.Clear();
-            staffs.ResetToNormal();
+            if (this.behaviour != null)
+            {
+                this.behaviour.RoundEnd -= RoundEnded;
+            }
+
+            elements.staffs.Clear();
+            elements.staffs.ResetToNormal();
         }
     }
 }

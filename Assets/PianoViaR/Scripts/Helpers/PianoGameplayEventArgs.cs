@@ -12,10 +12,12 @@ namespace PianoViaR.Helpers
     public class PianoGameplayEventArgs : EventArgs
     {
         public GameplayState state;
+        public PianoNoteEventArgs pianoArgs;
 
-        public PianoGameplayEventArgs(GameplayState state)
+        public PianoGameplayEventArgs(GameplayState state, PianoNoteEventArgs pianoArgs)
         {
             this.state = state;
+            this.pianoArgs = pianoArgs;
         }
     }
 }

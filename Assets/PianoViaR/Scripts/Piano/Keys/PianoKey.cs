@@ -16,6 +16,19 @@ namespace PianoViaR.Piano.Behaviours.Keys
         public event EventHandler<PianoNoteEventArgs> KeyReleased;
         private bool played = false;
 
+        public Color correctColor;
+        public Color incorrectColor;
+        public Color hintColor;
+
+        private Renderer KeyRenderer;
+        private Color DefaultColor;
+
+        void Awake()
+        {
+            KeyRenderer = GetComponent<Renderer>();
+            DefaultColor = KeyRenderer.material.color;
+        }
+
         void Update()
         {
             if ((transform.eulerAngles.x > 350 && transform.eulerAngles.x < 359.5f) && !played)
@@ -36,7 +49,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
                 {
                     OnKeyReleased(EventArgs);
                 }
-                
+
                 played = false;
                 // Notify of key released (Primarily to score based events)
 
@@ -52,6 +65,41 @@ namespace PianoViaR.Piano.Behaviours.Keys
         protected virtual void OnKeyReleased(PianoNoteEventArgs args)
         {
             KeyReleased?.Invoke(this, args);
+        }
+
+        public virtual void OnEvaluateBegin(object source, PianoGameplayEventArgs args)
+        {
+            if (this.EventArgs.Note == args.pianoArgs.Note)
+            {
+                ChangeColors(args.state);
+            }
+        }
+
+        public virtual void OnEvaluateEnd(object source, PianoGameplayEventArgs args)
+        {
+            if (this.EventArgs.Note == args.pianoArgs.Note)
+            {
+                ChangeColors(args.state);
+            }
+        }
+
+        private void ChangeColors(GameplayState state)
+        {
+            switch (state)
+            {
+                case GameplayState.CORRECT:
+                    KeyRenderer.material.color = correctColor;
+                    break;
+                case GameplayState.INCORRECT:
+                    KeyRenderer.material.color = incorrectColor;
+                    break;
+                case GameplayState.IDLE:
+                    KeyRenderer.material.color = DefaultColor;
+                    break;
+                case GameplayState.HINT:
+                    KeyRenderer.material.color = hintColor;
+                    break;
+            }
         }
 
         IEnumerator Play(YieldInstruction instruction)

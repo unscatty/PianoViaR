@@ -58,11 +58,11 @@ namespace PianoViaR.Score.Behaviours
         public abstract void OnKeyPressed(object source, PianoNoteEventArgs args);
         public abstract void OnKeyReleased(object source, PianoNoteEventArgs args);
 
-        protected virtual void OnEvaluateBegin(object source, PianoGameplayEventArgs args)
+        protected virtual void OnEvaluateBegin(PianoGameplayEventArgs args)
         {
             EvaluateBegin?.Invoke(this, args);
         }
-        protected virtual void OnEvaluateEnd(object source, PianoGameplayEventArgs args)
+        protected virtual void OnEvaluateEnd(PianoGameplayEventArgs args)
         {
             EvaluateEnd?.Invoke(this, args);
         }
