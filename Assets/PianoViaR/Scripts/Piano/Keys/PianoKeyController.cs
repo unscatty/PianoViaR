@@ -6,6 +6,7 @@ using UnityEditor;
 using AudioSynthesis.Bank;
 using PianoViaR.Helpers;
 using PianoViaR.MIDI.Helpers;
+using System;
 
 namespace PianoViaR.Piano.Behaviours.Keys
 {
@@ -39,6 +40,9 @@ namespace PianoViaR.Piano.Behaviours.Keys
         public Color correctColor;
         public Color incorrectColor;
         public Color hintColor;
+        public bool KeysReady = false;
+
+        public event EventHandler PianoKeysReady;
 
         // This must be on Start
         void Start()
@@ -64,6 +68,8 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public void SetupKeys()
         {
+            KeysReady = false;
+
             UnSuscribe(pianoKeys);
 
             switch (option)
@@ -75,6 +81,14 @@ namespace PianoViaR.Piano.Behaviours.Keys
                     SetupNotesSamples(pianoKeys);
                     break;
             }
+
+            OnPianoKeysReady();
+            KeysReady = true;
+        }
+
+        protected virtual void OnPianoKeysReady()
+        {
+            PianoKeysReady?.Invoke(this, EventArgs.Empty);
         }
 
         public void SetupNotesSamples(PianoKey[] pianoKeys)
@@ -134,10 +148,10 @@ namespace PianoViaR.Piano.Behaviours.Keys
                 keySource.NotePlayed += midiNotePlayer.PlayNote;
                 keySource.NoteStopped += midiNotePlayer.StopNote;
 
-                Suscribe(pianoKey);
-
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
+
+                Suscribe(pianoKey);
 
                 pianoKey.correctColor = correctColor;
                 pianoKey.incorrectColor = incorrectColor;

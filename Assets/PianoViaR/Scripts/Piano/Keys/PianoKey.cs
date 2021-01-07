@@ -69,6 +69,8 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public virtual void OnEvaluateBegin(object source, PianoGameplayEventArgs args)
         {
+            Debug.Log("Receiving arguments to key: Evaluate Begin");
+            Debug.Log($"Sent note: {args.pianoArgs.Note}, key note: {EventArgs.Note}");
             if (this.EventArgs.Note == args.pianoArgs.Note)
             {
                 ChangeColors(args.state);
@@ -77,6 +79,8 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         public virtual void OnEvaluateEnd(object source, PianoGameplayEventArgs args)
         {
+            Debug.Log("Receiving arguments to key: Evaluate End");
+            Debug.Log($"Sent note: {args.pianoArgs.Note}, key note: {EventArgs.Note}");
             if (this.EventArgs.Note == args.pianoArgs.Note)
             {
                 ChangeColors(args.state);
@@ -85,6 +89,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
         private void ChangeColors(GameplayState state)
         {
+            Debug.Log("Color changed to " + state);
             switch (state)
             {
                 case GameplayState.CORRECT:

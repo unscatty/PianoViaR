@@ -33,6 +33,7 @@
         public readonly float NoteToStemOffset; /** The vertical offset for stems to reach note head curvature */
         public readonly float PageWidth;    /** The width of each page */
         public readonly float PageHeight;  /** The height of each page (when printing) */
+        public readonly float MeasureNameTextAdjustScale;
 
         public ScoreDimensions(float noteHeadHeight, float noteHeadWidth, float pageWidth, float pageHeight, float leftMargin)
         {
@@ -60,8 +61,9 @@
             HeightMargin = NoteHeadHeight;
 
             WidthPerChar = NoteHeadWidth * 0.75f;
-            NoteNameTextHeight = NoteHeadHeight + LineWidth * 2;
-            MeasureNameTextHeight = NoteNameTextHeight * 2;
+            NoteNameTextHeight = NoteHeadHeight + LineWidth * 3;
+            MeasureNameTextHeight = NoteHeadHeight;
+            MeasureNameTextAdjustScale = 3;
 
             NoteStemWidth = LineWidth;
             NoteToDotDistance = LineWidth * 2;

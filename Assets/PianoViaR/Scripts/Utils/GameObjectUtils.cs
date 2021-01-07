@@ -453,26 +453,56 @@ namespace PianoViaR.Utils
             }
         }
 
-        public static void ResizeCollider(Collider collider, Vector3 center, Vector3 size)
+        public static Vector3 AdaptToDimensions(this GameObject gameObject, BoxCollider boxCollider, Vector3 outerDimensions, Vector3 objectDimensions, Axis axis)
         {
+            float scaleY = outerDimensions.y / objectDimensions.y;
+            float scaleX = outerDimensions.x / objectDimensions.x;
 
-        }
+            float colliderScaleX = objectDimensions.x / outerDimensions.x;
+            float colliderScaleY = objectDimensions.y / outerDimensions.y;
 
-        public static bool ResizeBoxCollider(this GameObject gameObject, Vector3 center, Vector3 size)
-        {
-            var boxCollider = gameObject.GetComponent<BoxCollider>();
+            Vector3 newDimensions;
+            float scale;
 
-            if (boxCollider == null)
+            switch (axis)
             {
-                return false;
+                case Axis.X:
+                    newDimensions = objectDimensions * scaleX;
+                    scale = scaleX;
+                    break;
+                case Axis.Y:
+                    newDimensions = objectDimensions * scaleY;
+                    scale = scaleY;
+                    break;
+                default:
+                    return objectDimensions;
             }
 
-            boxCollider.size = size;
-            boxCollider.center = center;
+            if (boxCollider != null)
+            {
+                var currentSize = boxCollider.size;
+                boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z * colliderScaleY);
+            }
 
-            return true;
+            gameObject.transform.localScale *= scale;
+
+            return newDimensions;
         }
 
+        public static Vector3 AdaptToDimensions(this GameObject gameObject, Vector3 outerDimensions, Vector3 objectDimensions, Axis axis)
+        {
+            return AdaptToDimensions(gameObject, gameObject.GetComponentInChildren<BoxCollider>(), outerDimensions, objectDimensions, axis);
+        }
+
+        public static Vector3 AdaptToDimensionsX(this GameObject gameObject, Vector3 outerDimensions, Vector3 objectDimensions)
+        {
+            return AdaptToDimensions(gameObject, outerDimensions, objectDimensions, Axis.X);
+        }
+
+        public static Vector3 AdaptToDimensionsY(this GameObject gameObject, Vector3 outerDimensions, Vector3 objectDimensions)
+        {
+            return AdaptToDimensions(gameObject, outerDimensions, objectDimensions, Axis.Y);
+        }
 
         /****************************************************************
         *****************************************************************

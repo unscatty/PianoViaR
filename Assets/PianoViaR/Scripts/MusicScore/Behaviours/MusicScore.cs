@@ -9,6 +9,7 @@ using PianoViaR.Score.Behaviours.Helpers;
 using PianoViaR.Piano.Behaviours.Keys;
 using PianoViaR.Score.Behaviours.Notes;
 using System;
+using PianoViaR.Score.Behaviours.GuessNote;
 
 namespace PianoViaR.Score.Behaviours
 {
@@ -19,13 +20,14 @@ namespace PianoViaR.Score.Behaviours
 
     public class MusicScore : MonoBehaviour
     {
-        public Transform PianoKeysParent;
+        public PianoKeyController PianoKeysController;
         public MusicSymbolFactory factory;
         public UnityEngine.Object midifile;
         private string currentMidiAssetPath;
         public ScoreElements elements;
         public ScoreBehaviour behaviour;
         public ScoreBehaviourOptions behaviourOption;
+        public GuessNoteOptionHolder optionsHolder;
 
         [SerializeField]
         public List<ScoreDataHolder> Data;
@@ -38,6 +40,7 @@ namespace PianoViaR.Score.Behaviours
         public Color hintColor;
 
         private ScoreDataHolder CurrentData { get { return Data[dataIndex]; } }
+        public bool keysReady = false;
 
         // Start is called before the first frame update
         void Start()
@@ -46,49 +49,80 @@ namespace PianoViaR.Score.Behaviours
             factory = elements.factory;
             dataIndex = 0;
 
-            PianoKeys = PianoKeysParent.GetComponentsInChildren<PianoKey>();
+            PianoKeys = PianoKeysController.PianoKeysParent.GetComponentsInChildren<PianoKey>();
 
             Data = TestData();
 
-            CreateScore();
+            PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
+            PianoKeysController.PianoKeysReady += OnPianoKeysReady;
+
+            if (PianoKeysController.KeysReady)
+            {
+                CreateScore();
+                keysReady = true;
+            }
+        }
+
+        void OnPianoKeysReady(object source, EventArgs args)
+        {
+            if (this.behaviour != null)
+            {
+                UnSuscribePianoKeys();
+                SuscribePianoKeys();
+            }
+
+            if (!keysReady)
+            {
+                CreateScore();
+                keysReady = true;
+            }
+
+            PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
         }
 
         List<ScoreDataHolder> TestData()
         {
             return new List<ScoreDataHolder>()
             {
-                new ScoreDataHolder(
-                    ScoreBehaviourOptions.SCROLL
-                //     new ConsecutiveNotes()
-                //     {
-                //         Notes = new int[] { 60, 62, 64 }
-                //     }
-                )
-                {
-                MIDIFile = new MIDIFile(currentMidiAssetPath)
-                }
                 // new ScoreDataHolder(
-                //     new ConsecutiveNotes()
-                //     {
-                //         Notes = new int[] { 62, 64, 66, 68 }
-                //     }
+                //     ScoreBehaviourOptions.SCROLL
+                // //     new ConsecutiveNotes()
+                // //     {
+                // //         Notes = new int[] { 60, 62, 64 }
+                // //     }
                 // )
+                // {
+                // MIDIFile = new MIDIFile(currentMidiAssetPath)
+                // }
+                new ScoreDataHolder(
+                    new List<ConsecutiveNotes>()
+                    {
+                        new ConsecutiveNotes()
+                        {
+                            Notes = new int[] { 60, 64 }
+                        },
+                        new ConsecutiveNotes()
+                        {
+                            Notes = new int[] { 64, 68 }
+                        },
+                        new ConsecutiveNotes()
+                        {
+                            Notes = new int[] { 60, 64 }
+                        }
+                    }
+                ),
+                new ScoreDataHolder(
+                    new ConsecutiveNotes()
+                    {
+                        Notes = new int[] { 62, 64, 66, 68 }
+                    }
+                )
             };
         }
 
         // Update is called once per frame
         void Update()
         {
-            // var newMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
-
-            // if (currentMidiAssetPath != newMidiAssetPath)
-            // {
-            //     currentMidiAssetPath = newMidiAssetPath;
-            //     CreateScore(currentMidiAssetPath);
-
-            //     return;
-            // }
-
             if (Input.GetKeyDown(KeyCode.R))
             {
                 dataIndex = 0;
@@ -121,6 +155,17 @@ namespace PianoViaR.Score.Behaviours
                 case ScoreBehaviourOptions.SCROLL:
                     this.behaviour = new ScrollBehaviour(elements, correctColor, incorrectColor, hintColor);
                     break;
+                case ScoreBehaviourOptions.GUESS_NOTES:
+                    this.behaviour = new GuessNoteBehaviour(
+                        elements,
+                        optionsHolder,
+                        data.MultiScoreNotes,
+                        MIDIOptions,
+                        correctColor,
+                        incorrectColor,
+                        hintColor
+                    );
+                    break;
                 default:
                     break;
             }
@@ -130,7 +175,14 @@ namespace PianoViaR.Score.Behaviours
             UnSuscribePianoKeys();  // Prevent double subscription
             SuscribePianoKeys();
 
+            PostSubscription();
+
             this.behaviour.RoundEnd += RoundEnded;
+        }
+
+        void PostSubscription()
+        {
+            this.behaviour.PostSubscription();
         }
 
         void RoundEnded(object source, EventArgs e)
@@ -160,7 +212,8 @@ namespace PianoViaR.Score.Behaviours
                     break;
                 default:
                     sheet = null;
-                    break;
+                    staffsXYDims = Vector3.zero;
+                    return;
             }
 
             var staffsGO = elements.staffs.GameObject;

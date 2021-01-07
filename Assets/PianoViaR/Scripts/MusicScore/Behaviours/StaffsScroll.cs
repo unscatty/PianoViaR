@@ -57,33 +57,7 @@ namespace PianoViaR.Score.Behaviours
         {
             ResetToNormal();
 
-            float scaleY = scoreBoxSize.y / staffsDimensions.y;
-            float scaleX = scoreBoxSize.x / staffsDimensions.x;
-
-            float colliderScaleX = staffsDimensions.x / scoreBoxSize.x;
-            float colliderScaleY = staffsDimensions.y / scoreBoxSize.y;
-            
-            Vector3 newDimensions;
-            float scale;
-
-            switch (axis)
-            {
-                case Axis.X:
-                    newDimensions = staffsDimensions * scaleX;
-                    scale = scaleX;
-                    break;
-                case Axis.Y:
-                    newDimensions = staffsDimensions * scaleY;
-                    scale = scaleY;
-                    break;
-                default:
-                    return staffsDimensions;
-            }
-
-            var currentSize = boxCollider.size;
-            boxCollider.size = new Vector3(currentSize.x * colliderScaleX, currentSize.y * colliderScaleY, currentSize.z * colliderScaleY);
-
-            transform.localScale *= scale;
+            var newDimensions = gameObject.AdaptToDimensions(boxCollider, scoreBoxSize, staffsDimensions, axis);
 
             // Center relative to its parent
             transform.localPosition = Vector3.zero;

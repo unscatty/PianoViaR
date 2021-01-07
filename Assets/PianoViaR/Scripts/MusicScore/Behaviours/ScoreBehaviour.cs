@@ -28,11 +28,6 @@ namespace PianoViaR.Score.Behaviours
             Color auxiliarColor
         )
         {
-            if (chords.Length <= 0)
-            {
-                throw new System.ArgumentException("Chord list must not be empty");
-            }
-
             this.elements = elements;
             this.chords = chords;
 
@@ -60,12 +55,17 @@ namespace PianoViaR.Score.Behaviours
 
         protected virtual void OnEvaluateBegin(PianoGameplayEventArgs args)
         {
+            Debug.Log("Sending arguments to key: Evaluate Begin");
             EvaluateBegin?.Invoke(this, args);
         }
         protected virtual void OnEvaluateEnd(PianoGameplayEventArgs args)
         {
+            Debug.Log("Sending arguments to key: Evaluate End");
             EvaluateEnd?.Invoke(this, args);
         }
+
+        public virtual void PostSubscription()
+        { }
 
         protected virtual void OnRoundEnd()
         {

@@ -381,9 +381,10 @@ namespace PianoViaR.Score.Creation
                     measureGO.TextSetText(measureText);
 
                     var textWidth = measureText.Length * dimensions.WidthPerChar;
-                    measureGO.TextFitToHeight(dimensions.NoteNameTextHeight * 2f);
+                    measureGO.TextFitToHeight(dimensions.MeasureNameTextHeight * dimensions.MeasureNameTextAdjustScale);
                     measureGO.TextFitOnlyToWidth(textWidth);
-                    measureGO.TextPlaceUpperLeft(position, offset, new Vector3(symbol.Width / 2, 0));
+                    // measureGO.TextPlaceUpperLeft(position, offset, new Vector3(symbol.Width / 2, 0));
+                    measureGO.TextPlaceCenterLeft(position, offset, new Vector3(symbol.Width / 2, -(dimensions.MeasureNameTextHeight)));
 
                     measureGO.transform.SetParent(measuresGO.transform);
                 }
@@ -485,6 +486,11 @@ namespace PianoViaR.Score.Creation
             GameObject staffGO = new GameObject("staff");
             GameObject signatureGO = new GameObject("keySignature");
 
+            if(showMeasures)
+            {
+                position = new Vector3(position.x, position.y - dimensions.MeasureNameTextHeight);
+            }
+
             /* Draw the left side Clef symbol */
             var newPosition = new Vector3(dimensions.LeftMargin, 0) + position;
 
@@ -559,7 +565,7 @@ namespace PianoViaR.Score.Creation
 
             if (showMeasures)
             {
-                var measures = CreateMeasureNumbers(factory, position);
+                var measures = CreateMeasureNumbers(factory, position + new Vector3(0, dimensions.MeasureNameTextHeight));
                 measures.name = "measures";
 
                 measures.transform.SetParent(staffGO.transform);
