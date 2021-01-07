@@ -67,8 +67,8 @@ namespace PianoViaR.Score.Behaviours
         {
             if (this.behaviour != null)
             {
-                UnSuscribePianoKeys();
-                SuscribePianoKeys();
+                UnSubscribePianoKeys();
+                SubscribePianoKeys();
             }
 
             if (!keysReady)
@@ -166,10 +166,8 @@ namespace PianoViaR.Score.Behaviours
 
             AdaptStaffsToDimensions(globalScoreBoxSize, staffsXYDims);
 
-            UnSuscribePianoKeys();  // Prevent double subscription
-            SuscribePianoKeys();
-
-            PostSubscription();
+            UnSubscribePianoKeys();  // Prevent double subscription
+            SubscribePianoKeys();
 
             this.behaviour.RoundEnd += RoundEnded;
         }
@@ -181,7 +179,7 @@ namespace PianoViaR.Score.Behaviours
 
         void RoundEnded(object source, EventArgs e)
         {
-            UnSuscribePianoKeys();
+            UnSubscribePianoKeys();
 
             if (dataIndex < (Data.Count - 1))
             {
@@ -214,7 +212,7 @@ namespace PianoViaR.Score.Behaviours
             sheet.Create(ref staffsGO, out staffsXYDims);
         }
 
-        void SuscribePianoKeys()
+        void SubscribePianoKeys()
         {
             foreach (PianoKey pianoKey in PianoKeys)
             {
@@ -226,9 +224,11 @@ namespace PianoViaR.Score.Behaviours
                 this.behaviour.EvaluateBegin += pianoKey.OnEvaluateBegin;
                 this.behaviour.EvaluateEnd += pianoKey.OnEvaluateEnd;
             }
+
+            PostSubscription();
         }
 
-        void UnSuscribePianoKeys()
+        void UnSubscribePianoKeys()
         {
             foreach (PianoKey pianoKey in PianoKeys)
             {

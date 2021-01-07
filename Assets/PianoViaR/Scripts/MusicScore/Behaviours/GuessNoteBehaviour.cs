@@ -48,7 +48,6 @@ namespace PianoViaR.Score.Behaviours
             for (int i = 1; i < options.Length; i++)
             {
                 var randomOptionIncorrect = options[randomIndexer.Next()];
-                Debug.Log("Creating option for notes" + notes[i].notes);
                 CreateOption(randomOptionIncorrect, false, notes[i], midiOptions, factory);
             }
         }
@@ -61,7 +60,6 @@ namespace PianoViaR.Score.Behaviours
             MusicSymbolFactory factory
         )
         {
-            Debug.Log("CreateOption incorrect");
             option.SetEnabled(true);
             option.CorrectOption = isCorrectOption;
             option.correctColor = CorrectColor;
@@ -80,7 +78,6 @@ namespace PianoViaR.Score.Behaviours
         {
             foreach (int note in correctOption.Notes)
             {
-                Debug.Log("Hint option note " + note);
                 // Tint corresponding piano keys to hint color
                 OnEvaluateBegin(new PianoGameplayEventArgs(GameplayState.HINT, new PianoNoteEventArgs(note, 0)));
             }

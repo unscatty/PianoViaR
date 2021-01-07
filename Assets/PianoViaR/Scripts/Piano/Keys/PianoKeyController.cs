@@ -108,7 +108,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
                     SustainSeconds
                 );
 
-                Suscribe(pianoKey);
+                // Suscribe(pianoKey);
 
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
@@ -151,7 +151,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
                 pianoKey.EventArgs = eventArgs;
                 pianoKey.KeySource = keySource;
 
-                Suscribe(pianoKey);
+                // Suscribe(pianoKey);
 
                 pianoKey.correctColor = correctColor;
                 pianoKey.incorrectColor = incorrectColor;
