@@ -382,7 +382,7 @@ namespace PianoViaR.Score.Creation
 
                     var textWidth = measureText.Length * dimensions.WidthPerChar;
                     measureGO.TextFitToHeight(dimensions.MeasureNameTextHeight * dimensions.MeasureNameTextAdjustScale);
-                    measureGO.TextFitOnlyToWidth(textWidth);
+                    // measureGO.TextFitOnlyToWidth(textWidth);
                     // measureGO.TextPlaceUpperLeft(position, offset, new Vector3(symbol.Width / 2, 0));
                     measureGO.TextPlaceCenterLeft(position, offset, new Vector3(symbol.Width / 2, -(dimensions.MeasureNameTextHeight)));
 

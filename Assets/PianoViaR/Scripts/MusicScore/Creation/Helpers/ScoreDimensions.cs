@@ -60,17 +60,17 @@
             SpaceBetweenStaffs = NoteHeadHeight * 2;
             HeightMargin = NoteHeadHeight;
 
-            WidthPerChar = NoteHeadWidth * 0.75f;
+            WidthPerChar = NoteHeadWidth / 2;
             NoteNameTextHeight = NoteHeadHeight + LineWidth * 3;
             MeasureNameTextHeight = NoteHeadHeight;
-            MeasureNameTextAdjustScale = 3;
+            MeasureNameTextAdjustScale = 1.5f;
 
             NoteStemWidth = LineWidth;
             NoteToDotDistance = LineWidth * 2;
             NoteToNameDistance = LineWidth;
 
             // Chord Alignment
-            NoteToNoteDistance = NoteHeadWidth * 2;
+            NoteToNoteDistance = NoteHeadWidth;
             ChordWidthOffset = NoteToNoteDistance / 2;
 
             var chorOverlapDisplayWidth = NoteHeadWidth * 2 - NoteStemWidth;

@@ -49,7 +49,7 @@ namespace PianoViaR.Score.Behaviours
             factory = elements.factory;
             dataIndex = 0;
 
-            PianoKeys = PianoKeysController.PianoKeysParent.GetComponentsInChildren<PianoKey>();
+            PianoKeys = PianoKeysController.PianoKeysHolder.Keys;
 
             Data = TestData();
 
@@ -85,15 +85,11 @@ namespace PianoViaR.Score.Behaviours
             return new List<ScoreDataHolder>()
             {
                 // new ScoreDataHolder(
-                //     ScoreBehaviourOptions.SCROLL
-                // //     new ConsecutiveNotes()
-                // //     {
-                // //         Notes = new int[] { 60, 62, 64 }
-                // //     }
-                // )
-                // {
-                // MIDIFile = new MIDIFile(currentMidiAssetPath)
-                // }
+                //     new ConsecutiveNotes()
+                //     {
+                //         Notes = new int[] { 62, 64, 66, 68 }
+                //     }
+                // ),
                 new ScoreDataHolder(
                     new List<ConsecutiveNotes>()
                     {
@@ -111,12 +107,10 @@ namespace PianoViaR.Score.Behaviours
                         }
                     }
                 ),
-                new ScoreDataHolder(
-                    new ConsecutiveNotes()
-                    {
-                        Notes = new int[] { 62, 64, 66, 68 }
-                    }
-                )
+                new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
+                {
+                    MIDIFile = new MIDIFile(currentMidiAssetPath)
+                }
             };
         }
 

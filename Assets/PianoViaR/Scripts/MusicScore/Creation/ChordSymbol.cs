@@ -1016,7 +1016,7 @@ namespace PianoViaR.Score.Creation
                 var width = noteName.Length * widthPerChar;
                 // Fit the game object to its height
                 noteNameGO.TextFitToHeight(dimensions.NoteNameTextHeight);
-                noteNameGO.TextFitOnlyToWidth(width);
+                // noteNameGO.TextFitOnlyToWidth(width);
                 // Place the game object at the right position (centered vertically)
                 var offset = new Vector3(xnote, -(ynote + dimensions.NoteHeadHeight / 2));
                 noteNameGO.TextPlaceCenterLeft(originalPosition, offset);

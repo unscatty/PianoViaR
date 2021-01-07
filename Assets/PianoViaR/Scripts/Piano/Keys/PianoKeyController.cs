@@ -19,7 +19,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
         private GameObject notesPlayerGO;
         [Header("References")]
         // public MidiNotesPlayer MidiPlayer;
-        public Transform PianoKeysParent;
+        public PianoKeysHolder PianoKeysHolder;
         public AudioClip[] NoteSamples;
 
         [Header("Properties")]
@@ -53,7 +53,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
                 NoteSamples = NoteSamples.OrderBy(note => sortReg.Match(note.name).Value).ToArray();
             }
 
-            pianoKeys = PianoKeysParent.GetComponentsInChildren<PianoKey>();
+            pianoKeys = PianoKeysHolder.Keys;
 
             SetupKeys();
         }
@@ -138,7 +138,7 @@ namespace PianoViaR.Piano.Behaviours.Keys
 
             midiNotePlayer.LoadBank(bank);
 
-            // Assign the corresponding midi note and instrument to every PianoKey child of PianoKeysParent
+            // Assign the corresponding midi note and instrument to every PianoKey child of PianoKeysHolder
             for (int i = 0, note = 21; i < pianoKeys.Length; i++, note++)
             {
                 PianoKey pianoKey = pianoKeys[i];
