@@ -1,108 +1,200 @@
 using UnityEngine;
-using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using PianoViaR.MIDI.Playback;
+using UnityEditor;
+using AudioSynthesis.Bank;
+using PianoViaR.Helpers;
+using PianoViaR.MIDI.Helpers;
+using System;
 
-public class PianoKeyController : MonoBehaviour
+namespace PianoViaR.Piano.Behaviours.Keys
 {
-    [Header("References")]
-    // public MidiNotesPlayer MidiPlayer;
-    public Transform PianoKeysParent;
-    public Transform SustainPedal;
-    public AudioClip[] Notes;
-
-    [Header("Properties")]
-    public string StartKey = "A";           // If the first key is not "A", change it to the appropriate note.
-    public int StartOctave;                 // Start Octave can be increased if the piano/keyboard is not full length. 
-    public float PedalReleasedAngle;        // Local angle that a pedal is considered to be released, or off.
-    public float PedalPressedAngle;         // Local angle that a pedal is considered to be pressed, or on.
-    public float SustainSeconds = 5;        // May want to reduce this if there's too many AudioSources being generated per key.
-    public float PressAngleThreshold = 355f;// Rate of keys being slowly released.
-    public float PressAngleDecay = 1f;      // Rate of keys being slowly released.
-    public bool Sort = true;                // Sorts the Notes. If regex is not empty, it will use that to do the sorting.
-    public bool NoMultiAudioSource;         // Will prevent duplicates if true, if you need to optimise. Multiple Audio sources are necessary to remove crackling.
-
-
-    [Header("Attributes")]
-    public bool SustainPedalPressed = true; // When enabled, keys will not stop playing immediately after release.
-    public bool KeyPressAngleDecay = true;  // When enabled, keys will slowly be released.
-    public bool RepeatedKeyTeleport = true; // When enabled, during midi mode, a note played on a pressed key will force the rotation to reset.
-
-
-    private float _sustainPedalLerp = 1;
-
-    // Should be controlled via MidiPlayer
-    public KeyMode KeyMode;
-    // {
-    //     get
-    //     {
-    //         // if (MidiPlayer)
-    //         //     return MidiPlayer.KeyMode;
-    //         // else
-    //             return KeyMode.Physical;
-    //     }
-    // }
-
-    [Header("Note: Leave regex blank to sort alphabetically")]
-    public string Regex;
-
-    public Dictionary<string, PianoKey> PianoNotes = new Dictionary<string, PianoKey>();
-
-    private readonly string[] _keyIndex = new string[12] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-
-    void Awake()
+    public class PianoKeyController : MonoBehaviour
     {
-        if (Sort)
+        public enum KeyOption
         {
-            Regex sortReg = new Regex(@Regex);
-            Notes = Notes.OrderBy(note => sortReg.Match(note.name).Value).ToArray();
+            MIDI, SAMPLE
+        }
+        private GameObject notesPlayerGO;
+        [Header("References")]
+        // public MidiNotesPlayer MidiPlayer;
+        public PianoKeysHolder PianoKeysHolder;
+        public AudioClip[] NoteSamples;
+
+        [Header("Properties")]
+        public bool Sort = true;                // Sorts the Notes. If regex is not empty, it will use that to do the sorting.
+        public bool NoMultiAudioSource;         // Will prevent duplicates if true, if you need to optimise. Multiple Audio sources are necessary to remove crackling.
+        public float SustainSeconds = 0.5f;		// May want to reduce this if there's too many AudioSources being generated per key.
+        public bool SustainPedalPressed = true;	// When enabled, keys will not stop playing immediately after release.
+        public MIDIInstrument Instrument = MIDIInstrument.ACOUSTIC_GRAND_PIANO; // Instrument
+
+        [Header("Note: Leave regex blank to sort alphabetically")]
+        public string Regex;
+
+        public UnityEngine.Object patchBank;
+
+        private PianoKey[] pianoKeys;
+        public KeyOption option;
+
+        public Color correctColor;
+        public Color incorrectColor;
+        public Color hintColor;
+        public bool KeysReady = false;
+
+        public event EventHandler PianoKeysReady;
+
+        // This must be on Start
+        void Start()
+        {
+            if (Sort)
+            {
+                Regex sortReg = new Regex(@Regex);
+                NoteSamples = NoteSamples.OrderBy(note => sortReg.Match(note.name).Value).ToArray();
+            }
+
+            pianoKeys = PianoKeysHolder.Keys;
+
+            SetupKeys();
         }
 
-        var count = 0;
-
-
-        // Assign the corresponding audio clip to every PianoKey child of PianoKeysParent
-        for (int i = 0; i < PianoKeysParent.childCount; i++)
+        void Update()
         {
-            AudioSource keyAudioSource = PianoKeysParent.GetChild(i).GetComponent<AudioSource>();
-
-            if (keyAudioSource)
+            if (Input.GetKeyDown(KeyCode.S))
             {
-                PianoKey pianoKey = PianoKeysParent.GetChild(i).GetComponent<PianoKey>();
-
-                keyAudioSource.clip = Notes[count];
-                PianoNotes.Add(KeyString(count + Array.IndexOf(_keyIndex, StartKey)), pianoKey);
-                pianoKey.PianoKeyController = this;
-
-                count++;
+                SetupKeys();
             }
         }
-    }
 
-    // https://stackoverflow.com/a/228060
-    string Reverse(string s)
-    {
-        char[] charArray = s.ToCharArray();
-        Array.Reverse(charArray);
-        return new string(charArray);
-    }
+        public void SetupKeys()
+        {
+            KeysReady = false;
 
-    void Update()
-    {
-        //SustainPedal.localEulerAngles += Vector3.left *  (SustainPressed ? 1 : -1);
+            UnSuscribe(pianoKeys);
 
-        _sustainPedalLerp -= Time.deltaTime * (SustainPedalPressed ? 1 : -1) * 3.5f;
-        _sustainPedalLerp = Mathf.Clamp01(_sustainPedalLerp);
+            switch (option)
+            {
+                case KeyOption.MIDI:
+                    SetupNotesMIDI(pianoKeys);
+                    break;
+                case KeyOption.SAMPLE:
+                    SetupNotesSamples(pianoKeys);
+                    break;
+            }
 
-        if (PedalPressedAngle > PedalReleasedAngle)
-            SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalReleasedAngle, 0, 0), Quaternion.Euler(PedalPressedAngle, 0, 0), _sustainPedalLerp);
-        else
-            SustainPedal.localRotation = Quaternion.Lerp(Quaternion.Euler(PedalPressedAngle, 0, 0), Quaternion.Euler(PedalReleasedAngle, 0, 0), _sustainPedalLerp);
-    }
+            OnPianoKeysReady();
+            KeysReady = true;
+        }
 
-    string KeyString(int count)
-    {
-        return _keyIndex[count % 12] + (Mathf.Floor(count / 12) + StartOctave);
+        protected virtual void OnPianoKeysReady()
+        {
+            PianoKeysReady?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void SetupNotesSamples(PianoKey[] pianoKeys)
+        {
+            for (int i = 0, sampleIdx = 0, note = 21; i < pianoKeys.Length; i++, sampleIdx++, note++)
+            {
+                PianoKey pianoKey = pianoKeys[i];
+                AudioSource keyAudioSource = pianoKey.GetComponent<AudioSource>();
+                keyAudioSource.clip = NoteSamples[sampleIdx];
+
+                var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
+                var keySource = new KeySourceSample(
+                    keyAudioSource,
+                    NoMultiAudioSource,
+                    pianoKey.GameObject,
+                    SustainPedalPressed,
+                    SustainSeconds
+                );
+
+                // Suscribe(pianoKey);
+
+                pianoKey.EventArgs = eventArgs;
+                pianoKey.KeySource = keySource;
+
+                pianoKey.correctColor = correctColor;
+                pianoKey.incorrectColor = incorrectColor;
+                pianoKey.hintColor = hintColor;
+            }
+        }
+
+        public void SetupNotesMIDI(PianoKey[] pianoKeys)
+        {
+            MIDINotePlayer midiNotePlayer;
+
+            if (notesPlayerGO == null)
+            {
+                notesPlayerGO = new GameObject("PianoKeysMIDIPlayer");
+                midiNotePlayer = notesPlayerGO.AddComponent<MIDINotePlayer>();
+            }
+            else
+            {
+                midiNotePlayer = notesPlayerGO.GetComponent<MIDINotePlayer>();
+            }
+
+            // TODO: change this beacuse it must read directly from the path
+            var bank = new PatchBank(AssetDatabase.GetAssetPath(patchBank));
+
+            midiNotePlayer.LoadBank(bank);
+
+            // Assign the corresponding midi note and instrument to every PianoKey child of PianoKeysHolder
+            for (int i = 0, note = 21; i < pianoKeys.Length; i++, note++)
+            {
+                PianoKey pianoKey = pianoKeys[i];
+                var eventArgs = new PianoNoteEventArgs(note, Instrument.MIDINumber());
+                var keySource = new KeySourceMIDI(eventArgs);
+
+                keySource.NotePlayed += midiNotePlayer.PlayNote;
+                keySource.NoteStopped += midiNotePlayer.StopNote;
+
+                pianoKey.EventArgs = eventArgs;
+                pianoKey.KeySource = keySource;
+
+                // Suscribe(pianoKey);
+
+                pianoKey.correctColor = correctColor;
+                pianoKey.incorrectColor = incorrectColor;
+                pianoKey.hintColor = hintColor;
+            }
+        }
+
+        private void Suscribe(PianoKey key)
+        {
+            key.KeyPressed += SayKeyPressed;
+            key.KeyReleased += SayKeyReleased;
+        }
+
+        private void Suscribe(PianoKey[] keys)
+        {
+            foreach (var key in keys)
+            {
+                Suscribe(key);
+            }
+        }
+
+        private void UnSuscribe(PianoKey key)
+        {
+            key.KeyPressed -= SayKeyPressed;
+            key.KeyReleased -= SayKeyReleased;
+        }
+
+        private void UnSuscribe(PianoKey[] keys)
+        {
+            foreach (var key in keys)
+            {
+                UnSuscribe(key);
+            }
+        }
+
+        void SayKeyPressed(object source, PianoNoteEventArgs args)
+        {
+            Debug.Log($"You pressed the key: {args.Note}");
+        }
+
+        void SayKeyReleased(object source, PianoNoteEventArgs args)
+        {
+            Debug.Log($"You released the key: {args.Note}");
+        }
     }
 }
