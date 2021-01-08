@@ -103,7 +103,7 @@ namespace PianoViaR.Score.Behaviours
                         },
                         new ConsecutiveNotes()
                         {
-                            Notes = new int[] { 60, 64 }
+                            Notes = new int[] { 60, 66 }
                         }
                     }
                 ),
