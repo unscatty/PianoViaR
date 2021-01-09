@@ -27,8 +27,6 @@ namespace PianoViaR.Score.Behaviours.GuessNote
         void Awake()
         {
             interactionBehaviour = GetComponent<InteractionBehaviour>();
-            interactionBehaviour.OnContactBegin -= OnContactBegin;  // Prevent double subscription
-            interactionBehaviour.OnContactBegin += OnContactBegin;
 
             scoreBoardBoxSize = scoreBoard.BoxSize(force: true);
         }
@@ -62,6 +60,12 @@ namespace PianoViaR.Score.Behaviours.GuessNote
             interactionBehaviour.ignoreContact = !enabled;
         }
 
+        public void SubscribeContact()
+        {
+            interactionBehaviour.OnContactBegin -= OnContactBegin;  // Prevent double subscription
+            interactionBehaviour.OnContactBegin += OnContactBegin;
+        }
+
         public void SetEnabled(bool enabled)
         {
             gameObject.SetActive(enabled);
@@ -80,6 +84,7 @@ namespace PianoViaR.Score.Behaviours.GuessNote
             // staffs.transform.localPosition = Vector3.zero;
 
             AdaptToDimensions(scoreBoardBoxSize, staffsXYDims);
+            SubscribeContact();
         }
 
         public void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)

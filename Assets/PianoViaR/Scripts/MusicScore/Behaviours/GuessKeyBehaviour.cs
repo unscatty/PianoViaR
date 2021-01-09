@@ -16,6 +16,9 @@ namespace PianoViaR.Score.Behaviours
         public int pressingNote;
 
         private Vector3 GrabBarXOffset;
+        private Vector3 originalScoreBoardPosition;
+        private Quaternion originalScoreBoardRotation;
+        private Vector3 originalScoreBoardScale;
         public GuessKeyBehaviour(
             ScoreElements elements,
             ChordBehaviour[] chords,
@@ -42,6 +45,10 @@ namespace PianoViaR.Score.Behaviours
             correctKey = false;
             pressingNote = -1;
 
+            originalScoreBoardPosition = elements.scoreBoard.transform.position;
+            originalScoreBoardRotation = elements.scoreBoard.transform.rotation;
+            originalScoreBoardScale = elements.scoreBoard.transform.localScale;
+
             ElementsEnabled(false);
         }
 
@@ -54,11 +61,16 @@ namespace PianoViaR.Score.Behaviours
         }
         public override void AdaptToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)
         {
-            Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensionsX(scoreBoxSize, staffsDimensions);
+            Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensionsX(scoreBoxSize * 0.75f, staffsDimensions);
             elements.staffs.gameObject.transform.SetParent(null);
 
             elements.scoreBoard.GameObject.FitOnlyToWidth(newStaffsDimensions.x * 1.025f);
-            elements.scoreBoard.GameObject.FitOnlyToHeight(newStaffsDimensions.y * 1.1f);
+            var scoreBoardHeight = newStaffsDimensions.y * 1.1f;
+            elements.scoreBoard.GameObject.FitOnlyToHeight(scoreBoardHeight);
+
+            var scoreBoardYOffset = new Vector3(0, -(scoreBoxSize.y - scoreBoardHeight));
+            elements.scoreBoard.gameObject.transform.position += scoreBoardYOffset;
+
             elements.staffs.gameObject.transform.SetParent(elements.scoreBoard.transform);
             elements.staffs.transform.localPosition = Vector3.zero;
         }
@@ -167,6 +179,9 @@ namespace PianoViaR.Score.Behaviours
 
         public override void UnInitialize()
         {
+            elements.scoreBoard.transform.position = originalScoreBoardPosition;
+            elements.scoreBoard.transform.rotation = originalScoreBoardRotation;
+            elements.scoreBoard.transform.localScale = originalScoreBoardScale;
             // Revert changes
             ElementsEnabled(true);
         }

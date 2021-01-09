@@ -61,6 +61,7 @@ namespace PianoViaR.Score.Behaviours
         )
         {
             option.SetEnabled(true);
+            option.ContactEnabled(true);
             option.CorrectOption = isCorrectOption;
             option.correctColor = CorrectColor;
             option.incorrectColor = IncorrectColor;
@@ -122,7 +123,7 @@ namespace PianoViaR.Score.Behaviours
                 option.OptionSelected -= OnOptionSelected;
                 // Disable every option gameObject
                 option.SetEnabled(false);
-                option.gameObject.Clear();
+                option.staffs.Clear();
             }
 
             foreach (int note in correctOption.Notes)
