@@ -41,5 +41,24 @@ namespace PianoViaR.Score.Behaviours
         {
             // Do nothing
         }
+        // protected override void OnEvaluateBegin(PianoGameplayEventArgs args)
+        // {
+        //     // Do nothing
+        // }
+
+        // protected override void OnEvaluateEnd(PianoGameplayEventArgs args)
+        // {
+        //     // Do nothing
+        // }
+
+        // protected override void OnFailed()
+        // {
+        //     // Do nothing
+        // }
+
+        // protected override void OnSuccess()
+        // {
+        //     // Do nothing
+        // }
     }
 }

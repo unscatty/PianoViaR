@@ -18,6 +18,8 @@ namespace PianoViaR.Score.Behaviours
 
         public event EventHandler<PianoGameplayEventArgs> EvaluateBegin;
         public event EventHandler<PianoGameplayEventArgs> EvaluateEnd;
+        public event EventHandler Fail;
+        public event EventHandler Success;
         public event EventHandler RoundEnd;
 
         protected ScoreBehaviour(
@@ -60,6 +62,16 @@ namespace PianoViaR.Score.Behaviours
         protected virtual void OnEvaluateEnd(PianoGameplayEventArgs args)
         {
             EvaluateEnd?.Invoke(this, args);
+        }
+
+        protected virtual void OnFailed()
+        {
+            Fail?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnSuccess()
+        {
+            Success?.Invoke(this, EventArgs.Empty);
         }
 
         public virtual void PostSubscription()

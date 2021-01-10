@@ -103,12 +103,15 @@ namespace PianoViaR.Score.Behaviours
                 color = CorrectColor;
                 state = GameplayState.CORRECT;
 
+                OnSuccess();
             }
             else
             {
                 // Wrong key
                 color = IncorrectColor;
                 state = GameplayState.INCORRECT;
+
+                OnFailed();
             }
 
             var gameplayArgs = new PianoGameplayEventArgs(state, args);

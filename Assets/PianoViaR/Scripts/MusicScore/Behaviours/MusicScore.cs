@@ -10,6 +10,7 @@ using PianoViaR.Piano.Behaviours.Keys;
 using PianoViaR.Score.Behaviours.Notes;
 using System;
 using PianoViaR.Score.Behaviours.GuessNote;
+using PianoViaR.Score.Behaviours.Messages;
 
 namespace PianoViaR.Score.Behaviours
 {
@@ -28,6 +29,7 @@ namespace PianoViaR.Score.Behaviours
         public ScoreBehaviour behaviour;
         public ScoreBehaviourOptions behaviourOption;
         public GuessNoteOptionHolder optionsHolder;
+        public UserMessages userMessages;
 
         [SerializeField]
         public List<ScoreDataHolder> Data;
@@ -84,46 +86,46 @@ namespace PianoViaR.Score.Behaviours
         {
             return new List<ScoreDataHolder>()
             {
-                new ScoreDataHolder(
-                    new List<ConsecutiveNotes>()
-                    {
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 60, 64 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 64, 68 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 60, 66 }
-                        }
-                    }
-                ),
-                new ScoreDataHolder(
-                    new ConsecutiveNotes()
-                    {
-                        Notes = new int[] { 62, 64, 66, 68 }
-                    }
-                ),
-                new ScoreDataHolder(
-                    new List<ConsecutiveNotes>()
-                    {
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 66, 65 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 63, 68 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 66, 70 }
-                        }
-                    }
-                ),
+                // new ScoreDataHolder(
+                //     new List<ConsecutiveNotes>()
+                //     {
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 60, 64 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 64, 68 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 60, 66 }
+                //         }
+                //     }
+                // ),
+                // new ScoreDataHolder(
+                //     new ConsecutiveNotes()
+                //     {
+                //         Notes = new int[] { 62, 64, 66, 68 }
+                //     }
+                // ),
+                // new ScoreDataHolder(
+                //     new List<ConsecutiveNotes>()
+                //     {
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 66, 65 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 63, 68 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 66, 70 }
+                //         }
+                //     }
+                // ),
                 new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
                 {
                     MIDIFile = new MIDIFile(currentMidiAssetPath)
@@ -158,6 +160,9 @@ namespace PianoViaR.Score.Behaviours
             // var chords = elements.staffs.GetComponentsInChildren<ChordBehaviour>();
             // Debug.Log("Chords length " + chords.Length);
 
+            // Load the appropriate messages for current game mode
+            this.userMessages.SetMessages(scoreBehaviourOption);
+
             switch (scoreBehaviourOption)
             {
                 case ScoreBehaviourOptions.GUESS_KEYS:
@@ -186,7 +191,12 @@ namespace PianoViaR.Score.Behaviours
             UnSubscribePianoKeys();  // Prevent double subscription
             SubscribePianoKeys();
 
+            UnSuscribeMessages();
+            SuscribeMessages();
+
             this.behaviour.RoundEnd += RoundEnded;
+
+            this.userMessages.DisplayIntroMessage();
         }
 
         void PostSubscription()
@@ -197,6 +207,7 @@ namespace PianoViaR.Score.Behaviours
         void RoundEnded(object source, EventArgs e)
         {
             UnSubscribePianoKeys();
+
 
             if (dataIndex < (Data.Count - 1))
             {
@@ -227,6 +238,18 @@ namespace PianoViaR.Score.Behaviours
 
             var staffsGO = elements.staffs.GameObject;
             sheet.Create(ref staffsGO, out staffsXYDims);
+        }
+
+        void SuscribeMessages()
+        {
+            this.behaviour.Fail += userMessages.OnFailed;
+            this.behaviour.Success += userMessages.OnSuccess;
+        }
+
+        void UnSuscribeMessages()
+        {
+            this.behaviour.Fail -= userMessages.OnFailed;
+            this.behaviour.Success -= userMessages.OnSuccess;
         }
 
         void SubscribePianoKeys()

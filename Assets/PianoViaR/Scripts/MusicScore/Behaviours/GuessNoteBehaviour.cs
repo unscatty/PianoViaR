@@ -88,7 +88,12 @@ namespace PianoViaR.Score.Behaviours
         {
             if (isCorrectOption)
             {
+                OnSuccess();
                 OnRoundEnd();
+            }
+            else
+            {
+                OnFailed();
             }
         }
 

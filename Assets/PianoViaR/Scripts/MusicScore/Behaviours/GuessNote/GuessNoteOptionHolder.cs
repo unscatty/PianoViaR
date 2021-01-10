@@ -4,6 +4,7 @@ namespace PianoViaR.Score.Behaviours.GuessNote
 {
     public class GuessNoteOptionHolder : MonoBehaviour
     {
+        public GuessNoteOption center;
         public GuessNoteOption[] options;
         void Awake()
         {
