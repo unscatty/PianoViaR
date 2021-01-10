@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using Leap.Unity.Interaction;
 using PianoViaR.MIDI.Helpers;
 using PianoViaR.Score.Behaviours.Helpers;

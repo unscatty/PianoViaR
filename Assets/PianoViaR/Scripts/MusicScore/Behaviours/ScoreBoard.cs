@@ -19,17 +19,11 @@ namespace PianoViaR.Score.Behaviours
         public GameObject GameObject { get { return this.gameObject; } }
         int defaultLayer;
         // Start is called before the first frame update
-        void Start()
+        void Awake()
         {
             interaction = GetComponent<InteractionBehaviour>();
             boxCollider = GetComponent<BoxCollider>();
             defaultLayer = gameObject.layer;
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
 
         public Vector3 BoxSize(bool force = true)

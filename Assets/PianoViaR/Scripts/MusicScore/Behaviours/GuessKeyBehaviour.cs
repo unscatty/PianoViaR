@@ -176,7 +176,7 @@ namespace PianoViaR.Score.Behaviours
 
         protected override void OnRoundEnd()
         {
-            UnInitialize();
+            // UnInitialize();
             base.OnRoundEnd();
         }
 

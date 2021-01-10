@@ -14,6 +14,12 @@ namespace PianoViaR.Helpers
             indexes = Enumerable.Range(0, size).ToList();
         }
 
+        public RandomIndexer(int size, int seed)
+        : this(size)
+        {
+            random = new Random(seed);
+        }
+
         public int Next()
         {
             if (indexes.Count <= 0)

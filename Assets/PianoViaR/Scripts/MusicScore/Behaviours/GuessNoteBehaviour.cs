@@ -15,6 +15,8 @@ namespace PianoViaR.Score.Behaviours
         public GuessNoteOptionHolder optionsHolder;
         public ConsecutiveNotes correctOption { get; private set; }
 
+        const int randomSeed = 914523589;
+
         public GuessNoteBehaviour(
             ScoreElements elements,
             GuessNoteOptionHolder optionsHolder,
@@ -39,7 +41,7 @@ namespace PianoViaR.Score.Behaviours
         private void CreateOptions(GuessNoteOption[] options, List<ConsecutiveNotes> notes, MIDIOptions midiOptions, MusicSymbolFactory factory)
         {
             correctOption = notes[0];
-            var randomIndexer = new RandomIndexer(options.Length);
+            var randomIndexer = new RandomIndexer(options.Length, randomSeed);
 
             var randomOptionCorrect = options[randomIndexer.Next()];
 
@@ -99,7 +101,7 @@ namespace PianoViaR.Score.Behaviours
 
         protected override void OnRoundEnd()
         {
-            UnInitialize();
+            // UnInitialize();
 
             base.OnRoundEnd();
         }

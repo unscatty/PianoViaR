@@ -51,7 +51,7 @@ namespace PianoViaR.Score.Behaviours.Messages
             return messages[random.Next(0, messages.Length)];
         }
 
-        private void SetText(string text)
+        public void SetText(string text)
         {
             textObject.SetText(text);
         }
