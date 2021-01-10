@@ -142,7 +142,7 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateWhole(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop + dimensions.NoteHeadHeight;
+            float y = ytop + dimensions.WholeLineSpace;
             float heightToFit = dimensions.LineSpace * 0.75f;
 
             // Create the game object
@@ -163,7 +163,7 @@ namespace PianoViaR.Score.Creation
          */
         public GameObject CreateHalf(MusicSymbolFactory factory, Vector3 position, float ytop)
         {
-            float y = ytop + dimensions.WholeLineSpace * 2;
+            float y = ytop + dimensions.WholeLineSpace * 2 - dimensions.LineWidth;
             float heightToFit = dimensions.LineSpace * 0.75f;
 
             // Create the game object

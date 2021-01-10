@@ -87,50 +87,50 @@ namespace PianoViaR.Score.Behaviours
         {
             return new List<ScoreDataHolder>()
             {
-                new ScoreDataHolder(
-                    new List<ConsecutiveNotes>()
-                    {
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 60, 64 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 64, 68 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 60, 66 }
-                        }
-                    }
-                ),
-                new ScoreDataHolder(
-                    new ConsecutiveNotes()
-                    {
-                        Notes = new int[] { 62, 64, 66, 68 }
-                    }
-                ),
-                new ScoreDataHolder(
-                    new List<ConsecutiveNotes>()
-                    {
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 66, 65 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 63, 68 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 66, 70 }
-                        }
-                    }
-                ),
-                // new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
-                // {
-                //     MIDIFile = new MIDIFile(currentMidiAssetPath)
-                // },
+                // new ScoreDataHolder(
+                //     new List<ConsecutiveNotes>()
+                //     {
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 60, 64 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 64, 68 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 60, 66 }
+                //         }
+                //     }
+                // ),
+                // new ScoreDataHolder(
+                //     new ConsecutiveNotes()
+                //     {
+                //         Notes = new int[] { 62, 64, 66, 68 }
+                //     }
+                // ),
+                // new ScoreDataHolder(
+                //     new List<ConsecutiveNotes>()
+                //     {
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 66, 65 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 63, 68 }
+                //         },
+                //         new ConsecutiveNotes()
+                //         {
+                //             Notes = new int[] { 66, 70 }
+                //         }
+                //     }
+                // ),
+                new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
+                {
+                    MIDIFile = new MIDIFile(currentMidiAssetPath)
+                },
             };
         }
 
