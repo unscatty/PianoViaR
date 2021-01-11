@@ -46,6 +46,9 @@ namespace PianoViaR.Score.Behaviours
         private ScoreDataHolder CurrentData { get { return Data[dataIndex]; } }
         public bool keysReady = false;
 
+        private bool canThumbsUp = false;
+        private bool welcomePassed = false;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -60,19 +63,50 @@ namespace PianoViaR.Score.Behaviours
             PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
             PianoKeysController.PianoKeysReady += OnPianoKeysReady;
 
-            StartCoroutine(Init());
+            StartCoroutine(InitExercises());
         }
 
-        IEnumerator Init()
+        IEnumerator InitExercises()
         {
-            userMessages.SetText("Hola! 😄");
-            yield return new WaitForSeconds(3);
-            userMessages.SetText("Vamos a comenzar a practicar");
-            yield return new WaitForSeconds(1);
             if (PianoKeysController.KeysReady)
             {
-                CreateScore();
                 keysReady = true;
+                userMessages.SetText("Hola! 😄");
+                yield return new WaitForSeconds(3);
+                userMessages.SetText("Vamos a comenzar a practicar");
+                // yield return new WaitForSeconds(1);
+
+                canThumbsUp = true;
+
+                yield return new WaitForSeconds(3);
+                if (!welcomePassed)
+                {
+                    userMessages.SetHint("Pulgar arriba para comenzar");
+                }
+            }
+        }
+
+        void FirstScoreCreation()
+        {
+            CreateScore();
+        }
+
+        public void OnThumbsUp()
+        {
+            if (canThumbsUp)
+            {
+                canThumbsUp = false;
+                userMessages.SetHint(string.Empty);
+
+                if (welcomePassed)
+                {
+                    StartCoroutine(NextExercise());
+                }
+                else
+                {
+                    welcomePassed = true;
+                    FirstScoreCreation();
+                }
             }
         }
 
@@ -220,28 +254,39 @@ namespace PianoViaR.Score.Behaviours
             StartCoroutine(FinishRound());
         }
 
+        IEnumerator NextExercise()
+        {
+            userMessages.SetText("Siguiente ejercicio...");
+            
+            yield return new WaitForSeconds(1);
+            
+            this.behaviour.UnInitialize();
+            UnSubscribePianoKeys();
+
+            CreateScore();
+        }
+
+
         IEnumerator FinishRound()
         {
             userMessages.SetText("Excelente");
-
-            yield return new WaitForSeconds(1);
 
             if (dataIndex < (Data.Count - 1))
             {
                 dataIndex++;
 
-                userMessages.SetText("Siguiente ejercicio...");
+                canThumbsUp = true;
 
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(2);
 
-                this.behaviour.UnInitialize();
-
-                UnSubscribePianoKeys();
-
-                CreateScore();
+                if (canThumbsUp)
+                {
+                    userMessages.SetHint("Pulgar arriba para continuar");
+                }
             }
             else
             {
+                yield return new WaitForSeconds(2);
                 userMessages.SetText("Lo hiciste bien 😀");
             }
         }
