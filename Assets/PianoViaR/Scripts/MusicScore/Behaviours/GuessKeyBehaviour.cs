@@ -69,7 +69,7 @@ namespace PianoViaR.Score.Behaviours
             elements.scoreBoard.GameObject.FitOnlyToHeight(scoreBoardHeight);
 
             var scoreBoardYOffset = new Vector3(0, -(scoreBoxSize.y - scoreBoardHeight));
-            elements.scoreBoard.gameObject.transform.position += scoreBoardYOffset;
+            elements.scoreBoard.gameObject.transform.position += scoreBoardYOffset / 2;
 
             elements.staffs.gameObject.transform.SetParent(elements.scoreBoard.transform);
             elements.staffs.transform.localPosition = Vector3.zero;

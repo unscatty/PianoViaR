@@ -9,8 +9,9 @@ namespace PianoViaR.Score.Behaviours.Messages
     public class UserMessages : MonoBehaviour
     {
         public TMP_Text textObject;
-        public GameObject parent;
-        public GameObject messageHolder;
+        public TMP_Text hintObject;
+        // public GameObject parent;
+        // public GameObject messageHolder;
         [SerializeField]
         public ScoreMessages guessNotesMessages;
         [SerializeField]
@@ -21,6 +22,12 @@ namespace PianoViaR.Score.Behaviours.Messages
         private string[] currentSuccessMessages;
         private string[] currentErrorMessages;
         private System.Random random = new System.Random(6174);
+
+        void Awake()
+        {
+            SetText(string.Empty);
+            SetHint(string.Empty);
+        }
 
         public void DisplayIntroMessage()
         {
@@ -54,6 +61,11 @@ namespace PianoViaR.Score.Behaviours.Messages
         public void SetText(string text)
         {
             textObject.SetText(text);
+        }
+
+        public void SetHint(string hint)
+        {
+            hintObject.SetText(hint);
         }
 
         public void SetMessages(ScoreBehaviourOptions option)
