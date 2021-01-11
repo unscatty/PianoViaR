@@ -29,6 +29,18 @@ namespace PianoViaR.Score.Behaviours.Helpers
         public TimeSignature TimeSignature;
         public NoteDuration Duration;
 
+        public static ConsecutiveNotes Empty
+        {
+            get
+            {
+                return new ConsecutiveNotes()
+                {
+                    notes = null,
+                    TimeSignature = null
+                };
+            }
+        }
+
         private void Initialize(TimeSignature time, NoteDuration duration, MIDIInstrument instrument, List<int> notes)
         {
             TimeSignature = time ?? TimeSignature.Default;
@@ -36,7 +48,6 @@ namespace PianoViaR.Score.Behaviours.Helpers
             Instrument = instrument;
             Notes = notes ?? new List<int>();
         }
-
         public ConsecutiveNotes()
         {
             Initialize(TimeSignature.Default, NoteDuration.Quarter, MIDIInstrument.AUTO, null);

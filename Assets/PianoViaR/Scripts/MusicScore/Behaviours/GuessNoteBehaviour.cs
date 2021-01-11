@@ -15,7 +15,7 @@ namespace PianoViaR.Score.Behaviours
         public GuessNoteOptionHolder optionsHolder;
         public ConsecutiveNotes correctOption { get; private set; }
 
-        const int randomSeed = 914523589;
+        private int randomSeed = Environment.TickCount;
 
         public GuessNoteBehaviour(
             ScoreElements elements,

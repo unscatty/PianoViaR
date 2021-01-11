@@ -35,11 +35,11 @@ namespace PianoViaR.MIDI.Parsing
 
     public class TimeSignature
     {
-        private int numerator;      /** Numerator of the time signature */
-        private int denominator;    /** Denominator of the time signature */
-        private int quarternote;    /** Number of pulses per quarter note */
-        private int measure;        /** Number of pulses per measure */
-        private int tempo;          /** Number of microseconds per quarter note */
+        public int numerator;      /** Numerator of the time signature */
+        public int denominator;    /** Denominator of the time signature */
+        public int quarternote;    /** Number of pulses per quarter note */
+        public int measure;        /** Number of pulses per measure */
+        public int tempo;          /** Number of microseconds per quarter note */
 
         /** Get the numerator of the time signature */
         public int Numerator

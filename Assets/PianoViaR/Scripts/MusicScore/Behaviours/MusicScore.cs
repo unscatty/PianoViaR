@@ -13,12 +13,31 @@ using PianoViaR.Score.Behaviours.GuessNote;
 using PianoViaR.Score.Behaviours.Messages;
 using System.Collections;
 using PianoViaR.Helpers;
+using System.IO;
 
 namespace PianoViaR.Score.Behaviours
 {
     public enum ScoreBehaviourOptions
     {
         SCROLL, GUESS_KEYS, GUESS_NOTES, SCORE_HERO
+    }
+
+    public class ScoreExerciseData
+    {
+        public List<ScoreDataHolder> exercises;
+
+        public ScoreExerciseData(List<ScoreDataHolder> exercises)
+        {
+            this.exercises = exercises;
+        }
+
+        public ScoreDataHolder this[int index]
+        {
+            get => exercises[index];
+            set => exercises[index] = value;
+        }
+
+        public int Count { get => exercises.Count; }
     }
 
     public class MusicScore : MonoBehaviour
@@ -33,8 +52,10 @@ namespace PianoViaR.Score.Behaviours
         public GuessNoteOptionHolder optionsHolder;
         public UserMessages userMessages;
 
+        public UnityEngine.Object exercisesFile;
+
         [SerializeField]
-        public List<ScoreDataHolder> Data;
+        public ScoreExerciseData Data;
         private int dataIndex;
         public MIDIOptions MIDIOptions = MIDIOptions.Default;
         private PianoKey[] PianoKeys;
@@ -60,10 +81,22 @@ namespace PianoViaR.Score.Behaviours
 
             Data = TestData();
 
+            var dataString = JsonUtility.ToJson(Data, true);
+
+            File.WriteAllText(AssetDatabase.GetAssetPath(exercisesFile), dataString);
+
+            // Data = JsonUtility.FromJson<ScoreExerciseData>(dataString);
+            // Data = GetDataFromJSONFile();
+
             PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
             PianoKeysController.PianoKeysReady += OnPianoKeysReady;
 
             Initialize();
+        }
+
+        ScoreExerciseData GetDataFromJSONFile()
+        {
+            return JsonUtility.FromJson<ScoreExerciseData>(File.ReadAllText(AssetDatabase.GetAssetPath(exercisesFile)));
         }
 
         void Initialize()
@@ -86,10 +119,13 @@ namespace PianoViaR.Score.Behaviours
 
         IEnumerator ExercisesWelcome()
         {
+            welcomePassed = false;
+            elements.SetActive(false);
+
             if (PianoKeysController.KeysReady)
             {
                 keysReady = true;
-                
+
                 userMessages.SetText("Hola! 😄");
                 yield return new WaitForSeconds(3);
                 userMessages.SetText("Vamos a comenzar a practicar");
@@ -124,6 +160,7 @@ namespace PianoViaR.Score.Behaviours
                 else
                 {
                     welcomePassed = true;
+                    elements.SetActive(true);
                     FirstScoreCreation();
                 }
             }
@@ -147,55 +184,57 @@ namespace PianoViaR.Score.Behaviours
             PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
         }
 
-        List<ScoreDataHolder> TestData()
+        ScoreExerciseData TestData()
         {
-            return new List<ScoreDataHolder>()
-            {
-                new ScoreDataHolder(
-                    new List<ConsecutiveNotes>()
-                    {
-                        new ConsecutiveNotes()
+            return new ScoreExerciseData(
+                new List<ScoreDataHolder>()
+                {
+                    new ScoreDataHolder(
+                        new List<ConsecutiveNotes>()
                         {
-                            Notes = new int[] { 60, 64 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 64, 68 }
-                        },
-                        new ConsecutiveNotes()
-                        {
-                            Notes = new int[] { 60, 66 }
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 60, 64 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 64, 68 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 60, 66 }
+                            }
                         }
-                    }
-                ),
-                new ScoreDataHolder(
-                    new ConsecutiveNotes()
-                    {
-                        PianoNotes = new PianoNotes[] { PianoNotes.C4, PianoNotes.D4, PianoNotes.E4, PianoNotes.F4, PianoNotes.G4, PianoNotes.A4, PianoNotes.B4}
-                    }
-                ),
-                // new ScoreDataHolder(
-                //     new List<ConsecutiveNotes>()
-                //     {
-                //         new ConsecutiveNotes()
-                //         {
-                //             Notes = new int[] { 66, 65 }
-                //         },
-                //         new ConsecutiveNotes()
-                //         {
-                //             Notes = new int[] { 63, 68 }
-                //         },
-                //         new ConsecutiveNotes()
-                //         {
-                //             Notes = new int[] { 66, 70 }
-                //         }
-                //     }
-                // ),
-                // new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
-                // {
-                //     MIDIFile = new MIDIFile(currentMidiAssetPath)
-                // },
-            };
+                    ),
+                    new ScoreDataHolder(
+                        new ConsecutiveNotes()
+                        {
+                            PianoNotes = new PianoNotes[] { PianoNotes.C4, PianoNotes.D4, PianoNotes.E4, PianoNotes.F4, PianoNotes.G4, PianoNotes.A4, PianoNotes.B4}
+                        }
+                    ),
+                    // new ScoreDataHolder(
+                    //     new List<ConsecutiveNotes>()
+                    //     {
+                    //         new ConsecutiveNotes()
+                    //         {
+                    //             Notes = new int[] { 66, 65 }
+                    //         },
+                    //         new ConsecutiveNotes()
+                    //         {
+                    //             Notes = new int[] { 63, 68 }
+                    //         },
+                    //         new ConsecutiveNotes()
+                    //         {
+                    //             Notes = new int[] { 66, 70 }
+                    //         }
+                    //     }
+                    // ),
+                    // new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
+                    // {
+                    //     MIDIFile = new MIDIFile(currentMidiAssetPath)
+                    // },
+                }
+            );
         }
 
         // Update is called once per frame
@@ -207,6 +246,20 @@ namespace PianoViaR.Score.Behaviours
                 {
                     currentMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
                     CreateScoreScroll(currentMidiAssetPath);
+                }
+                else
+                {
+                    if (this.behaviour != null)
+                    {
+                        this.behaviour.UnInitialize();
+                        UnSubscribePianoKeys();
+
+                        dataIndex = 0;
+
+                        Data = GetDataFromJSONFile();
+
+                        Initialize();
+                    }
                 }
             }
         }

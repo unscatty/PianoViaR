@@ -21,7 +21,7 @@ namespace PianoViaR.Score.Behaviours.Messages
         private string currentIntroMessage;
         private string[] currentSuccessMessages;
         private string[] currentErrorMessages;
-        private System.Random random = new System.Random(6174);
+        private System.Random random = new System.Random(Environment.TickCount);
 
         void Awake()
         {

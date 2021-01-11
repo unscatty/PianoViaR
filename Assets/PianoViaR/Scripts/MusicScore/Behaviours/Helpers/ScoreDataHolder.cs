@@ -6,10 +6,10 @@ namespace PianoViaR.Score.Behaviours.Helpers
     [System.Serializable]
     public class ScoreDataHolder
     {
-        public readonly ScoreBehaviourOptions behaviourOption;
-        public MIDIFile MIDIFile;
-        public ConsecutiveNotes SingleScoreNotes;
-        public List<ConsecutiveNotes> MultiScoreNotes;
+        public ScoreBehaviourOptions behaviourOption;
+        public MIDIFile MIDIFile = null;
+        public ConsecutiveNotes SingleScoreNotes = ConsecutiveNotes.Empty;
+        public List<ConsecutiveNotes> MultiScoreNotes = null;
 
         public ScoreDataHolder(ScoreBehaviourOptions behaviour)
         {
