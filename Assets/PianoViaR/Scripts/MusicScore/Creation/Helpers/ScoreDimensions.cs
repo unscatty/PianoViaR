@@ -67,7 +67,7 @@
 
             NoteStemWidth = LineWidth;
             NoteToDotDistance = LineWidth * 2;
-            NoteToNameDistance = LineWidth;
+            NoteToNameDistance = LineWidth * 2;
 
             // Chord Alignment
             NoteToNoteDistance = NoteHeadWidth;

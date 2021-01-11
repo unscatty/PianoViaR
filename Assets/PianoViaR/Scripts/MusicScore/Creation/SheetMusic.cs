@@ -59,7 +59,7 @@ namespace PianoViaR.Score.Creation
         // private float zoom;          /** The zoom level to draw at (1.0 == 100%) */
         private bool scrollVert;    /** Whether to scroll vertically or horizontally */
         private string filename;      /** The name of the midi file */
-        private int showNoteLetters;    /** Display the note letters */
+        private NoteLetterType noteNamingType;    /** Display the note letters */
         public MusicSymbolFactory factory;
         private ScoreDimensions dimensions;
 
@@ -207,24 +207,26 @@ namespace PianoViaR.Score.Creation
          */
         public void Initialize(MIDIFile file, MIDIOptions options)
         {
-            if (options == null)
+            MIDIOptions newOptions = new MIDIOptions(file);
+
+            if (options != null)
             {
-                options = new MIDIOptions(file);
+                newOptions.Merge(options);
             }
 
             filename = file.FileName;
 
-            List<MIDITrack> tracks = file.ChangeMidiNotes(options);
+            List<MIDITrack> tracks = file.ChangeMidiNotes(newOptions);
             TimeSignature time = file.Time;
 
-            Initialize(tracks, options, time, filename);
+            Initialize(tracks, newOptions, time, filename);
         }
 
         private void Initialize(List<MIDITrack> tracks, MIDIOptions options, TimeSignature time, String name = "")
         {
             SetSizes(tracks.Count);
             scrollVert = options.scrollVert;
-            showNoteLetters = options.showNoteLetters;
+            noteNamingType = options.namingType;
 
             filename = name;
 
@@ -1049,9 +1051,9 @@ namespace PianoViaR.Score.Creation
         }
 
         /** Get whether to show note letters or not */
-        public int ShowNoteLetters
+        public NoteLetterType NoteNamingType
         {
-            get { return showNoteLetters; }
+            get { return noteNamingType; }
         }
 
         /** Get the main key signature */

@@ -64,9 +64,9 @@ namespace PianoViaR.Score.Behaviours
             Vector3 newStaffsDimensions = elements.staffs.AdaptToDimensionsX(scoreBoxSize * 0.75f, staffsDimensions);
             elements.staffs.gameObject.transform.SetParent(null);
 
-            elements.scoreBoard.GameObject.FitOnlyToWidth(newStaffsDimensions.x * 1.025f);
+            elements.scoreBoard.gameObject.FitOnlyToWidth(newStaffsDimensions.x * 1.025f);
             var scoreBoardHeight = newStaffsDimensions.y * 1.1f;
-            elements.scoreBoard.GameObject.FitOnlyToHeight(scoreBoardHeight);
+            elements.scoreBoard.gameObject.FitOnlyToHeight(scoreBoardHeight);
 
             var scoreBoardYOffset = new Vector3(0, -(scoreBoxSize.y - scoreBoardHeight));
             elements.scoreBoard.gameObject.transform.position += scoreBoardYOffset / 2;

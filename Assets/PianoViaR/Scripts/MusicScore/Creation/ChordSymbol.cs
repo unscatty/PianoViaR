@@ -478,7 +478,7 @@ namespace PianoViaR.Score.Creation
             float dotWholeWidth = 0;
             float nameWidth = 0;
 
-            if (sheetMusic != null && sheetMusic.ShowNoteLetters != MIDIOptions.NoteNameNone)
+            if (sheetMusic != null && sheetMusic.NoteNamingType != NoteLetterType.NoteNameNone)
             {
                 // Get Max length for a note name
                 var maxNoteNameLength = 0;
@@ -586,60 +586,111 @@ namespace PianoViaR.Score.Creation
         /** Get the name for this note */
         private string NoteName(int notenumber, WhiteNote whitenote)
         {
-            if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameLetter)
+            switch (sheetMusic.NoteNamingType)
             {
-                return Letter(notenumber, whitenote);
+                case NoteLetterType.NoteNameLetter:
+                    return Letter(notenumber, whitenote);
+                    
+                case NoteLetterType.NoteNameFixedDoReMi:
+                    string[] fixedDoReMi = {
+                        "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
+                    };
+                    int notescale = NoteScale.FromNumber(notenumber);
+                    return fixedDoReMi[notescale];
+                    
+                case NoteLetterType.NoteNameMovableDoReMi:
+                    string[] fixedDoReMiMovable = {
+                        "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
+                    };
+                    int mainscale = sheetMusic.MainKey.Notescale();
+                    int diff = NoteScale.C - mainscale;
+                    notenumber += diff;
+                    if (notenumber < 0)
+                    {
+                        notenumber += 12;
+                    }
+                    int notescaleMovable = NoteScale.FromNumber(notenumber);
+                    return fixedDoReMiMovable[notescaleMovable];
+                    
+                case NoteLetterType.NoteNameFixedNumber:
+                    string[] num = {
+                        "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+                    };
+                    int notescaleFixedNumber = NoteScale.FromNumber(notenumber);
+                    return num[notescaleFixedNumber];
+                    
+                case NoteLetterType.NoteNameMovableNumber:
+                    string[] numMovableNumber = {
+                        "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+                    };
+                    int mainscaleMovableNumber = sheetMusic.MainKey.Notescale();
+                    int diffMovableNumber = NoteScale.C - mainscaleMovableNumber;
+                    notenumber += diffMovableNumber;
+                    if (notenumber < 0)
+                    {
+                        notenumber += 12;
+                    }
+                    int notescaleMovableNumber = NoteScale.FromNumber(notenumber);
+                    return numMovableNumber[notescaleMovableNumber];
+
+                default:
+                    return string.Empty;
             }
-            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameFixedDoReMi)
-            {
-                string[] fixedDoReMi = {
-                "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
-            };
-                int notescale = NoteScale.FromNumber(notenumber);
-                return fixedDoReMi[notescale];
-            }
-            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameMovableDoReMi)
-            {
-                string[] fixedDoReMi = {
-                "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
-            };
-                int mainscale = sheetMusic.MainKey.Notescale();
-                int diff = NoteScale.C - mainscale;
-                notenumber += diff;
-                if (notenumber < 0)
-                {
-                    notenumber += 12;
-                }
-                int notescale = NoteScale.FromNumber(notenumber);
-                return fixedDoReMi[notescale];
-            }
-            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameFixedNumber)
-            {
-                string[] num = {
-                "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-            };
-                int notescale = NoteScale.FromNumber(notenumber);
-                return num[notescale];
-            }
-            else if (sheetMusic.ShowNoteLetters == MIDIOptions.NoteNameMovableNumber)
-            {
-                string[] num = {
-                "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-            };
-                int mainscale = sheetMusic.MainKey.Notescale();
-                int diff = NoteScale.C - mainscale;
-                notenumber += diff;
-                if (notenumber < 0)
-                {
-                    notenumber += 12;
-                }
-                int notescale = NoteScale.FromNumber(notenumber);
-                return num[notescale];
-            }
-            else
-            {
-                return "";
-            }
+
+            // if (sheetMusic.NoteNamingType == MIDIOptions.NoteNameLetter)
+            // {
+            //     return Letter(notenumber, whitenote);
+            // }
+            // else if (sheetMusic.NoteNamingType == MIDIOptions.NoteNameFixedDoReMi)
+            // {
+            //     string[] fixedDoReMi = {
+            //     "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
+            // };
+            //     int notescale = NoteScale.FromNumber(notenumber);
+            //     return fixedDoReMi[notescale];
+            // }
+            // else if (sheetMusic.NoteNamingType == MIDIOptions.NoteNameMovableDoReMi)
+            // {
+            //     string[] fixedDoReMi = {
+            //     "La", "Li", "Ti", "Do", "Di", "Re", "Ri", "Mi", "Fa", "Fi", "So", "Si"
+            // };
+            //     int mainscale = sheetMusic.MainKey.Notescale();
+            //     int diff = NoteScale.C - mainscale;
+            //     notenumber += diff;
+            //     if (notenumber < 0)
+            //     {
+            //         notenumber += 12;
+            //     }
+            //     int notescale = NoteScale.FromNumber(notenumber);
+            //     return fixedDoReMi[notescale];
+            // }
+            // else if (sheetMusic.NoteNamingType == MIDIOptions.NoteNameFixedNumber)
+            // {
+            //     string[] num = {
+            //     "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            // };
+            //     int notescale = NoteScale.FromNumber(notenumber);
+            //     return num[notescale];
+            // }
+            // else if (sheetMusic.NoteNamingType == MIDIOptions.NoteNameMovableNumber)
+            // {
+            //     string[] num = {
+            //     "10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            // };
+            //     int mainscale = sheetMusic.MainKey.Notescale();
+            //     int diff = NoteScale.C - mainscale;
+            //     notenumber += diff;
+            //     if (notenumber < 0)
+            //     {
+            //         notenumber += 12;
+            //     }
+            //     int notescale = NoteScale.FromNumber(notenumber);
+            //     return num[notescale];
+            // }
+            // else
+            // {
+            //     return "";
+            // }
         }
 
         /** Get the letter (A, A#, Bb) representing this note */
@@ -715,7 +766,7 @@ namespace PianoViaR.Score.Creation
 
             AssociateNotesWithAccids(ref notes, ref accidentals);
 
-            if (sheetMusic != null && sheetMusic.ShowNoteLetters != 0)
+            if (sheetMusic != null && sheetMusic.NoteNamingType != 0)
             {
                 var noteNames = CreateNoteLetters(factory, newPosition, ytop, topstaff);
                 // noteNames.name = "noteNames";

@@ -16,7 +16,6 @@ namespace PianoViaR.Score.Behaviours
         // Must be set in editor
         [SerializeField, Layer]
         public int disableLayer;
-        public GameObject GameObject { get { return this.gameObject; } }
         int defaultLayer;
         // Start is called before the first frame update
         void Awake()

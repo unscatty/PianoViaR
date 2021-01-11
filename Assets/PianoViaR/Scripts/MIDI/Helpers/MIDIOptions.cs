@@ -23,18 +23,21 @@ namespace PianoViaR.MIDI.Helpers
      * collected from the menu/dialog settings, and then are passed
      * to the SheetMusic and MidiPlayer classes.
      */
+    public enum NoteLetterType
+    {
+        NoteNameNone,
+        NoteNameLetter,
+        NoteNameFixedDoReMi,
+        NoteNameMovableDoReMi,
+        NoteNameFixedNumber,
+        NoteNameMovableNumber,
+    }
     [System.Serializable]
     public class MIDIOptions
     {
 
         // The possible values for showNoteLetters
-        public const int NoteNameNone = 0;
-        public const int NoteNameLetter = 1;
-        public const int NoteNameFixedDoReMi = 2;
-        public const int NoteNameMovableDoReMi = 3;
-        public const int NoteNameFixedNumber = 4;
-        public const int NoteNameMovableNumber = 5;
-
+        public NoteLetterType namingType;
         // Sheet Music Options
         public string filename;       /** The full Midi filename */
         public string title;          /** The Midi song title */
@@ -42,7 +45,6 @@ namespace PianoViaR.MIDI.Helpers
         public bool scrollVert;       /** Whether to scroll vertically or horizontally */
         public bool largeNoteSize;    /** Display large or small note sizes */
         public bool twoStaffs;        /** Combine tracks into two staffs ? */
-        public int showNoteLetters;     /** Show the name (A, A#, etc) next to the notes */
         public bool showLyrics;       /** Show the lyrics under each note */
         public bool showMeasures;     /** Show the measure numbers for each staff */
         public int shifttime;         /** Shift note starttimes by the given amount */
@@ -72,7 +74,7 @@ namespace PianoViaR.MIDI.Helpers
         public MIDIOptions(TimeSignature timeSignature)
         {
             scrollVert = false;
-            showNoteLetters = MIDIOptions.NoteNameNone;
+            namingType = NoteLetterType.NoteNameNone;
             key = -1;
             shifttime = 0;
             showLyrics = false;
@@ -125,7 +127,7 @@ namespace PianoViaR.MIDI.Helpers
             {
                 twoStaffs = false;
             }
-            showNoteLetters = NoteNameNone;
+            namingType = NoteLetterType.NoteNameNone;
             showLyrics = true;
             showMeasures = false;
             shifttime = 0;
@@ -143,11 +145,55 @@ namespace PianoViaR.MIDI.Helpers
             playMeasuresInLoopEnd = midifile.EndTime() / midifile.Time.Measure;
 
             // Change this
-            twoStaffs = false;
+            // twoStaffs = false;
             scrollVert = false;
-            showMeasures = true;
-            showNoteLetters = NoteNameFixedDoReMi;
+            // showMeasures = true;
+            // showNoteLetters = NoteNameFixedDoReMi;
             // transpose = 12;
+        }
+
+        /* Merge in the saved options to this MidiOptions.*/
+        public void Merge(MIDIOptions saved)
+        {
+            if (saved.tracks != null && saved.tracks.Length == tracks.Length)
+            {
+                for (int i = 0; i < tracks.Length; i++)
+                {
+                    tracks[i] = saved.tracks[i];
+                }
+            }
+            if (saved.mute != null && saved.mute.Length == mute.Length)
+            {
+                for (int i = 0; i < mute.Length; i++)
+                {
+                    mute[i] = saved.mute[i];
+                }
+            }
+            if (saved.instruments != null && saved.instruments.Length == instruments.Length)
+            {
+                for (int i = 0; i < instruments.Length; i++)
+                {
+                    instruments[i] = saved.instruments[i];
+                }
+            }
+            // if (saved.time != null)
+            // {
+            //     time = new TimeSignature(saved.time.Numerator, saved.time.Denominator,
+            //             saved.time.Quarter, saved.time.Tempo);
+            // }
+            useDefaultInstruments = saved.useDefaultInstruments;
+            scrollVert = saved.scrollVert;
+            largeNoteSize = saved.largeNoteSize;
+            showLyrics = saved.showLyrics;
+            twoStaffs = saved.twoStaffs;
+            namingType = saved.namingType;
+            transpose = saved.transpose;
+            key = saved.key;
+            combineInterval = saved.combineInterval;
+            showMeasures = saved.showMeasures;
+            playMeasuresInLoop = saved.playMeasuresInLoop;
+            playMeasuresInLoopStart = saved.playMeasuresInLoopStart;
+            playMeasuresInLoopEnd = saved.playMeasuresInLoopEnd;
         }
     }
 }

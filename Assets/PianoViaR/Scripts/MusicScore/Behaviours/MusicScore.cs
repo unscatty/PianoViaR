@@ -29,7 +29,7 @@ namespace PianoViaR.Score.Behaviours
         private string currentMidiAssetPath;
         public ScoreElements elements;
         public ScoreBehaviour behaviour;
-        public ScoreBehaviourOptions behaviourOption;
+        public bool isScroll = false;
         public GuessNoteOptionHolder optionsHolder;
         public UserMessages userMessages;
 
@@ -63,14 +63,33 @@ namespace PianoViaR.Score.Behaviours
             PianoKeysController.PianoKeysReady -= OnPianoKeysReady;
             PianoKeysController.PianoKeysReady += OnPianoKeysReady;
 
-            StartCoroutine(InitExercises());
+            Initialize();
         }
 
-        IEnumerator InitExercises()
+        void Initialize()
+        {
+            if (isScroll)
+            {
+                CreateScoreScroll(currentMidiAssetPath);
+            }
+            else
+            {
+                StartCoroutine(ExercisesWelcome());
+            }
+        }
+
+        void CreateScoreScroll(string midiAssetPath)
+        {
+            var data = new ScoreDataHolder(ScoreBehaviourOptions.SCROLL) { MIDIFile = new MIDIFile(midiAssetPath) };
+            CreateScoreForData(data);
+        }
+
+        IEnumerator ExercisesWelcome()
         {
             if (PianoKeysController.KeysReady)
             {
                 keysReady = true;
+                
                 userMessages.SetText("Hola! 😄");
                 yield return new WaitForSeconds(3);
                 userMessages.SetText("Vamos a comenzar a practicar");
@@ -88,7 +107,7 @@ namespace PianoViaR.Score.Behaviours
 
         void FirstScoreCreation()
         {
-            CreateScore();
+            CreateNextScore();
         }
 
         public void OnThumbsUp()
@@ -110,6 +129,7 @@ namespace PianoViaR.Score.Behaviours
             }
         }
 
+        // Will be executed only once
         void OnPianoKeysReady(object source, EventArgs args)
         {
             if (this.behaviour != null)
@@ -120,7 +140,7 @@ namespace PianoViaR.Score.Behaviours
 
             if (!keysReady)
             {
-                CreateScore();
+                CreateNextScore();
                 keysReady = true;
             }
 
@@ -183,18 +203,26 @@ namespace PianoViaR.Score.Behaviours
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                dataIndex = 0;
-                CreateScore();
+                if (isScroll)
+                {
+                    currentMidiAssetPath = AssetDatabase.GetAssetPath(midifile);
+                    CreateScoreScroll(currentMidiAssetPath);
+                }
             }
         }
 
-        void CreateScore()
+        void CreateNextScore()
+        {
+            CreateScoreForData(CurrentData);
+        }
+
+        void CreateScoreForData(ScoreDataHolder data)
         {
             Clear();
 
             var globalScoreBoxSize = elements.scoreBoard.BoxSize();
 
-            var data = CurrentData;
+            // var data = CurrentData;
 
             var scoreBehaviourOption = data.behaviourOption;
 
@@ -221,7 +249,7 @@ namespace PianoViaR.Score.Behaviours
                         elements,
                         optionsHolder,
                         data.MultiScoreNotes,
-                        MIDIOptions,
+                        MIDIOptions.Default,
                         correctColor,
                         incorrectColor,
                         hintColor
@@ -257,13 +285,13 @@ namespace PianoViaR.Score.Behaviours
         IEnumerator NextExercise()
         {
             userMessages.SetText("Siguiente ejercicio...");
-            
+
             yield return new WaitForSeconds(1);
-            
+
             this.behaviour.UnInitialize();
             UnSubscribePianoKeys();
 
-            CreateScore();
+            CreateNextScore();
         }
 
 
@@ -308,7 +336,7 @@ namespace PianoViaR.Score.Behaviours
                     return;
             }
 
-            var staffsGO = elements.staffs.GameObject;
+            var staffsGO = elements.staffs.placeHolder;
             sheet.Create(ref staffsGO, out staffsXYDims);
         }
 
@@ -356,8 +384,7 @@ namespace PianoViaR.Score.Behaviours
 
         SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, MIDIFile midiFile)
         {
-            // TODO: change to merge with 
-            return new SheetMusic(midiFile, null, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
+            return new SheetMusic(midiFile, MIDIOptions, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
         }
 
         SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, string midiFilePath)
@@ -367,7 +394,7 @@ namespace PianoViaR.Score.Behaviours
 
         SheetMusic CreateSingleScore(in Vector3 scoreBoardBoxSize, ConsecutiveNotes notes)
         {
-            return new SheetMusic(notes, MIDIOptions, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
+            return new SheetMusic(notes, MIDIOptions.Default, factory, (scoreBoardBoxSize.x, scoreBoardBoxSize.y));
         }
 
         void AdaptStaffsToDimensions(Vector3 scoreBoxSize, Vector3 staffsDimensions)

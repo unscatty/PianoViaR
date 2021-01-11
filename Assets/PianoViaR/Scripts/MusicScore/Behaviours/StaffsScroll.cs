@@ -10,7 +10,7 @@ namespace PianoViaR.Score.Behaviours
     public class StaffsScroll : MonoBehaviour
     {
         BoxCollider boxCollider;
-        public GameObject GameObject { get { return this.gameObject; } }
+        public GameObject placeHolder;
         // Start is called before the first frame update
         private Vector3 leftPosition;
         public float positionResetTime; // 2 seconds
@@ -98,6 +98,7 @@ namespace PianoViaR.Score.Behaviours
         public void Clear()
         {
             gameObject.Clear();
+            placeHolder = Instantiate(new GameObject("PlaceHolder"), transform);
         }
 
         IEnumerator RestorePosition(Vector3 targetPosition, float duration)
