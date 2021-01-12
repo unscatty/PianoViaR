@@ -128,7 +128,7 @@ namespace PianoViaR.Score.Behaviours
 
                 userMessages.SetText("Hola! 😄");
                 yield return new WaitForSeconds(3);
-                userMessages.SetText("Vamos a comenzar a practicar");
+                userMessages.SetText("Vamos a comenzar");
                 // yield return new WaitForSeconds(1);
 
                 canThumbsUp = true;
@@ -136,7 +136,7 @@ namespace PianoViaR.Score.Behaviours
                 yield return new WaitForSeconds(3);
                 if (!welcomePassed)
                 {
-                    userMessages.SetHint("Pulgar arriba para comenzar");
+                    userMessages.SetHint("Pulgar arriba cuando estés listo");
                 }
             }
         }
@@ -212,27 +212,44 @@ namespace PianoViaR.Score.Behaviours
                             PianoNotes = new PianoNotes[] { PianoNotes.C4, PianoNotes.D4, PianoNotes.E4, PianoNotes.F4, PianoNotes.G4, PianoNotes.A4, PianoNotes.B4}
                         }
                     ),
-                    // new ScoreDataHolder(
-                    //     new List<ConsecutiveNotes>()
-                    //     {
-                    //         new ConsecutiveNotes()
-                    //         {
-                    //             Notes = new int[] { 66, 65 }
-                    //         },
-                    //         new ConsecutiveNotes()
-                    //         {
-                    //             Notes = new int[] { 63, 68 }
-                    //         },
-                    //         new ConsecutiveNotes()
-                    //         {
-                    //             Notes = new int[] { 66, 70 }
-                    //         }
-                    //     }
-                    // ),
-                    // new ScoreDataHolder(ScoreBehaviourOptions.SCROLL)
-                    // {
-                    //     MIDIFile = new MIDIFile(currentMidiAssetPath)
-                    // },
+                    new ScoreDataHolder(
+                        new List<ConsecutiveNotes>()
+                        {
+                            new ConsecutiveNotes()
+                            {
+                                PianoNotes = new PianoNotes[] { PianoNotes.E4, PianoNotes.F4 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 63, 68 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 66, 70 }
+                            }
+                        }
+                    ),
+
+                    new ScoreDataHolder(
+                        new ConsecutiveNotes()
+                        {
+                            PianoNotes = new PianoNotes[] {
+                                PianoNotes.C4,
+                                PianoNotes.D4,
+                                PianoNotes.E4,
+                                PianoNotes.F4,
+                                PianoNotes.G4,
+                                PianoNotes.A4,
+                                PianoNotes.B4,
+                                PianoNotes.A4,
+                                PianoNotes.G4,
+                                PianoNotes.F4,
+                                PianoNotes.E4,
+                                PianoNotes.D4,
+                                PianoNotes.C4,
+                            }
+                        }
+                    ),
                 }
             );
         }
