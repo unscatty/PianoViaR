@@ -194,7 +194,7 @@ namespace PianoViaR.Score.Behaviours
                         {
                             new ConsecutiveNotes()
                             {
-                                Notes = new int[] { 60, 64 }
+                                PianoNotes = new PianoNotes[] { PianoNotes.C4, PianoNotes.D4 }
                             },
                             new ConsecutiveNotes()
                             {
@@ -229,7 +229,6 @@ namespace PianoViaR.Score.Behaviours
                             }
                         }
                     ),
-
                     new ScoreDataHolder(
                         new ConsecutiveNotes()
                         {
@@ -247,6 +246,23 @@ namespace PianoViaR.Score.Behaviours
                                 PianoNotes.E4,
                                 PianoNotes.D4,
                                 PianoNotes.C4,
+                            }
+                        }
+                    ),
+                    new ScoreDataHolder(
+                        new List<ConsecutiveNotes>()
+                        {
+                            new ConsecutiveNotes()
+                            {
+                                PianoNotes = new PianoNotes[] { PianoNotes.C4, PianoNotes.E4, PianoNotes.G4 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 64, 68, 72 }
+                            },
+                            new ConsecutiveNotes()
+                            {
+                                Notes = new int[] { 61, 63, 65 }
                             }
                         }
                     ),
@@ -270,6 +286,8 @@ namespace PianoViaR.Score.Behaviours
                     {
                         this.behaviour.UnInitialize();
                         UnSubscribePianoKeys();
+                        userMessages.SetText(string.Empty);
+                        userMessages.SetHint(string.Empty);
 
                         dataIndex = 0;
 

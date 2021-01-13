@@ -47,7 +47,7 @@
             LeftMargin = 0;
 
             LineSpace = NoteHeadHeight;
-            LineWidth = NoteHeadHeight / 8;
+            LineWidth = NoteHeadHeight / 6;
             NoteBarWidth = NoteHeadWidth * 1.5f;
             DotWidth = NoteHeadHeight / 2 - LineWidth / 2;
             BeamWidth = LineWidth * 3;
@@ -61,11 +61,11 @@
             HeightMargin = NoteHeadHeight;
 
             WidthPerChar = NoteHeadWidth / 2;
-            NoteNameTextHeight = NoteHeadHeight + LineWidth * 3;
+            NoteNameTextHeight = NoteHeadHeight * 1.6f;
             MeasureNameTextHeight = NoteHeadHeight;
             MeasureNameTextAdjustScale = 1.5f;
 
-            NoteStemWidth = LineWidth;
+            NoteStemWidth = LineWidth * 1.2f;
             NoteToDotDistance = LineWidth * 2;
             NoteToNameDistance = LineWidth * 2;
 
