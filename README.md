@@ -9,3 +9,9 @@ The application includes a practice room with a fully functional 88-key piano an
 Our development process was challenging as we had to learn extensively about Unity and 3D/VR techniques, but we were able to create an immersive and intuitive VR experience that was easy to use. Our application's success during the COVID-19 pandemic was particularly gratifying as it served as an alternative for students whose practice was interrupted by lockdowns. PianoViaR was highlighted as a means to enable students to continue their learning process in their homes, replicating the practice environment they were accustomed to.
 
 Overall, I am proud of the result and thrilled to have contributed to the development of a useful and innovative technology application that has the potential to improve piano students' learning experiences.
+
+# Demo videos
+[![](https://markdown-videos.deta.dev/youtube/_5qv7iWHOLY)](https://www.youtube.com/watch?v=_5qv7iWHOLY&list=PLnz5ESTn1RyU4hLePTxtR0f9MUFZPZokN&index=14)
+[![](https://markdown-videos.deta.dev/youtube/Ewqez6IGf88)](https://www.youtube.com/watch?v=Ewqez6IGf88&list=PLnz5ESTn1RyU4hLePTxtR0f9MUFZPZokN&index=15)
+
+For more videos demonstrating the development of the application and how it works, watch this playlist: https://www.youtube.com/playlist?list=PLnz5ESTn1RyU4hLePTxtR0f9MUFZPZokN
